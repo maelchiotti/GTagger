@@ -5,7 +5,7 @@
 ## Prerequesites
 
 - Get a [Genius client ID](https://genius.com/api-clients) for lyricsgenius to work.
-- Place all your tracks in a single folder
+- Place all your tracks in a single folder.
 
 ## Usage
 
