@@ -69,30 +69,11 @@ def main():
                       title + "\" by " + artist + colors.ENDC)
                 continue
 
-    # Statistics
-    print(colors.PURPLE + colors.BOLD +
-          "\nGeniusLyrics | End\n" + colors.ENDC)
-    if(lyrics_total > 0):
-        lyrics_found_perc = (
-            lyrics_found - lyrics_not_saved) / lyrics_total * 100
-        lyrics_not_found_perc = (
-            lyrics_total - lyrics_found) / lyrics_total * 100
-        lyrics_not_saved_perc = lyrics_not_saved / lyrics_total * 100
-        print(colors.BOLD + str(lyrics_total) +
-              " lyrics searched" + colors.ENDC)
-        print(colors.GREEN + "%.2f%% lyrics found and saved" %
-              lyrics_found_perc + colors.ENDC)
-        print(colors.ORANGE + "%.2f%% lyrics not found" %
-              lyrics_not_found_perc + colors.ENDC)
-        print(colors.RED + "%.2f%% lyrics found but not saved" %
-              lyrics_not_saved_perc + colors.ENDC)
-    else:
-        print("No lyrics searched")
+    print_stats(lyrics_total, lyrics_found, lyrics_not_saved)
 
 
 # Check arguments
 def check_args():
-    # Check number of arguments
     if(len(sys.argv) < 3):
         print(colors.BOLD +
               "Usage:" + colors.ENDC + "\n\tpy geniuslyrics.py <Genius client ID> <tracks folder path> <options>")
@@ -146,6 +127,28 @@ def format_lyrics(lyrics):
                                        "", lines[len(lines) - 1])
     lyrics = "\n".join(lines)
     return lyrics
+
+
+# Print statistics
+def print_stats(lyrics_total, lyrics_found, lyrics_not_saved):
+    print(colors.PURPLE + colors.BOLD +
+          "\nGeniusLyrics | End\n" + colors.ENDC)
+    if(lyrics_total > 0):
+        lyrics_found_perc = (
+            lyrics_found - lyrics_not_saved) / lyrics_total * 100
+        lyrics_not_found_perc = (
+            lyrics_total - lyrics_found) / lyrics_total * 100
+        lyrics_not_saved_perc = lyrics_not_saved / lyrics_total * 100
+        print(colors.BOLD + str(lyrics_total) +
+              " lyrics searched" + colors.ENDC)
+        print(colors.GREEN + "%.2f%% lyrics found and saved" %
+              lyrics_found_perc + colors.ENDC)
+        print(colors.ORANGE + "%.2f%% lyrics not found" %
+              lyrics_not_found_perc + colors.ENDC)
+        print(colors.RED + "%.2f%% lyrics found but not saved" %
+              lyrics_not_saved_perc + colors.ENDC)
+    else:
+        print(colors.BOLD + "No lyrics searched" + colors.ENDC)
 
 
 # Output colors
