@@ -4,12 +4,13 @@ import re
 import glob
 import eyed3
 import lyricsgenius
+from genius import Genius
 
 
 def main():
-    print(colors.PURPLE + colors.BOLD + "GeniusLyrics | Start\n" + colors.ENDC)
     check_args()
     genius, pathname, options, lyrics_total, lyrics_found, lyrics_not_saved = init()
+    print(colors.PURPLE + colors.BOLD + "GeniusLyrics | Start\n" + colors.ENDC)
 
     for filename in glob.glob(pathname + "*.mp3"):
         audiofile = eyed3.load(filename)
@@ -45,23 +46,19 @@ def main():
             except:
                 pass
 
-        # Set the lyrics
-        try:
+        if(track != None):
+            # Set the lyrics
             lyrics = format_lyrics(track.lyrics)
             audiofile.tag.lyrics.set(lyrics)
             lyrics_found += 1
             print(colors.GREEN + "Lyrics found for \"" +
                   title + "\" by " + artist + colors.ENDC)
-        # AttributeError is raised if the track does not contain lyrics because they weren't found
-        except AttributeError:
-            audiofile.tag.lyrics.set("")
-            print(colors.ORANGE + "No lyrics found for \"" +
-                  title + "\" by " + artist + colors.ENDC)
-        finally:
+
             # Save the lyrics
             try:
                 audiofile.tag.save(
                     version=eyed3.id3.ID3_DEFAULT_VERSION, encoding='utf-8')
+
             # TagException is raised when an error while saving occurs
             except eyed3.id3.tag.TagException:
                 lyrics_not_saved += 1
@@ -69,29 +66,40 @@ def main():
                       title + "\" by " + artist + colors.ENDC)
                 continue
 
+        else:
+            audiofile.tag.lyrics.set("")
+            print(colors.ORANGE + "No lyrics found for \"" +
+                  title + "\" by " + artist + colors.ENDC)
+
     print_stats(lyrics_total, lyrics_found, lyrics_not_saved)
 
 
 # Check arguments
 def check_args():
     if(len(sys.argv) < 3):
-        print(colors.BOLD +
-              "Usage:" + colors.ENDC + "\n\tpy geniuslyrics.py <Genius client ID> <tracks folder path> <options>")
-        print(colors.BOLD + "Options:" + colors.ENDC +
-              "\n\t-o\tOverwrite already existing lyrics")
-        exit(-1)
+        print_help()
+
+
+# Print help message
+def print_help():
+    print(colors.BOLD +
+          "Usage:" + colors.ENDC + "\n\tpy geniuslyrics.py <Genius access token> <tracks folder path> <options>")
+    print(colors.BOLD + "Options:" + colors.ENDC +
+          "\n\t-o : Overwrite already existing lyrics")
+    print(colors.BOLD + "Tip:" + colors.ENDC +
+          "\n\tGet your Genius access token at https://genius.com/api-clients")
+    exit(-1)
 
 
 # Initialize variables
 def init():
-    # Client ID and Genius instance
-    clientID = sys.argv[1]
-    search = re.search("[^a-zA-Z0-9_]", clientID)
+    # Access token and Genius instance
+    access_token = sys.argv[1]
+    search = re.search("[^a-zA-Z0-9_]", access_token)
     if(search != None):
-        print("Incorrect client ID: ")
-        print(search)
-        exit(-1)
-    genius = lyricsgenius.Genius(clientID)
+        print("Incorrect access token")
+        print_help()
+    genius = lyricsgenius.Genius(access_token)
     genius.verbose = False
     genius.remove_section_headers = True
 
