@@ -157,19 +157,23 @@ def save(audiofile):
 
 # Check arguments
 def check_args():
-    if(len(sys.argv) < 3):
+    if(len(sys.argv) == 1 or (len(sys.argv) == 2 and (sys.argv[1] == "-h" or sys.argv[1] == "-help"))):
         print_help()
 
 
 # Print help message
 def print_help():
     print(colors.BOLD +
-          "Usage:" + colors.ENDC + "\n\tpy geniuslyrics.py <Genius access token> <tracks folder path> <options>")
+          "Usage:" + colors.ENDC + "\n\tpy geniustagger.py <Genius access token> <tracks folder path> <options>")
     print(colors.BOLD + "Options:" + colors.ENDC +
-          "\n\t-o : Overwrite already existing lyrics")
+          "\n\t-t : Add tags" +
+          "\n\t-l : Add lyrics" +
+          "\n\t-r : Rename files" +
+          "\n\t-o : Overwrite already existing lyrics" +
+          "\n\t-h : Show help")
     print(colors.BOLD + "Tip:" + colors.ENDC +
           "\n\tGet your Genius access token at https://genius.com/api-clients")
-    exit(-1)
+    exit(1)
 
 
 # Initialize variables
@@ -197,6 +201,8 @@ def init():
     options = {"-o": False, "-t": False, "-l": False, "-r": False}
     for option in options.keys():
         for i in range(3, len(sys.argv)):
+            if(sys.argv[i] == "-h" or sys.argv[i] == "-help"):
+                print_help()
             if option == sys.argv[i]:
                 options[option] = True
 
