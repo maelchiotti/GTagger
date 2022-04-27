@@ -23,105 +23,136 @@ HEADER = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) '
 
 def main():
     check_args()
-    g, lg, pathname, options, lyrics_total, lyrics_found, lyrics_not_saved = init()
+    g, lg, pathname, options, tag_lyrics_total, tag_lyrics_found, tag_lyrics_not_saved = init()
     print(colors.PURPLE + colors.BOLD + "GeniusLyrics | Start\n" + colors.ENDC)
 
     for filename in glob.glob(pathname + "*.mp3"):
         audiofile = eyed3.load(filename)
-
-        # Check if lyrics must not be overwritten
-        if(options["-o"] == False and len(audiofile.tag.lyrics) > 0):
-            print(colors.ORANGE + "The file " + filename +
-                  " was skipped: it already has lyrics and the overwrite option (-o) is not enabled" + colors.ENDC)
-            continue
-
         title = audiofile.tag.title
-        artist = audiofile.tag.artist
+        artist = split_artist(audiofile)
         if(title == None or artist == None):
-            print(colors.RED + "The file " + filename +
-                  " was skipped: it's missing its title or artist" + colors.ENDC)
+            print(colors.RED + "File " + filename +
+                  " skipped (title or artist missing)" + colors.ENDC)
             continue
 
-        lyrics_total += 1
+        print(title + " - " + artist + " | ", end="")
 
-        # Split the artist name if it contains multiple artists, keeping only the first (and supposedly the main) one
-        splitters = [" featuring ", " feat. ",
-                     " feat ", " ft. ", " ft ", " & ", " / "]
-        for splitter in splitters:
-            if splitter in artist:
-                artist = artist.split(splitter)[0]
-                break
+        # If tag or lyrics options are enabled
+        if(options["-t"] or options["-l"]):
+            tag_lyrics_total += 1
 
-        # Search for the track and its lyrics
-        ltrack = None
-        searched_tracks = g.search(title + " " + artist)
+            # Search for the track to get infos
+            searched_tracks = g.search(title + " " + artist)
+            try:
+                searched_track = next(searched_tracks)
+                if(searched_track != None):
+                    track = g.get_song(searched_track.id)
+            except StopIteration:
+                print(colors.RED + "Could not be found on Genius" + colors.ENDC)
+                continue
+
+            # Tag
+            if(options["-t"]):
+                tag(audiofile, track)
+                if(options["-l"]):
+                    print(" | ", end="")
+
+            # Lyrics
+            if(options["-l"]):
+                if(options["-o"] == True):
+                    tag_lyrics_found = lyrics(
+                        audiofile, lg, searched_track, tag_lyrics_found)
+                else:
+                    print(
+                        colors.ORANGE + "Already existing lyrics skipped" + colors.ENDC, end="")
+
+            save(audiofile)
+            if(options["-r"]):
+                print(" | ", end="")
+
+        if(options["-r"]):
+            rename(audiofile)
+
+        print()
+
+    print_stats(options, tag_lyrics_total,
+                tag_lyrics_found, tag_lyrics_not_saved)
+
+
+# Tag the audiofiles
+def tag(audiofile, track):
+    # Set the main tags
+    audiofile.tag.title = track.title
+    audiofile.tag.artist = track.artist.name
+    if(track.release_date != None):
+        audiofile.tag.recording_date = eyed3.core.Date(
+            track.release_date.year)
+    if(track.album != None):
+        audiofile.tag.album = track.album.name
+    else:
+        audiofile.tag.album = track.title + " - Single"
+
+    # Find the cover art URL (either the album one or otherwise the track one), download it and set it
+    url = ""
+    if(track.album != None):
+        url = track.album.cover_art_url
+    else:
+        url = track.song_art_image_url
+    request = urllib.request.Request(url=url, headers=HEADER)
+    imagedata = urllib.request.urlopen(request).read()
+    audiofile.tag.images.set(
+        ImageFrame.FRONT_COVER, imagedata, "image/jpeg")
+
+    print(colors.GREEN + "Tags set" + colors.ENDC, end="")
+
+
+# Add lyrics to the audiofiles
+def lyrics(audiofile, lg, searched_track, tag_lyrics_found):
+    lyrics_track = None
+    # Search for the track to get lyrics (while true fixes the timeout error)
+    while True:
         try:
-            searched_track = next(searched_tracks)
-            if(searched_track != None):
-                track = g.get_song(searched_track.id)
-                if(track != None):
-                    ltrack = lg.search_song(
-                        song_id=searched_track.id, get_full_info=False)
-        except StopIteration:
-            print(colors.RED + "The track \"" +
-                  title + "\" by " + artist + " could not be found on Genius" + colors.ENDC)
-            continue
+            lyrics_track = lg.search_song(
+                song_id=searched_track.id, get_full_info=False)
+            break
+        except:
+            pass
 
-        if(ltrack != None):
-            # Set the main tags
-            audiofile.tag.title = track.title
-            audiofile.tag.artist = track.artist.name
-            if(track.release_date != None):
-                audiofile.tag.recording_date = eyed3.core.Date(
-                    track.release_date.year)
-            if(track.album != None):
-                audiofile.tag.album = track.album.name
-            else:
-                audiofile.tag.album = track.title + " - Single"
+    # Set the lyrics
+    if(lyrics_track != None):
+        tag_lyrics_found += 1
+        lyrics = format_lyrics(lyrics_track.lyrics)
+        audiofile.tag.lyrics.set(lyrics)
+        print(colors.GREEN + "Lyrics found" + colors.ENDC, end="")
+    else:
+        audiofile.tag.lyrics.set("")
+        print(colors.RED + "No lyrics found" + colors.ENDC, end="")
 
-            # Find the cover art URL (either the album one or otherwise the track one), download it and set it
-            url = ""
-            if(track.album != None):
-                url = track.album.cover_art_url
-            else:
-                url = track.song_art_image_url
-            request = urllib.request.Request(url=url, headers=HEADER)
-            imagedata = urllib.request.urlopen(request).read()
-            audiofile.tag.images.set(
-                ImageFrame.FRONT_COVER, imagedata, "image/jpeg")
+    return tag_lyrics_found
 
-            # Set the lyrics
-            lyrics = format_lyrics(ltrack.lyrics)
-            audiofile.tag.lyrics.set(lyrics)
-            lyrics_found += 1
-            print(colors.GREEN + "Lyrics found for \"" +
-                  title + "\" by " + artist + colors.ENDC)
 
-            # Save the tags
-            try:
-                audiofile.tag.save(
-                    version=eyed3.id3.ID3_V2_3, encoding='utf-8')
+# Rename the audiofiles
+def rename(audiofile):
+    # Rename the file
+    try:
+        audiofile.rename(audiofile.tag.title + " - " +
+                         audiofile.tag.artist, preserve_file_time=True)
+        print(colors.GREEN + "Renamed" + colors.ENDC, end="")
+    except IOError:
+        print(colors.ORANGE + "No need to rename" + colors.ENDC, end="")
+        pass
 
-            # TagException is raised when an error while saving occurs
-            except eyed3.id3.tag.TagException:
-                lyrics_not_saved += 1
-                print(colors.RED + "Lyrics could not be saved for \"" +
-                      title + "\" by " + artist + colors.ENDC)
-                pass
 
-            # Rename the file
-            try:
-                audiofile.rename(audiofile.tag.title + " - " +
-                                 audiofile.tag.artist, preserve_file_time=True)
-            except IOError:
-                pass
-
-        else:
-            audiofile.tag.lyrics.set("")
-            print(colors.ORANGE + "No lyrics found for \"" +
-                  title + "\" by " + artist + colors.ENDC)
-
-    print_stats(lyrics_total, lyrics_found, lyrics_not_saved)
+# Save the tags
+def save(audiofile):
+    # Save the tags
+    try:
+        audiofile.tag.save(version=eyed3.id3.ID3_V2_3, encoding='utf-8')
+    # TagException is raised when an error while saving occurs
+    except eyed3.id3.tag.TagException:
+        tag_lyrics_not_saved += 1
+        print(colors.RED + "Could not save lyrics" + colors.ENDC, end="")
+        pass
 
 
 # Check arguments
@@ -152,8 +183,8 @@ def init():
 
     # genius and lyricsgenius instances
     g = genius.Genius(access_token=access_token)
-    lg = lyricsgenius.Genius(
-        access_token=access_token, verbose=False, remove_section_headers=True)
+    lg = lyricsgenius.Genius(access_token=access_token,
+                             verbose=False, remove_section_headers=True)
 
     # Path name
     pathname = sys.argv[2]
@@ -163,18 +194,37 @@ def init():
         print("Incorrect path name: " + pathname)
 
     # Check for options
-    options = {"-o": False}
+    options = {"-o": False, "-t": False, "-l": False, "-r": False}
     for option in options.keys():
         for i in range(3, len(sys.argv)):
             if option == sys.argv[i]:
                 options[option] = True
 
     # Counters
-    lyrics_total = 0
-    lyrics_found = 0
-    lyrics_not_saved = 0
+    tag_lyrics_total = 0
+    tag_lyrics_found = 0
+    tag_lyrics_not_saved = 0
 
-    return g, lg, pathname, options, lyrics_total, lyrics_found, lyrics_not_saved
+    return g, lg, pathname, options, tag_lyrics_total, tag_lyrics_found, tag_lyrics_not_saved
+
+
+# Split the artist name if it contains multiple artists, keeping only the first (and supposedly the main) one
+def split_artist(audiofile):
+    # Initialize the artist if it exists
+    if(audiofile.tag.artist == None):
+        return None
+    else:
+        artist = audiofile.tag.artist
+
+    # Search for splitters and split
+    splitters = [" featuring ", " feat. ",
+                 " feat ", " ft. ", " ft ", " & ", " / "]
+    for splitter in splitters:
+        if splitter in audiofile.tag.artist:
+            artist = audiofile.tag.artist.split(splitter)[0]
+            break
+
+    return artist
 
 
 # Format the lyrics (remove unwanted text)
@@ -190,16 +240,16 @@ def format_lyrics(lyrics):
 
 
 # Print statistics
-def print_stats(lyrics_total, lyrics_found, lyrics_not_saved):
+def print_stats(options, tag_lyrics_total, tag_lyrics_found, tag_lyrics_not_saved):
     print(colors.PURPLE + colors.BOLD +
-          "\nGeniusLyrics | End\n" + colors.ENDC)
-    if(lyrics_total > 0):
+          "\nGeniusLyrics | End" + colors.ENDC)
+    if(options["-l"] and tag_lyrics_total > 0):
         lyrics_found_perc = (
-            lyrics_found - lyrics_not_saved) / lyrics_total * 100
+            tag_lyrics_found - tag_lyrics_not_saved) / tag_lyrics_total * 100
         lyrics_not_found_perc = (
-            lyrics_total - lyrics_found) / lyrics_total * 100
-        lyrics_not_saved_perc = lyrics_not_saved / lyrics_total * 100
-        print(colors.BOLD + str(lyrics_total) +
+            tag_lyrics_total - tag_lyrics_found) / tag_lyrics_total * 100
+        lyrics_not_saved_perc = tag_lyrics_not_saved / tag_lyrics_total * 100
+        print(colors.BOLD + "\n" + str(tag_lyrics_total) +
               " lyrics searched" + colors.ENDC)
         print(colors.GREEN + "%.2f%% lyrics found and saved" %
               lyrics_found_perc + colors.ENDC)
@@ -207,8 +257,6 @@ def print_stats(lyrics_total, lyrics_found, lyrics_not_saved):
               lyrics_not_found_perc + colors.ENDC)
         print(colors.RED + "%.2f%% lyrics found but not saved" %
               lyrics_not_saved_perc + colors.ENDC)
-    else:
-        print(colors.BOLD + "No lyrics searched" + colors.ENDC)
 
 
 # Output colors
