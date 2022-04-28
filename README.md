@@ -25,14 +25,14 @@ py geniustagger.py <Genius access token*> <tracks folder path*> <options>
 
 Options must be separated by a space.
 
-- `-t` : Add tags
-- `-l` : Add lyrics
-- `-r` : Rename files
-- `-o` : Overwrite already existing lyrics
-- `-h` : Show help
+- `-t` : Add <u>t</u>ags
+- `-l` : Add <u>l</u>yrics
+- `-r` : <u>R</u>ename files
+- `-o` : <u>O</u>verwrite already existing lyrics
+- `-s` : Search for files recursively in <u>s</u>ub-folders
+- `-h` : Show <u>h</u>elp
 
 ## TODO
 
-- Add an option to search for files in sub-folders
 - Allow user to choose a custom renaming pattern
 - Add a confirmation step so the user can chek informations

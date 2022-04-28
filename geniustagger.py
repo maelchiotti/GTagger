@@ -1,7 +1,7 @@
 import os
 import sys
 import re
-import glob
+from pathlib import Path
 import urllib
 import eyed3
 from eyed3.id3.frames import ImageFrame
@@ -23,10 +23,10 @@ HEADER = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) '
 
 def main():
     check_args()
-    g, lg, pathname, options, tag_lyrics_total, tag_lyrics_found, tag_lyrics_not_saved = init()
+    g, lg, files, options, tag_lyrics_total, tag_lyrics_found, tag_lyrics_not_saved = init()
     print(colors.PURPLE + colors.BOLD + "GeniusLyrics | Start\n" + colors.ENDC)
 
-    for filename in glob.glob(pathname + "*.mp3"):
+    for filename in files:
         audiofile = eyed3.load(filename)
         title = audiofile.tag.title
         artist = split_artist(audiofile)
@@ -198,7 +198,7 @@ def init():
         print("Incorrect path name: " + pathname)
 
     # Check for options
-    options = {"-o": False, "-t": False, "-l": False, "-r": False}
+    options = {"-o": False, "-t": False, "-l": False, "-r": False, "-s": False}
     for option in options.keys():
         for i in range(3, len(sys.argv)):
             if(sys.argv[i] == "-h" or sys.argv[i] == "-help"):
@@ -206,12 +206,18 @@ def init():
             if option == sys.argv[i]:
                 options[option] = True
 
+    # List of files
+    if(options["-s"]):
+        files = Path(pathname).rglob("*.mp3")
+    else:
+        files = Path(pathname).glob("*.mp3")
+
     # Counters
     tag_lyrics_total = 0
     tag_lyrics_found = 0
     tag_lyrics_not_saved = 0
 
-    return g, lg, pathname, options, tag_lyrics_total, tag_lyrics_found, tag_lyrics_not_saved
+    return g, lg, files, options, tag_lyrics_total, tag_lyrics_found, tag_lyrics_not_saved
 
 
 # Split the artist name if it contains multiple artists, keeping only the first (and supposedly the main) one
@@ -250,8 +256,8 @@ def print_stats(options, tag_lyrics_total, tag_lyrics_found, tag_lyrics_not_save
     print(colors.PURPLE + colors.BOLD +
           "\nGeniusLyrics | End" + colors.ENDC)
     if(options["-l"] and tag_lyrics_total > 0):
-        lyrics_found_perc = (
-            tag_lyrics_found - tag_lyrics_not_saved) / tag_lyrics_total * 100
+        lyrics_found_perc = (tag_lyrics_found -
+                             tag_lyrics_not_saved) / tag_lyrics_total * 100
         lyrics_not_found_perc = (
             tag_lyrics_total - tag_lyrics_found) / tag_lyrics_total * 100
         lyrics_not_saved_perc = tag_lyrics_not_saved / tag_lyrics_total * 100
