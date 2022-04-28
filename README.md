@@ -35,3 +35,4 @@ Options must be separated by a space.
 
 - Add an option to search for files in sub-folders
 - Allow user to choose a custom renaming pattern
+- Add a confirmation step so the user can chek informations
