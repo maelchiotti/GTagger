@@ -38,7 +38,7 @@ def main():
         print(title + " - " + artist + " | ", end="")
 
         # If tag or lyrics options are enabled
-        if(options["-t"] or options["-l"]):
+        if(options["-a"] or options["-t"] or options["-l"]):
             tag_lyrics_total += 1
 
             # Search for the track to get infos
@@ -52,13 +52,13 @@ def main():
                 continue
 
             # Tag
-            if(options["-t"]):
+            if(options["-a"] or options["-t"]):
                 tag(audiofile, track)
-                if(options["-l"]):
+                if(options["-a"] or options["-l"]):
                     print(" | ", end="")
 
             # Lyrics
-            if(options["-l"]):
+            if(options["-a"] or options["-l"]):
                 if(options["-o"] == True):
                     tag_lyrics_found = lyrics(
                         audiofile, lg, searched_track, tag_lyrics_found)
@@ -67,10 +67,10 @@ def main():
                         colors.ORANGE + "Already existing lyrics skipped" + colors.ENDC, end="")
 
             save(audiofile)
-            if(options["-r"]):
+            if(options["-a"] or options["-r"]):
                 print(" | ", end="")
 
-        if(options["-r"]):
+        if(options["-a"] or options["-r"]):
             rename(audiofile)
 
         print()
@@ -166,10 +166,12 @@ def print_help():
     print(colors.BOLD +
           "Usage:" + colors.ENDC + "\n\tpy geniustagger.py <Genius access token> <tracks folder path> <options>")
     print(colors.BOLD + "Options:" + colors.ENDC +
+          "\n\t-a : Apply all modifications: tags, lyrics, renaming" +
           "\n\t-t : Add tags" +
           "\n\t-l : Add lyrics" +
           "\n\t-r : Rename files" +
           "\n\t-o : Overwrite already existing lyrics" +
+          "\n\t-s : Search for files recursively in sub-folders" +
           "\n\t-h : Show help")
     print(colors.BOLD + "Tip:" + colors.ENDC +
           "\n\tGet your Genius access token at https://genius.com/api-clients")
@@ -198,7 +200,8 @@ def init():
         print("Incorrect path name: " + pathname)
 
     # Check for options
-    options = {"-o": False, "-t": False, "-l": False, "-r": False, "-s": False}
+    options = {"-a": False, "-o": False, "-t": False,
+               "-l": False, "-r": False, "-s": False}
     for option in options.keys():
         for i in range(3, len(sys.argv)):
             if(sys.argv[i] == "-h" or sys.argv[i] == "-help"):

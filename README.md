@@ -25,6 +25,7 @@ py geniustagger.py <Genius access token*> <tracks folder path*> <options>
 
 Options must be separated by a space.
 
+- `-a` : Apply <u>a</u>ll modifications: tags, lyrics, renaming
 - `-t` : Add <u>t</u>ags
 - `-l` : Add <u>l</u>yrics
 - `-r` : <u>R</u>ename files
@@ -34,5 +35,6 @@ Options must be separated by a space.
 
 ## TODO
 
+- Allow user to only add cover arts
 - Allow user to choose a custom renaming pattern
 - Add a confirmation step so the user can chek informations
