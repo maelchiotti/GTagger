@@ -63,7 +63,7 @@ def main():
             if(options["-a"] or options["-l"]):
                 if(options["-o"] == True):
                     tag_lyrics_found = lyrics(
-                        options, audiofile, lg, searched_track, tag_lyrics_found)
+                        audiofile, lg, searched_track, tag_lyrics_found)
                 else:
                     print(
                         colors.ORANGE + "Already existing lyrics skipped" + colors.ENDC, end="")
