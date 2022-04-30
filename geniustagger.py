@@ -53,7 +53,9 @@ def main():
 
             # Tag
             if(options["-a"] or options["-t"]):
-                tag(audiofile, track)
+                tags_confirmed = tag(options, audiofile, track)
+                if(not tags_confirmed):
+                    continue
                 if(options["-a"] or options["-l"]):
                     print(" | ", end="")
 
@@ -61,7 +63,7 @@ def main():
             if(options["-a"] or options["-l"]):
                 if(options["-o"] == True):
                     tag_lyrics_found = lyrics(
-                        audiofile, lg, searched_track, tag_lyrics_found)
+                        options, audiofile, lg, searched_track, tag_lyrics_found)
                 else:
                     print(
                         colors.ORANGE + "Already existing lyrics skipped" + colors.ENDC, end="")
@@ -80,7 +82,39 @@ def main():
 
 
 # Tag the audiofiles
-def tag(audiofile, track):
+def tag(options, audiofile, track):
+    # Check if needs to ask for confirmation
+    if(options["-c"]):
+        # Old tags
+        print(colors.RED + "\n\tOLD: " + colors.ENDC, end="")
+        print((audiofile.tag.title if audiofile.tag.title !=
+              None else "No title") + " | ", end="")
+        print((audiofile.tag.artist if audiofile.tag.artist !=
+              None else "No artist") + " | ", end="")
+        print((audiofile.tag.album if audiofile.tag.album !=
+              None else "No album") + " | ", end="")
+        print(audiofile.tag.recording_date if audiofile.tag.recording_date !=
+              None else "No recording date")
+        # New tags
+        print(colors.GREEN + "\tNEW: " + colors.ENDC, end="")
+        print((track.title if track.title != None else "No title") + " | ", end="")
+        print((track.artist.name if track.artist !=
+              None else "No artist") + " | ", end="")
+        print((track.album.name if track.album !=
+              None else "[Single]") + " | ", end="")
+        print(track.release_date.year if track.release_date !=
+              None else "No recording date")
+        # Confirmation
+        print(colors.PURPLE + "\tSave new tags? " + colors.ENDC, end="")
+        confirmation = input()
+        while(confirmation != "y" and confirmation != "n"):
+            print(colors.PURPLE +
+                  "\tSave new tags? ('y' = yes, 'n' = no) " + colors.ENDC, end="")
+            confirmation = input()
+        if(confirmation == "n"):
+            print(colors.ORANGE + "New tags discarded" + colors.ENDC)
+            return False
+
     # Set the main tags
     audiofile.tag.title = track.title
     audiofile.tag.artist = track.artist.name
@@ -104,6 +138,7 @@ def tag(audiofile, track):
         ImageFrame.FRONT_COVER, imagedata, "image/jpeg")
 
     print(colors.GREEN + "Tags set" + colors.ENDC, end="")
+    return True
 
 
 # Add lyrics to the audiofiles
@@ -172,6 +207,7 @@ def print_help():
           "\n\t-r : Rename files" +
           "\n\t-o : Overwrite already existing lyrics" +
           "\n\t-s : Search for files recursively in sub-folders" +
+          "\n\t-c : Ask for user confirmation before saving new tags" +
           "\n\t-h : Show help")
     print(colors.BOLD + "Tip:" + colors.ENDC +
           "\n\tGet your Genius access token at https://genius.com/api-clients")
@@ -201,7 +237,7 @@ def init():
 
     # Check for options
     options = {"-a": False, "-o": False, "-t": False,
-               "-l": False, "-r": False, "-s": False}
+               "-l": False, "-r": False, "-s": False, "-c": False}
     for option in options.keys():
         for i in range(3, len(sys.argv)):
             if(sys.argv[i] == "-h" or sys.argv[i] == "-help"):
