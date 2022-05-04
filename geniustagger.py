@@ -218,7 +218,7 @@ def print_help():
 def init():
     # Access token and
     access_token = sys.argv[1]
-    search = re.search("[^a-zA-Z0-9_]", access_token)
+    search = re.search("[^a-zA-Z0-9_-]", access_token)
     if(search != None):
         print("Incorrect access token")
         print_help()
