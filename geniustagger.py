@@ -247,13 +247,8 @@ def init():
     """
     # Access token and
     access_token = sys.argv[1]
-<<<<<<< HEAD
     search = re.search("[^a-zA-Z0-9_]", access_token)
     if search is not None:
-=======
-    search = re.search("[^a-zA-Z0-9_-]", access_token)
-    if(search != None):
->>>>>>> 82f48fd9af7c38480329caebc29dffebaaad0dd8
         print("Incorrect access token")
         print_help()
 
