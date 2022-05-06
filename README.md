@@ -11,7 +11,7 @@
 ## Usage
 
 - Get a [Genius access token](https://genius.com/api-clients) (needed for the API)
-- Use the following command (arguments ending with a `*` or mandatory)
+- Use the following command (arguments ending with a `*` are mandatory)
 
 ```bash
 py geniustagger.py <Genius access token*> <tracks folder path*> <options>
