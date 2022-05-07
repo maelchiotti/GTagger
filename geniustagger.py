@@ -24,20 +24,17 @@ HEADER = {
 
 
 def main():
-    """
-    Main function.
-    """
     check_args()
     g, lg, files, options, tag_lyrics_total, tag_lyrics_found, tag_lyrics_not_saved = init()
-    print(Colors.PURPLE + Colors.BOLD + "GeniusLyrics | Start\n" + Colors.ENDC)
+    print(colors.PURPLE + colors.BOLD + "GeniusLyrics | Start\n" + colors.ENDC)
 
     for filename in files:
         audiofile = eyed3.load(filename)
         title = audiofile.tag.title
         artist = split_artist(audiofile)
         if title is None or artist is None:
-            print(Colors.RED + "File " + filename +
-                  " skipped (title or artist missing)" + Colors.ENDC)
+            print(colors.RED + "File " + filename +
+                  " skipped (title or artist missing)" + colors.ENDC)
             continue
 
         print(title + " - " + artist + " | ", end="")
@@ -54,9 +51,9 @@ def main():
                     track = g.get_song(searched_track.id)
             except StopIteration:
                 print(
-                    Colors.RED +
+                    colors.RED +
                     "Could not be found on Genius" +
-                    Colors.ENDC)
+                    colors.ENDC)
                 continue
 
             # Tag
@@ -74,12 +71,12 @@ def main():
                         audiofile, lg, searched_track, tag_lyrics_found)
                 else:
                     print(
-                        Colors.ORANGE +
+                        colors.ORANGE +
                         "Already existing lyrics skipped" +
-                        Colors.ENDC,
+                        colors.ENDC,
                         end="")
 
-            tag_lyrics_not_saved = save(audiofile, tag_lyrics_not_saved)
+            save(audiofile)
             if options["-a"] or options["-r"]:
                 print(" | ", end="")
 
@@ -92,20 +89,18 @@ def main():
                 tag_lyrics_found, tag_lyrics_not_saved)
 
 
+# Tag the audiofiles
 def tag(options, audiofile, track):
-    """
-    Tag the audiofile.
-    """
     # Check if needs to ask for confirmation
     if options["-c"]:
         # Old tags
-        print(Colors.RED + "\n\tOLD: " + Colors.ENDC, end="")
+        print(colors.RED + "\n\tOLD: " + colors.ENDC, end="")
         print((audiofile.tag.title if audiofile.tag.title is not None else "No title") + " | ", end="")
         print((audiofile.tag.artist if audiofile.tag.artist is not None else "No artist") + " | ", end="")
         print((audiofile.tag.album if audiofile.tag.album is not None else "No album") + " | ", end="")
         print(audiofile.tag.recording_date if audiofile.tag.recording_date is not None else "No recording date")
         # New tags
-        print(Colors.GREEN + "\tNEW: " + Colors.ENDC, end="")
+        print(colors.GREEN + "\tNEW: " + colors.ENDC, end="")
         print((track.title if track.title is not None else "No title") + " | ", end="")
         print(
             (track.artist.name if track.artist is not None else "No artist") + " | ", end="")
@@ -114,17 +109,17 @@ def tag(options, audiofile, track):
         print(
             track.release_date.year if track.release_date is not None else "No recording date")
         # Confirmation
-        print(Colors.PURPLE + "\tSave new tags? " + Colors.ENDC, end="")
+        print(colors.PURPLE + "\tSave new tags? " + colors.ENDC, end="")
         confirmation = input()
-        while(confirmation not in ["y", "n"]):
+        while(confirmation != "y" and confirmation != "n"):
             print(
-                Colors.PURPLE +
+                colors.PURPLE +
                 "\tSave new tags? ('y' = yes, 'n' = no) " +
-                Colors.ENDC,
+                colors.ENDC,
                 end="")
             confirmation = input()
         if confirmation == "n":
-            print(Colors.ORANGE + "New tags discarded" + Colors.ENDC)
+            print(colors.ORANGE + "New tags discarded" + colors.ENDC)
             return False
 
     # Set the main tags
@@ -146,18 +141,16 @@ def tag(options, audiofile, track):
     else:
         url = track.song_art_image_url
     request = urllib.request.Request(url=url, headers=HEADER)
-    with urllib.request.urlopen(request).read() as imagedata:
-        audiofile.tag.images.set(
-            ImageFrame.FRONT_COVER, imagedata, "image/jpeg")
+    imagedata = urllib.request.urlopen(request).read()
+    audiofile.tag.images.set(
+        ImageFrame.FRONT_COVER, imagedata, "image/jpeg")
 
-    print(Colors.GREEN + "Tags set" + Colors.ENDC, end="")
+    print(colors.GREEN + "Tags set" + colors.ENDC, end="")
     return True
 
 
+# Add lyrics to the audiofiles
 def lyrics(audiofile, lg, searched_track, tag_lyrics_found):
-    """
-    Add lyrics to the audiofiles.
-    """
     lyrics_track = None
     # Search for the track to get lyrics (while true fixes the timeout error)
     while True:
@@ -173,61 +166,52 @@ def lyrics(audiofile, lg, searched_track, tag_lyrics_found):
         tag_lyrics_found += 1
         lyrics = format_lyrics(lyrics_track.lyrics)
         audiofile.tag.lyrics.set(lyrics)
-        print(Colors.GREEN + "Lyrics found" + Colors.ENDC, end="")
+        print(colors.GREEN + "Lyrics found" + colors.ENDC, end="")
     else:
         audiofile.tag.lyrics.set("")
-        print(Colors.RED + "No lyrics found" + Colors.ENDC, end="")
+        print(colors.RED + "No lyrics found" + colors.ENDC, end="")
 
     return tag_lyrics_found
 
 
+# Rename the audiofiles
 def rename(audiofile):
-    """
-    Rename the audiofiles.
-    """
     # Rename the file
     try:
         audiofile.rename(audiofile.tag.title + " - " +
                          audiofile.tag.artist, preserve_file_time=True)
-        print(Colors.GREEN + "Renamed" + Colors.ENDC, end="")
+        print(colors.GREEN + "Renamed" + colors.ENDC, end="")
     except IOError:
-        print(Colors.ORANGE + "No need to rename" + Colors.ENDC, end="")
+        print(colors.ORANGE + "No need to rename" + colors.ENDC, end="")
+        pass
 
 
-def save(audiofile, tag_lyrics_not_saved):
-    """
-    Save the tags.
-    """
+# Save the tags
+def save(audiofile):
     # Save the tags
     try:
         audiofile.tag.save(version=eyed3.id3.ID3_V2_3, encoding='utf-8')
     # TagException is raised when an error while saving occurs
     except eyed3.id3.tag.TagException:
         tag_lyrics_not_saved += 1
-        print(Colors.RED + "Could not save lyrics" + Colors.ENDC, end="")
+        print(colors.RED + "Could not save lyrics" + colors.ENDC, end="")
+        pass
 
-    return tag_lyrics_not_saved
 
-
+# Check arguments
 def check_args():
-    """
-    Check arguments.
-    """
-    if len(sys.argv) == 1 or (len(sys.argv) == 2 and (
-            sys.argv[1] == "-h" or sys.argv[1] == "-help")):
+    if len(sys.argv) == 1 or (len(sys.argv) == 2 and (sys.argv[1] == "-h" or sys.argv[1] == "-help")):
         print_help()
 
 
+# Print help message
 def print_help():
-    """
-    Print help message.
-    """
     print(
-        Colors.BOLD +
+        colors.BOLD +
         "Usage:" +
-        Colors.ENDC +
+        colors.ENDC +
         "\n\tpy geniustagger.py <Genius access token> <tracks folder path> <options>")
-    print(Colors.BOLD + "Options:" + Colors.ENDC +
+    print(colors.BOLD + "Options:" + colors.ENDC +
           "\n\t-a : Apply all modifications: tags, lyrics, renaming" +
           "\n\t-t : Add tags" +
           "\n\t-l : Add lyrics" +
@@ -236,15 +220,13 @@ def print_help():
           "\n\t-s : Search for files recursively in sub-folders" +
           "\n\t-c : Ask for user confirmation before saving new tags" +
           "\n\t-h : Show help")
-    print(Colors.BOLD + "Tip:" + Colors.ENDC +
+    print(colors.BOLD + "Tip:" + colors.ENDC +
           "\n\tGet your Genius access token at https://genius.com/api-clients")
-    sys.exit()
+    exit(1)
 
 
+# Initialize variables
 def init():
-    """
-    Initialize variables.
-    """
     # Access token and
     access_token = sys.argv[1]
     search = re.search("[^a-zA-Z0-9_]", access_token)
@@ -267,7 +249,7 @@ def init():
     # Check for options
     options = {"-a": False, "-o": False, "-t": False,
                "-l": False, "-r": False, "-s": False, "-c": False}
-    for option in options:
+    for option in options.keys():
         for i in range(3, len(sys.argv)):
             if sys.argv[i] == "-h" or sys.argv[i] == "-help":
                 print_help()
@@ -288,16 +270,14 @@ def init():
     return g, lg, files, options, tag_lyrics_total, tag_lyrics_found, tag_lyrics_not_saved
 
 
+# Split the artist name if it contains multiple artists, keeping only the
+# first (and supposedly the main) one
 def split_artist(audiofile):
-    """
-    Split the artist name if it contains multiple artists, keeping only the
-    first (and supposedly the main) one.
-    """
     # Initialize the artist if it exists
     if audiofile.tag.artist is None:
         return None
-
-    artist = audiofile.tag.artist
+    else:
+        artist = audiofile.tag.artist
 
     # Search for splitters and split
     splitters = [" featuring ", " feat. ",
@@ -310,10 +290,8 @@ def split_artist(audiofile):
     return artist
 
 
+# Format the lyrics (remove unwanted text)
 def format_lyrics(lyrics):
-    """
-    Format the lyrics (remove unwanted text).
-    """
     lines = lyrics.split("\n")
     if len(lines) > 0:
         lines.pop(0)
@@ -324,38 +302,32 @@ def format_lyrics(lyrics):
     return lyrics
 
 
+# Print statistics
 def print_stats(
         options,
         tag_lyrics_total,
         tag_lyrics_found,
         tag_lyrics_not_saved):
-    """
-    Print statistics.
-    """
-    print(Colors.PURPLE + Colors.BOLD +
-          "\nGeniusLyrics | End" + Colors.ENDC)
+    print(colors.PURPLE + colors.BOLD +
+          "\nGeniusLyrics | End" + colors.ENDC)
     if options["-l"] and tag_lyrics_total > 0:
         lyrics_found_perc = (tag_lyrics_found -
                              tag_lyrics_not_saved) / tag_lyrics_total * 100
         lyrics_not_found_perc = (
             tag_lyrics_total - tag_lyrics_found) / tag_lyrics_total * 100
         lyrics_not_saved_perc = tag_lyrics_not_saved / tag_lyrics_total * 100
-        print(Colors.BOLD + "\n" + str(tag_lyrics_total) +
-              " lyrics searched" + Colors.ENDC)
-        print(Colors.GREEN +
-              f"{lyrics_found_perc:.2f} lyrics found and saved" + Colors.ENDC)
-        print(Colors.ORANGE +
-              f"{lyrics_not_found_perc:.2f} lyrics not found" + Colors.ENDC)
-        print(
-            Colors.RED +
-            f"{lyrics_not_saved_perc:.2f} lyrics found but not saved" +
-            Colors.ENDC)
+        print(colors.BOLD + "\n" + str(tag_lyrics_total) +
+              " lyrics searched" + colors.ENDC)
+        print(colors.GREEN + "%.2f%% lyrics found and saved" %
+              lyrics_found_perc + colors.ENDC)
+        print(colors.ORANGE + "%.2f%% lyrics not found" %
+              lyrics_not_found_perc + colors.ENDC)
+        print(colors.RED + "%.2f%% lyrics found but not saved" %
+              lyrics_not_saved_perc + colors.ENDC)
 
 
-class Colors:
-    """
-    Output colors.
-    """
+# Output colors
+class colors:
     PURPLE = '\033[95m'
     GREEN = '\033[92m'
     ORANGE = '\033[93m'
