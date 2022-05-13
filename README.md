@@ -10,12 +10,20 @@
 
 ## Usage
 
-- Get a [Genius access token](https://genius.com/api-clients) (needed for the API)
-- Use the following command (arguments ending with a `*` are mandatory)
+- Install the required dependencies:
 
-```bash
-py geniustagger.py <Genius access token*> <tracks folder path*> <options>
-```
+    ```shell
+    pip install wrap-genius
+    pip install lyricsgenius
+    ```
+
+- Get a [Genius access token](https://genius.com/api-clients) (needed for the API)
+
+- Use the following command (arguments ending with a `*` are mandatory):
+
+    ```bash
+    py geniustagger.py <Genius access token*> <tracks folder path*> <options>
+    ```
 
 ## Options
 
@@ -32,6 +40,6 @@ Options must be separated by a space.
 
 ## TODO
 
-- Allow theuser to only add cover arts
+- Allow the user to only add cover arts
 - Allow the user to choose a custom renaming pattern
 - Add a confirmation step so the user can also check the lyrics and the renaming
