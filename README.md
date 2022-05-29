@@ -2,7 +2,7 @@
 
 GeniusLyrics is a python tool that adds lyrics from [Genius](https://genius.com/) to `.mp3` files.
 
-It uses [wrap-genius](https://github.com/fedecalendino/wrap-genius) to find the tracks' Genius ID based on its title and artist, and [lyricsgenius](https://lyricsgenius.readthedocs.io/en/master/index.html) to fetch the lyrics automatically.
+It uses [wrap-genius](https://github.com/fedecalendino/wrap-genius) to find the track's Genius ID based on its title and artist, and [lyricsgenius](https://lyricsgenius.readthedocs.io/en/master/index.html) to fetch the lyrics automatically.
 
 ## Usage
 
