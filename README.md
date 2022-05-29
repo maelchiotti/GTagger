@@ -1,45 +1,33 @@
-# GeniusTagger
+# GeniusLyrics
 
-**GeniusTagger** is a python tool that searches for tracks information on [Genius](https://genius.com/) and saves them to `.mp3` files.
+GeniusLyrics is a python tool that adds lyrics from [Genius](https://genius.com/) to `.mp3` files.
 
-## Features
-
-- **Add main tags** (artist, album, release date, cover art) thanks to [wrap-genius](https://github.com/fedecalendino/wrap-genius)
-- **Add lyrics** thanks to [lyricsgenius](https://lyricsgenius.readthedocs.io/en/master/index.html)
-- **Rename files** following the pattern `Title - Artist.mp3`
+It uses [wrap-genius](https://github.com/fedecalendino/wrap-genius) to find the tracks' Genius ID It uses based on its title and artist, and [lyricsgenius](https://lyricsgenius.readthedocs.io/en/master/index.html) to fetch the lyrics automatically.
 
 ## Usage
 
 - Install the required dependencies:
 
     ```shell
-    pip install wrap-genius
-    pip install lyricsgenius
+    pip install wrap-genius lyricsgenius eyed3
     ```
 
 - Get a [Genius access token](https://genius.com/api-clients) (needed for the API)
 
 - Use the following command (arguments ending with a `*` are mandatory):
 
-    ```bash
-    py geniustagger.py <Genius access token*> <tracks folder path*> <options>
+    ```shell
+    geniuslyrics.py <Genius access token*> <tracks folder path*> <options>
     ```
 
 ## Options
 
 Options must be separated by a space.
 
-- `-a` : Apply <u>a</u>ll modifications: tags, lyrics, renaming
-- `-t` : Add <u>t</u>ags
-- `-l` : Add <u>l</u>yrics
-- `-r` : <u>R</u>ename files
-- `-o` : <u>O</u>verwrite already existing lyrics
-- `-s` : Search for files recursively in <u>s</u>ub-folders
-- `-c` : Ask for user <u>c</u>onfirmation before saving new tags
-- `-h` : Show <u>h</u>elp
+- `-s` : Search for files recursively in sub-folders
+- `-o` : Overwrite already existing lyrics
+- `-h` : Show help
 
-## TODO
+## WIP
 
-- Allow the user to only add cover arts
-- Allow the user to choose a custom renaming pattern
-- Add a confirmation step so the user can also check the lyrics and the renaming
+`geniustagger.py` is a work in progress to automatically add tags to `.mp3` files (mainly artist, album, release date and cover art) and rename them (following the pattern *Title - Artist.mp3*).

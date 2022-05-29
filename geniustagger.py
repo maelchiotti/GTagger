@@ -1,3 +1,7 @@
+"""
+[WIP] Add tags to audio files and rename them.
+"""
+
 import os
 import sys
 import re
