@@ -30,4 +30,4 @@ Options must be separated by a space.
 
 ## WIP
 
-`geniustagger.py` is a work in progress to automatically add tags to `.mp3` files (mainly artist, album, release date and cover art) and rename them (following the pattern *Title - Artist.mp3*).
+`gui.py` is a work in progress to provide a GUI supporting the functionnalities of `lyricsgenius.py`.
