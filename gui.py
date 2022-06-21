@@ -2,12 +2,11 @@
 Application GUI
 """
 
-import os
 import sys
 import pathlib
-from PySide6 import QtCore, QtWidgets
+from PySide6 import QtCore, QtWidgets, QtGui
 
-from tools import Track, TrackSearch, LyricsSearch
+import tools
 
 class MainWindow(QtWidgets.QWidget):
     """
@@ -18,6 +17,14 @@ class MainWindow(QtWidgets.QWidget):
 
         self.tracks = []
 
+        self.input_token = QtWidgets.QLineEdit()
+        self.input_token.setPlaceholderText("Enter your Genius client access token")
+        self.input_token.setToolTip("Enter token")
+        self.input_token.setStyleSheet("border: 0px")
+        regex_epx = QtCore.QRegularExpression("[a-zA-Z0-9_-]{64}")
+        self.validator = QtGui.QRegularExpressionValidator(regex_epx, self)
+        self.input_token.setValidator(self.validator)
+
         self.table = QtWidgets.QTableWidget()
         self.table.setColumnCount(4)
         self.table.setHorizontalHeaderLabels(["File", "Title", "Main artist", "Lyrics"])
@@ -26,10 +33,12 @@ class MainWindow(QtWidgets.QWidget):
         self.button_add_files = QtWidgets.QPushButton("Add files")
 
         self.layout = QtWidgets.QVBoxLayout(self)
+        self.layout.addWidget(self.input_token)
         self.layout.addWidget(self.table)
         self.layout.addWidget(self.button_add_directories)
         self.layout.addWidget(self.button_add_files)
 
+        self.input_token.textChanged.connect(self.token_changed)
         self.button_add_directories.clicked.connect(lambda:self.add_files(True))
         self.button_add_files.clicked.connect(lambda:self.add_files(False))
 
@@ -60,7 +69,7 @@ class MainWindow(QtWidgets.QWidget):
                 return
 
         for file in files:
-            track = Track(file)
+            track = tools.Track(file)
             self.tracks.append(track)
 
             self.table.insertRow(self.table.rowCount())
@@ -69,11 +78,24 @@ class MainWindow(QtWidgets.QWidget):
             self.table.setItem(self.table.rowCount() - 1, 2, QtWidgets.QTableWidgetItem(track.main_artist))
 
             #TODO ce sont juste des tests
-            track_search = TrackSearch("8hPJjsOhGDfGB5naUVwKMF7zGK5XCV5-pRsIu55LSQgK_5Yo2HTsBNJnWamF8GMk")
+            track_search = tools.TrackSearch("8hPJjsOhGDfGB5naUVwKMF7zGK5XCV5-pRsIu55LSQgK_5Yo2HTsBNJnWamF8GMk")
             track_search.search_track(track)
-            lyrics_search = LyricsSearch("8hPJjsOhGDfGB5naUVwKMF7zGK5XCV5-pRsIu55LSQgK_5Yo2HTsBNJnWamF8GMk")
+            lyrics_search = tools.LyricsSearch("8hPJjsOhGDfGB5naUVwKMF7zGK5XCV5-pRsIu55LSQgK_5Yo2HTsBNJnWamF8GMk")
             lyrics_search.search_lyrics(track)
             self.table.setItem(self.table.rowCount() - 1, 3, QtWidgets.QTableWidgetItem(track.lyrics[:100]))
+
+    @QtCore.Slot()
+    def token_changed(self):
+        validator_state = self.validator.validate(self.input_token.text(), 0)[0]
+        if len(self.input_token.text()) == 0:
+            self.input_token.setStyleSheet("border: 0px")
+            self.input_token.setToolTip("Enter token")
+        elif validator_state == QtGui.QValidator.State.Acceptable:
+            self.input_token.setStyleSheet(f"border: 0px; background-color: {tools.COLORS['light_green']}")
+            self.input_token.setToolTip("Valid token")
+        else:
+            self.input_token.setStyleSheet(f"border: 0px; background-color: {tools.COLORS['light_red']}")
+            self.input_token.setToolTip("Invalid token")
 
 
 if __name__ == "__main__":

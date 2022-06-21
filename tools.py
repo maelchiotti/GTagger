@@ -11,6 +11,11 @@ from genius import classes
 import lyricsgenius
 from lyricsgenius import types
 
+COLORS = {
+    "light_green": "#AED9B2",
+    "light_red": "#FF7F7F"
+}
+
 class Track():
     """
     Class representing a music track
