@@ -4,18 +4,48 @@ Application GUI
 
 import sys
 import pathlib
+from threading import Thread
+import qtawesome
 from PySide6 import QtCore, QtWidgets, QtGui
 
-import tools
+from tools import Tools, Track, TrackSearch, LyricsSearch
+
 
 class MainWindow(QtWidgets.QWidget):
     """
     Main window of the GUI
     """
+
     def __init__(self):
         super().__init__()
 
         self.tracks = []
+
+        self.setup_ui()
+
+    def setup_ui(self):
+        self.icon_add_files = qtawesome.icon("ri.file-add-line", color="darkgreen")
+        self.action_add_files = QtGui.QAction("Add files")
+        self.action_add_files.setIcon(self.icon_add_files)
+        self.action_add_files.triggered.connect(lambda: self.add_files(False))
+
+        self.icon_add_folder = qtawesome.icon("ri.folder-add-line", color="darkgreen")
+        self.action_add_folder = QtGui.QAction("Add a folder")
+        self.action_add_folder.setIcon(self.icon_add_folder)
+        self.action_add_folder.triggered.connect(lambda: self.add_files(True))
+
+        self.icon_read_tags = qtawesome.icon("ri.search-2-line", color="darkblue")
+        self.action_search_lyrics = QtGui.QAction("Read the tags")
+        self.action_search_lyrics.setIcon(self.icon_read_tags)
+        self.action_search_lyrics.setEnabled(False)
+        self.action_search_lyrics.triggered.connect(self.search_lyrics)
+
+        self.menu_bar = QtWidgets.QMenuBar()
+        self.menu_bar.setSizePolicy(QtWidgets.QSizePolicy())
+        self.menu_bar.addAction(self.action_add_files)
+        self.menu_bar.addAction(self.action_add_folder)
+        self.menu_bar.addSeparator()
+        self.menu_bar.addAction(self.action_search_lyrics)
 
         self.input_token = QtWidgets.QLineEdit()
         self.input_token.setPlaceholderText("Enter your Genius client access token")
@@ -25,36 +55,41 @@ class MainWindow(QtWidgets.QWidget):
         self.validator = QtGui.QRegularExpressionValidator(regex_epx, self)
         self.input_token.setValidator(self.validator)
 
-        self.table = QtWidgets.QTableWidget()
-        self.table.setColumnCount(4)
-        self.table.setHorizontalHeaderLabels(["File", "Title", "Main artist", "Lyrics"])
-
-        self.button_add_directories = QtWidgets.QPushButton("Add directory")
-        self.button_add_files = QtWidgets.QPushButton("Add files")
+        self.table_model = QtGui.QStandardItemModel()
+        self.table_model.setColumnCount(4)
+        self.table_model.setHorizontalHeaderLabels(
+            ["File", "Title", "Artist", "Lyrics"]
+        )
+        self.table = QtWidgets.QTableView()
+        self.table.setModel(self.table_model)
+        self.table.setSortingEnabled(True)
 
         self.layout = QtWidgets.QVBoxLayout(self)
+        self.layout.setMenuBar(self.menu_bar)
         self.layout.addWidget(self.input_token)
         self.layout.addWidget(self.table)
-        self.layout.addWidget(self.button_add_directories)
-        self.layout.addWidget(self.button_add_files)
 
         self.input_token.textChanged.connect(self.token_changed)
-        self.button_add_directories.clicked.connect(lambda:self.add_files(True))
-        self.button_add_files.clicked.connect(lambda:self.add_files(False))
 
     def select_directories(self) -> str:
         directory_dialog = QtWidgets.QFileDialog()
-        directory = directory_dialog.getExistingDirectory()
+        directory = directory_dialog.getExistingDirectory(caption="Select folder")
         if directory == "":
             return None
         return directory
 
     def select_files(self) -> list[str]:
         file_dialog = QtWidgets.QFileDialog()
-        files = file_dialog.getOpenFileNames(caption="Select file(s)", filter="MP3 files (*.mp3)")
+        files = file_dialog.getOpenFileNames(
+            caption="Select files", filter="MP3 files (*.mp3)"
+        )
         if len(files[0]) == 0:
             return None
         return files[0]
+
+    def is_token_valid(self):
+        validator_state = self.validator.validate(self.input_token.text(), 0)[0]
+        return validator_state == QtGui.QValidator.State.Acceptable
 
     @QtCore.Slot()
     def add_files(self, select_directory: bool) -> None:
@@ -68,34 +103,68 @@ class MainWindow(QtWidgets.QWidget):
             if files is None:
                 return
 
+        self.thread_add_rows = Thread(target=self.run_add_files, args=(files,))
+        self.thread_add_rows.start()
+
+    def run_add_files(self, files):
         for file in files:
-            track = tools.Track(file)
+            track = Track(file)
             self.tracks.append(track)
 
-            self.table.insertRow(self.table.rowCount())
-            self.table.setItem(self.table.rowCount() - 1, 0, QtWidgets.QTableWidgetItem(track.filename))
-            self.table.setItem(self.table.rowCount() - 1, 1, QtWidgets.QTableWidgetItem(track.title))
-            self.table.setItem(self.table.rowCount() - 1, 2, QtWidgets.QTableWidgetItem(track.main_artist))
+            self.table_model.insertRow(self.table_model.rowCount())
+            self.table_model.setItem(
+                self.table_model.rowCount() - 1, 0, QtGui.QStandardItem(track.filename)
+            )
+            self.table_model.setItem(
+                self.table_model.rowCount() - 1, 1, QtGui.QStandardItem(track.title)
+            )
+            self.table_model.setItem(
+                self.table_model.rowCount() - 1,
+                2,
+                QtGui.QStandardItem(track.main_artist),
+            )
 
-            #TODO ce sont juste des tests
-            track_search = tools.TrackSearch("8hPJjsOhGDfGB5naUVwKMF7zGK5XCV5-pRsIu55LSQgK_5Yo2HTsBNJnWamF8GMk")
+    @QtCore.Slot()
+    def search_lyrics(self):
+        self.thread_search_lyrics = Thread(target=self.run_search_lyrics)
+        self.thread_search_lyrics.start()
+
+    def run_search_lyrics(self):
+        # todo display error
+        if self.table_model.rowCount() == 0 or self.thread_add_rows.is_alive():
+            return
+
+        token = self.input_token.text()
+        for row, track in enumerate(self.tracks):
+            track_search = TrackSearch(token)
             track_search.search_track(track)
-            lyrics_search = tools.LyricsSearch("8hPJjsOhGDfGB5naUVwKMF7zGK5XCV5-pRsIu55LSQgK_5Yo2HTsBNJnWamF8GMk")
+            lyrics_search = LyricsSearch(token)
             lyrics_search.search_lyrics(track)
-            self.table.setItem(self.table.rowCount() - 1, 3, QtWidgets.QTableWidgetItem(track.lyrics[:100]))
+            # todo multiline N
+            self.table_model.setItem(
+                row,
+                3,
+                QtGui.QStandardItem(track.show_lyrics(150)),
+            )
 
     @QtCore.Slot()
     def token_changed(self):
-        validator_state = self.validator.validate(self.input_token.text(), 0)[0]
         if len(self.input_token.text()) == 0:
             self.input_token.setStyleSheet("border: 0px")
             self.input_token.setToolTip("Enter token")
-        elif validator_state == QtGui.QValidator.State.Acceptable:
-            self.input_token.setStyleSheet(f"border: 0px; background-color: {tools.COLORS['light_green']}")
+            self.action_search_lyrics.setEnabled(False)
+        elif self.is_token_valid():
+            self.input_token.setStyleSheet(
+                f"border: 0px; background-color: {Tools.COLORS['light_green']}"
+            )
             self.input_token.setToolTip("Valid token")
+            self.action_search_lyrics.setEnabled(True)
         else:
-            self.input_token.setStyleSheet(f"border: 0px; background-color: {tools.COLORS['light_red']}")
+            self.input_token.setStyleSheet(
+                f"border: 0px; background-color: {Tools.COLORS['light_red']}"
+            )
             self.input_token.setToolTip("Invalid token")
+            self.action_search_lyrics.setEnabled(False)
 
 
 if __name__ == "__main__":

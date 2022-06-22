@@ -11,12 +11,8 @@ from genius import classes
 import lyricsgenius
 from lyricsgenius import types
 
-COLORS = {
-    "light_green": "#AED9B2",
-    "light_red": "#FF7F7F"
-}
 
-class Track():
+class Track:
     """
     Class representing a music track
 
@@ -32,6 +28,7 @@ class Track():
     lyrics: str
         lyrics of the track
     """
+
     SPLITTERS = " featuring | feat. | feat | ft. | ft | & | / "
 
     def __init__(self, filepath: str) -> None:
@@ -40,6 +37,7 @@ class Track():
         self.genius_tags: classes.Song = None
         self.title: str = None
         self.artists: list[str] = []
+        self.main_artist: str = None
         self.lyrics: str = None
         self.read_tags()
 
@@ -49,13 +47,21 @@ class Track():
         """
         tags = eyed3.load(self.filepath)
         self.title = tags.tag.title
-        self.artists = re.split(self.SPLITTERS, tags.tag.artist)
-        self.main_artist = self.artists[0]
+        if tags.tag.artist is not None:
+            self.artists = re.split(self.SPLITTERS, tags.tag.artist)
+            self.main_artist = self.artists[0]
 
-class TrackSearch():
+    def show_lyrics(self, length: int) -> str:
+        if self.lyrics is None:
+            return ""
+        return self.lyrics[:length]
+
+
+class TrackSearch:
     """
     Class allowing to search a track on Genius
     """
+
     def __init__(self, token: str) -> None:
         search = re.search("[^a-zA-Z0-9_-]", token)
         if search is not None:
@@ -70,42 +76,43 @@ class TrackSearch():
         """
         Searches for a track on Genius
         """
+        # todo if one is none
         search = track.title + " " + track.main_artist
         searched_tracks = self.genius.search(search)
         try:
             searched_track = next(searched_tracks)
         except StopIteration:
-            log.warning("Track '%s' by %s not found on Genius", track.title, track.main_artist)
+            log.warning(
+                "Track '%s' by %s not found on Genius", track.title, track.main_artist
+            )
             return False
         track.genius_tags = searched_track
         return True
 
-class LyricsSearch():
+
+class LyricsSearch:
     """
     Class allowing to search a track's lyrics on Genius
     """
+
     def __init__(self, token: str) -> None:
-        if not Tools.is_token_correct(token):
-            self.token: str = None
-            self.lyrics_genius: lyricsgenius.Genius = None
-        else:
-            self.token: str = token
-            self.lyrics_genius: lyricsgenius.Genius = lyricsgenius.Genius(
-                access_token=self.token,
-                verbose=False,
-                remove_section_headers=True
-            )
+        self.token: str = token
+        self.lyrics_genius: lyricsgenius.Genius = lyricsgenius.Genius(
+            access_token=self.token, verbose=False, remove_section_headers=True
+        )
 
     def search_lyrics(self, track: Track) -> bool:
         """
         Searches for a track's lyrics on Genius
         """
+        if track.genius_tags is None:
+            return False
+
         searched_track: types.Song = None
         while True:
             try:
                 searched_track = self.lyrics_genius.search_song(
-                    song_id=track.genius_tags.id,
-                    get_full_info=False
+                    song_id=track.genius_tags.id, get_full_info=False
                 )
                 break
             except Exception as exception:
@@ -113,7 +120,11 @@ class LyricsSearch():
                 return False
 
         if searched_track is None:
-            log.warning("Track '%s' lyrics by %s not found on Genius", track.title, track.main_artist)
+            log.warning(
+                "Track '%s' lyrics by %s not found on Genius",
+                track.title,
+                track.main_artist,
+            )
             return False
 
         lyrics = Tools.format_lyrics(searched_track.lyrics)
@@ -121,21 +132,12 @@ class LyricsSearch():
         return True
 
 
-class Tools():
+class Tools:
     """
     Class containing miscellaneous tools
     """
-    @staticmethod
-    def is_token_correct(token: str) -> bool:
-        """
-        Checks if a token has the correct syntax as only letters and digits are allowed
-        """
-        search = re.search("[^a-zA-Z0-9_-]", token)
-        if search is not None:
-            log.error("Incorrect access token: %s", search)
-            return False
-        else:
-            return True
+
+    COLORS = {"light_green": "#AED9B2", "light_red": "#FF7F7F"}
 
     @staticmethod
     def format_lyrics(unformatted_lyrics: str) -> str:
@@ -148,4 +150,3 @@ class Tools():
         if len(lines) > 1:
             lines[len(lines) - 1] = re.sub("[0-9]+Embed", "", lines[len(lines) - 1])
         return "\n".join(lines)
-    
