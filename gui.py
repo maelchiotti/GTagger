@@ -15,12 +15,15 @@ from tools import Tools, Track, TrackSearch, LyricsSearch
 class MainWindow(QtWidgets.QWidget):
     """
     Main window of the GUI
+    
+    Attributes:
+        tracks (list[Track]): Tracks added by the user to the table.
     """
 
     def __init__(self):
         super().__init__()
 
-        self.tracks = []
+        self.tracks: list[Track] = []
 
         self.setup_ui()
 
@@ -28,18 +31,15 @@ class MainWindow(QtWidgets.QWidget):
         self.icon_add_files = qtawesome.icon("ri.file-add-line", color="darkgreen")
         self.action_add_files = QtGui.QAction("Add files")
         self.action_add_files.setIcon(self.icon_add_files)
-        self.action_add_files.triggered.connect(lambda: self.add_files(False))
 
         self.icon_add_folder = qtawesome.icon("ri.folder-add-line", color="darkgreen")
         self.action_add_folder = QtGui.QAction("Add a folder")
         self.action_add_folder.setIcon(self.icon_add_folder)
-        self.action_add_folder.triggered.connect(lambda: self.add_files(True))
 
         self.icon_read_tags = qtawesome.icon("ri.search-2-line", color="darkblue")
         self.action_search_lyrics = QtGui.QAction("Read the tags")
         self.action_search_lyrics.setIcon(self.icon_read_tags)
         self.action_search_lyrics.setEnabled(False)
-        self.action_search_lyrics.triggered.connect(self.search_lyrics)
 
         self.menu_bar = QtWidgets.QMenuBar()
         self.menu_bar.setSizePolicy(QtWidgets.QSizePolicy())
@@ -70,6 +70,9 @@ class MainWindow(QtWidgets.QWidget):
         self.layout.addWidget(self.input_token)
         self.layout.addWidget(self.table)
 
+        self.action_add_files.triggered.connect(lambda: self.add_files(False))
+        self.action_add_folder.triggered.connect(lambda: self.add_files(True))
+        self.action_search_lyrics.triggered.connect(self.search_lyrics)
         self.input_token.textChanged.connect(self.token_changed)
 
     def select_directories(self) -> str:
@@ -177,7 +180,7 @@ class MainWindow(QtWidgets.QWidget):
             self.table_model.setItem(
                 row,
                 3,
-                QtGui.QStandardItem(track.show_lyrics(150)),
+                QtGui.QStandardItem(track.get_lyrics(150)),
             )
 
     @QtCore.Slot()

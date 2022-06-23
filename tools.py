@@ -83,8 +83,15 @@ class TrackSearch:
             self.genius: genius.Genius = genius.Genius(access_token=self.token)
 
     def search_track(self, track: Track) -> bool:
-        """
-        Searches for a track on Genius
+        """Searches for a track on Genius.
+        
+        The tags found are added to the `genius_tags` attribute.
+
+        Args:
+            track (Track): Track to search.
+
+        Returns:
+            bool: `True` is the track was found.
         """
         # todo if one is none
         search = track.title + " " + track.main_artist
@@ -116,6 +123,8 @@ class LyricsSearch:
 
     def search_lyrics(self, track: Track) -> bool:
         """Searches for a track's lyrics on Genius.
+        
+        The lyrics are added to the `lyrics` attribute.
 
         Args:
             track (Track): Track for which the lyrics will be searched.
@@ -154,7 +163,7 @@ class Tools:
     """Contains miscellaneous tools.
     
     Attributes:
-        COLORS (dict[str, str]): list of (name: hex value) colors 
+        COLORS (dict[str, str]): (name: hex value) colors.
     """
 
     COLORS = {"lightgreen": "#AED9B2", "lightred": "#FF7F7F"}
