@@ -28,6 +28,8 @@ class MainWindow(QtWidgets.QWidget):
         self.setup_ui()
 
     def setup_ui(self):
+        """Sets up the UI of the window.
+        """
         self.icon_add_files = qtawesome.icon("ri.file-add-line", color="darkgreen")
         self.action_add_files = QtGui.QAction("Add files")
         self.action_add_files.setIcon(self.icon_add_files)

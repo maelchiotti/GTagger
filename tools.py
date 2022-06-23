@@ -22,7 +22,7 @@ class Track:
     Attributes:
         filepath (str): Filepath of the track.
         filename (str): Filename of the track.
-        genius_tags (classes.Song): Tags found by `genius`.
+        genius_tags: Tags found by `genius`.
         title (str): Title of the track.
         artist (list[str]): Artists of the track.
         main_artist (str): Main artist of the track.
