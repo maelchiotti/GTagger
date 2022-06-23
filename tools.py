@@ -1,5 +1,10 @@
-"""
-Tools helpful for the GUI
+"""Tools helpful for the GUI.
+
+The tools include:
+- Track: a music track.
+- TrackSearch: search a track on Genius.
+- LyricsSearch: search a track's lyrics on Genius.
+- Tools: miscellaneous tools.
 """
 
 import os
@@ -7,26 +12,21 @@ import re
 import logging as log
 import eyed3
 import genius
-from genius import classes
 import lyricsgenius
 from lyricsgenius import types
 
 
 class Track:
-    """
-    Class representing a music track
+    """Represents a music track.
 
     Attributes:
-    filepath: str
-        filepath of the track
-    filename: str
-        filename of the track
-    title: str
-        title of the track
-    artist: list[str]
-        artist of the track
-    lyrics: str
-        lyrics of the track
+        filepath (str): Filepath of the track.
+        filename (str): Filename of the track.
+        genius_tags (classes.Song): Tags found by `genius`.
+        title (str): Title of the track.
+        artist (list[str]): Artists of the track.
+        main_artist (str): Main artist of the track.
+        lyrics (str): Lyrics of the track.
     """
 
     SPLITTERS = " featuring | feat. | feat | ft. | ft | & | / "
@@ -34,7 +34,7 @@ class Track:
     def __init__(self, filepath: str) -> None:
         self.filepath: str = filepath
         self.filename: str = os.path.basename(filepath)
-        self.genius_tags: classes.Song = None
+        self.genius_tags = None
         self.title: str = None
         self.artists: list[str] = []
         self.main_artist: str = None
@@ -42,8 +42,7 @@ class Track:
         self.read_tags()
 
     def read_tags(self) -> None:
-        """
-        Use eyed3 to read the tags from the file and set them
+        """Uses eyed3 to read the tags from the file and set them.
         """
         tags = eyed3.load(self.filepath)
         self.title = tags.tag.title
@@ -51,15 +50,26 @@ class Track:
             self.artists = re.split(self.SPLITTERS, tags.tag.artist)
             self.main_artist = self.artists[0]
 
-    def show_lyrics(self, length: int) -> str:
+    def get_lyrics(self, length: int) -> str:
+        """Returns the lyrics up to `length` characters.
+
+        Args:
+            length (int): Maximum number of characters to return.
+
+        Returns:
+            str: Lyrics up to `length`.
+        """
         if self.lyrics is None:
             return ""
         return self.lyrics[:length]
 
 
 class TrackSearch:
-    """
-    Class allowing to search a track on Genius
+    """Allows to search a track on Genius.
+    
+    Attributes:
+        token (str): Genius client access token.
+        genius (genius.Genius): `genius` instance.
     """
 
     def __init__(self, token: str) -> None:
@@ -91,8 +101,11 @@ class TrackSearch:
 
 
 class LyricsSearch:
-    """
-    Class allowing to search a track's lyrics on Genius
+    """Allows to search a track's lyrics on Genius.
+    
+    Attributes:
+        token (str): Genius client access token.
+        lyrics_genius (lyricsgenius.Genius): `lyrics_genius` instance.
     """
 
     def __init__(self, token: str) -> None:
@@ -102,8 +115,13 @@ class LyricsSearch:
         )
 
     def search_lyrics(self, track: Track) -> bool:
-        """
-        Searches for a track's lyrics on Genius
+        """Searches for a track's lyrics on Genius.
+
+        Args:
+            track (Track): Track for which the lyrics will be searched.
+
+        Returns:
+            bool: ̀`True` if the lyrics were found.
         """
         if track.genius_tags is None:
             return False
@@ -133,16 +151,23 @@ class LyricsSearch:
 
 
 class Tools:
-    """
-    Class containing miscellaneous tools
+    """Contains miscellaneous tools.
+    
+    Attributes:
+        COLORS (dict[str, str]): list of (name: hex value) colors 
     """
 
-    COLORS = {"light_green": "#AED9B2", "light_red": "#FF7F7F"}
+    COLORS = {"lightgreen": "#AED9B2", "lightred": "#FF7F7F"}
 
     @staticmethod
     def format_lyrics(unformatted_lyrics: str) -> str:
-        """
-        Format the lyrics by removing unwanted text
+        """Formats the lyrics by removing unwanted text.
+
+        Args:
+            unformatted_lyrics (str): Lyrics to format.
+
+        Returns:
+            str: _description_
         """
         lines = unformatted_lyrics.split("\n")
         if len(lines) > 0:
