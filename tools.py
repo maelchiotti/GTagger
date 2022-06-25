@@ -39,16 +39,27 @@ class Track:
         self.artists: list[str] = []
         self.main_artist: str = None
         self.lyrics: str = None
-        self.read_tags()
 
-    def read_tags(self) -> None:
+    def read_tags(self) -> bool:
         """Uses eyed3 to read the tags from the file and set them.
+
+        Returns:
+            bool: `True` if the tags were successfully read.
         """
-        tags = eyed3.load(self.filepath)
-        self.title = tags.tag.title
-        if tags.tag.artist is not None:
-            self.artists = re.split(self.SPLITTERS, tags.tag.artist)
-            self.main_artist = self.artists[0]
+        try:
+            tags = eyed3.load(self.filepath)
+            self.title = tags.tag.title
+            if tags.tag.artist is not None:
+                self.artists = re.split(self.SPLITTERS, tags.tag.artist)
+                self.main_artist = self.artists[0]
+        except Exception as exception:
+            log.error(
+                "Error while reading the tags of file '%s' : %s",
+                self.filename,
+                str(exception),
+            )
+            return False
+        return True
 
     def get_lyrics(self, length: int) -> str:
         """Returns the lyrics up to `length` characters.
@@ -66,7 +77,7 @@ class Track:
 
 class TrackSearch:
     """Allows to search a track on Genius.
-    
+
     Attributes:
         token (str): Genius client access token.
         genius (genius.Genius): `genius` instance.
@@ -84,7 +95,7 @@ class TrackSearch:
 
     def search_track(self, track: Track) -> bool:
         """Searches for a track on Genius.
-        
+
         The tags found are added to the `genius_tags` attribute.
 
         Args:
@@ -93,8 +104,9 @@ class TrackSearch:
         Returns:
             bool: `True` is the track was found.
         """
-        # todo if one is none
-        search = track.title + " " + track.main_artist
+        if track.title is None or track.main_artist is None:
+            return False
+        search = f"{track.title} {track.main_artist}"
         searched_tracks = self.genius.search(search)
         try:
             searched_track = next(searched_tracks)
@@ -109,7 +121,7 @@ class TrackSearch:
 
 class LyricsSearch:
     """Allows to search a track's lyrics on Genius.
-    
+
     Attributes:
         token (str): Genius client access token.
         lyrics_genius (lyricsgenius.Genius): `lyrics_genius` instance.
@@ -123,7 +135,7 @@ class LyricsSearch:
 
     def search_lyrics(self, track: Track) -> bool:
         """Searches for a track's lyrics on Genius.
-        
+
         The lyrics are added to the `lyrics` attribute.
 
         Args:
@@ -161,7 +173,7 @@ class LyricsSearch:
 
 class Tools:
     """Contains miscellaneous tools.
-    
+
     Attributes:
         COLORS (dict[str, str]): (name: hex value) colors.
     """

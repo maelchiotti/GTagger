@@ -15,7 +15,7 @@ from tools import Tools, Track, TrackSearch, LyricsSearch
 class MainWindow(QtWidgets.QWidget):
     """
     Main window of the GUI
-    
+
     Attributes:
         tracks (list[Track]): Tracks added by the user to the table.
     """
@@ -28,19 +28,21 @@ class MainWindow(QtWidgets.QWidget):
         self.setup_ui()
 
     def setup_ui(self):
-        """Sets up the UI of the window.
-        """
+        """Sets up the UI of the window."""
+        self.action_add_files = QtGui.QAction()
         self.icon_add_files = qtawesome.icon("ri.file-add-line", color="darkgreen")
-        self.action_add_files = QtGui.QAction("Add files")
         self.action_add_files.setIcon(self.icon_add_files)
+        self.action_add_files.setToolTip("Select files")
 
+        self.action_add_folder = QtGui.QAction()
         self.icon_add_folder = qtawesome.icon("ri.folder-add-line", color="darkgreen")
-        self.action_add_folder = QtGui.QAction("Add a folder")
         self.action_add_folder.setIcon(self.icon_add_folder)
+        self.action_add_folder.setToolTip("Select a folder")
 
+        self.action_search_lyrics = QtGui.QAction()
         self.icon_read_tags = qtawesome.icon("ri.search-2-line", color="darkblue")
-        self.action_search_lyrics = QtGui.QAction("Read the tags")
         self.action_search_lyrics.setIcon(self.icon_read_tags)
+        self.action_search_lyrics.setToolTip("Search for the lyrics")
         self.action_search_lyrics.setEnabled(False)
 
         self.menu_bar = QtWidgets.QMenuBar()
@@ -61,7 +63,7 @@ class MainWindow(QtWidgets.QWidget):
         self.table_model = QtGui.QStandardItemModel()
         self.table_model.setColumnCount(4)
         self.table_model.setHorizontalHeaderLabels(
-            ["File", "Title", "Artist", "Lyrics"]
+            ["File", "Title", "Artist", "Lyrics", "State"]
         )
         self.table = QtWidgets.QTableView()
         self.table.setModel(self.table_model)
@@ -105,7 +107,7 @@ class MainWindow(QtWidgets.QWidget):
 
     def is_token_valid(self) -> bool:
         """Checks to see if the token is in a valid format.
-        
+
         Genius client access token have a length of 64 characters,
         and may include letters, digits, '_' and '-'.
 
@@ -143,32 +145,45 @@ class MainWindow(QtWidgets.QWidget):
         """
         for file in files:
             track = Track(file)
+            tags_read = track.read_tags()
             self.tracks.append(track)
 
             self.table_model.insertRow(self.table_model.rowCount())
             self.table_model.setItem(
                 self.table_model.rowCount() - 1, 0, QtGui.QStandardItem(track.filename)
             )
-            self.table_model.setItem(
-                self.table_model.rowCount() - 1, 1, QtGui.QStandardItem(track.title)
-            )
-            self.table_model.setItem(
-                self.table_model.rowCount() - 1,
-                2,
-                QtGui.QStandardItem(track.main_artist),
-            )
+            if tags_read:
+                self.table_model.setItem(
+                    self.table_model.rowCount() - 1, 1, QtGui.QStandardItem(track.title)
+                )
+                self.table_model.setItem(
+                    self.table_model.rowCount() - 1,
+                    2,
+                    QtGui.QStandardItem(track.main_artist),
+                )
+                self.table_model.setItem(
+                    self.table_model.rowCount() - 1,
+                    4,
+                    QtGui.QStandardItem("Tags read successfully"),
+                )
+            else:
+                self.table_model.setItem(
+                    self.table_model.rowCount() - 1,
+                    4,
+                    QtGui.QStandardItem("Couldn't read tags."),
+                )
+        if self.is_token_valid():
+            self.action_search_lyrics.setEnabled(True)
 
     @QtCore.Slot()
     def search_lyrics(self) -> None:
-        """Searches for the lyrics of the files in the table.
-        """
+        """Searches for the lyrics of the files in the table."""
         self.thread_search_lyrics = Thread(target=self.run_search_lyrics)
         self.thread_search_lyrics.start()
 
+    # todo afficher les erreurs lors de la recherche de paroles
     def run_search_lyrics(self) -> None:
-        """Runs the thread for `search_lyrics()`.
-        """
-        # todo display error
+        """Runs the thread for `search_lyrics()`."""
         if self.table_model.rowCount() == 0 or self.thread_add_rows.is_alive():
             return
 
@@ -178,17 +193,19 @@ class MainWindow(QtWidgets.QWidget):
             track_search.search_track(track)
             lyrics_search = LyricsSearch(token)
             lyrics_search.search_lyrics(track)
-            # todo multiline ?
+            lyrics = f"{track.get_lyrics(100)}[...]"
+            item = QtGui.QStandardItem(lyrics)
+            item.setToolTip(track.lyrics)
+            print(track.lyrics)
             self.table_model.setItem(
                 row,
                 3,
-                QtGui.QStandardItem(track.get_lyrics(150)),
+                item,
             )
 
     @QtCore.Slot()
     def token_changed(self) -> None:
-        """The token was changed by the user.
-        """
+        """The token was changed by the user."""
         if len(self.input_token.text()) == 0:
             self.input_token.setStyleSheet("border: 0px")
             self.input_token.setToolTip("Enter token")
