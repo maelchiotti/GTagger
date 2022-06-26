@@ -161,3 +161,7 @@ cython_debug/
 
 # Stats files
 *.stats
+
+# Tests
+/test
+/tests

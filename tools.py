@@ -10,6 +10,7 @@ The tools include:
 import os
 import re
 import logging as log
+from enum import Enum
 import eyed3
 import genius
 import lyricsgenius
@@ -171,14 +172,24 @@ class LyricsSearch:
         return True
 
 
+class Colors(Enum):
+    """Enumerates usefull (name, hex code) colors."""
+
+    lightgreen = "#AED9B2"
+    lightred = "#FF7F7F"
+
+
+class States(Enum):
+    """Enumerates the different states of the application."""
+
+    TAGS_READ = "Tags read"
+    TAGS_NOT_READ = "Couldn't read tags"
+    LYRICS_FOUND = "Lyrics found"
+    LYRICS_NOT_FOUND = "Couldn't find lyrics"
+
+
 class Tools:
-    """Contains miscellaneous tools.
-
-    Attributes:
-        COLORS (dict[str, str]): (name: hex value) colors.
-    """
-
-    COLORS = {"lightgreen": "#AED9B2", "lightred": "#FF7F7F"}
+    """Contains miscellaneous tools."""
 
     @staticmethod
     def format_lyrics(unformatted_lyrics: str) -> str:
