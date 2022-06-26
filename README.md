@@ -31,3 +31,9 @@ Options must be separated by a space.
 ## WIP
 
 `gui.py` is a work in progress to provide a GUI supporting the functionnalities of `lyricsgenius.py`.
+
+**TODO:**
+
+- Save the lyrics
+- Option to ignore files with lyrics
+- When using cancel, only remove lyrics if it's added lyrics and not original lyrics
