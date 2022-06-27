@@ -167,29 +167,9 @@ class LyricsSearch:
             )
             return False
 
-        lyrics = Tools.format_lyrics(searched_track.lyrics)
+        lyrics = self.format_lyrics(searched_track.lyrics)
         track.lyrics = lyrics
         return True
-
-
-class Colors(Enum):
-    """Enumerates usefull (name, hex code) colors."""
-
-    lightgreen = "#AED9B2"
-    lightred = "#FF7F7F"
-
-
-class States(Enum):
-    """Enumerates the different states of the application."""
-
-    TAGS_READ = "Tags read"
-    TAGS_NOT_READ = "Couldn't read tags"
-    LYRICS_FOUND = "Lyrics found"
-    LYRICS_NOT_FOUND = "Couldn't find lyrics"
-
-
-class Tools:
-    """Contains miscellaneous tools."""
 
     @staticmethod
     def format_lyrics(unformatted_lyrics: str) -> str:
@@ -207,3 +187,19 @@ class Tools:
         if len(lines) > 1:
             lines[len(lines) - 1] = re.sub("[0-9]+Embed", "", lines[len(lines) - 1])
         return "\n".join(lines)
+
+
+class Colors(Enum):
+    """Enumerates usefull (name, hex code) colors."""
+
+    lightgreen = "#AED9B2"
+    lightred = "#FF7F7F"
+
+
+class States(Enum):
+    """Enumerates the different states of the application."""
+
+    TAGS_READ = "Tags read"
+    TAGS_NOT_READ = "Couldn't read tags"
+    LYRICS_FOUND = "Lyrics found"
+    LYRICS_NOT_FOUND = "Couldn't find lyrics"
