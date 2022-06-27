@@ -23,6 +23,7 @@ class Track:
     Attributes:
         filepath (str): Filepath of the track.
         filename (str): Filename of the track.
+        eyed3_tags: Tags read and managed by `eyed3`.
         genius_tags: Tags found by `genius`.
         title (str): Title of the track.
         artist (list[str]): Artists of the track.
@@ -35,6 +36,7 @@ class Track:
     def __init__(self, filepath: str) -> None:
         self.filepath: str = filepath
         self.filename: str = os.path.basename(filepath)
+        self.eyed3_tags = None
         self.genius_tags = None
         self.title: str = None
         self.artists: list[str] = []
@@ -48,10 +50,10 @@ class Track:
             bool: `True` if the tags were successfully read.
         """
         try:
-            tags = eyed3.load(self.filepath)
-            self.title = tags.tag.title
-            if tags.tag.artist is not None:
-                self.artists = re.split(self.SPLITTERS, tags.tag.artist)
+            self.eyed3_tags = eyed3.load(self.filepath).tag
+            self.title = self.eyed3_tags.title
+            if self.eyed3_tags.artist is not None:
+                self.artists = re.split(self.SPLITTERS, self.eyed3_tags.artist)
                 self.main_artist = self.artists[0]
         except Exception as exception:
             log.error(
@@ -74,6 +76,24 @@ class Track:
         if self.lyrics is None:
             return ""
         return self.lyrics[:length]
+
+    def save_lyrics(self) -> bool:
+        """Saves the lyrics to the file.
+
+        Returns:
+            bool: `True` if the lyrics were successfully saved.
+        """
+        try:
+            self.eyed3_tags.lyrics.set(self.lyrics)
+            self.eyed3_tags.save(version=eyed3.id3.ID3_V2_3, encoding="utf-8")
+        except Exception as exception:
+            log.error(
+                "Error while saveing the lyrics of file '%s' : %s",
+                self.filename,
+                str(exception),
+            )
+            return False
+        return True
 
 
 class TrackSearch:
@@ -179,7 +199,7 @@ class LyricsSearch:
             unformatted_lyrics (str): Lyrics to format.
 
         Returns:
-            str: _description_
+            str: Formatted lyrics.
         """
         lines = unformatted_lyrics.split("\n")
         if len(lines) > 0:
@@ -203,3 +223,5 @@ class States(Enum):
     TAGS_NOT_READ = "Couldn't read tags"
     LYRICS_FOUND = "Lyrics found"
     LYRICS_NOT_FOUND = "Couldn't find lyrics"
+    LYRICS_SAVED = "Lyrics saved"
+    LYRICS_NOT_SAVED = "Couldn't save the lyrics"

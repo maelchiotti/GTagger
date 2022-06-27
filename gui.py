@@ -50,7 +50,7 @@ class MainWindow(QtWidgets.QWidget):
         self.action_save_lyrics = QtGui.QAction()
         self.action_save_lyrics.setIcon(icon_save_lyrics)
         self.action_save_lyrics.setToolTip("Save the lyrics")
-        self.action_save_lyrics.setEnabled(False)
+        self.action_save_lyrics.setEnabled(True)
 
         icon_cancel_rows = qtawesome.icon("ri.arrow-go-back-fill", color="darkorange")
         self.action_cancel_rows = QtGui.QAction()
@@ -275,8 +275,18 @@ class MainWindow(QtWidgets.QWidget):
     @QtCore.Slot()
     def save_lyrics(self):
         """Saves the lyrics to the files."""
-        # todo
-        pass
+        for row in range(self.table_model.rowCount()):
+            filename = self.table_model.item(row, 0).text()
+            track = self.tracks[filename]
+            saved = track.save_lyrics()
+            if saved:
+                self.table_model.setItem(
+                    row, 4, QtGui.QStandardItem(States.LYRICS_SAVED.value)
+                )
+            else:
+                self.table_model.setItem(
+                    row, 4, QtGui.QStandardItem(States.LYRICS_NOT_SAVED.value)
+                )
 
     @QtCore.Slot()
     def cancel_rows(self):
@@ -296,6 +306,8 @@ class MainWindow(QtWidgets.QWidget):
         for item in selection:
             index = item.row()
             if index != prev_index:
+                filename = self.table_model.item(index, 0).text()
+                self.tracks.pop(filename)
                 self.table_model.removeRow(index)
             prev_index = index
 
