@@ -2,6 +2,8 @@
 
 GTagger is a python tool that adds lyrics from [Genius](https://genius.com/) to `.mp3` files.
 
+![Screenshot of the main window](docs/gtagger.png)
+
 It uses [wrap-genius](https://github.com/fedecalendino/wrap-genius) to find the track's Genius ID based on its title and artist, and [lyricsgenius](https://lyricsgenius.readthedocs.io/en/master/index.html) to fetch the lyrics automatically.
 
 ## WIP
@@ -28,8 +30,8 @@ Download the executable `gtagger.exe` from the [Releases](https://github.com/mae
     py main.py
     ```
 
-**TODO:**
+## TODO
 
-- Save the lyrics
-- Option to ignore files with lyrics
-- When using cancel, only remove lyrics if it's added lyrics and not original lyrics
+- Options:
+  - Ignore files with lyrics
+  - Do not scan folders recursively
