@@ -1,10 +1,11 @@
 """Tools helpful for the GUI.
 
 The tools include:
-- Track: a music track.
+- Track: represents a music track.
 - TrackSearch: search a track on Genius.
 - LyricsSearch: search a track's lyrics on Genius.
-- Tools: miscellaneous tools.
+- Colors: enumeration of colors.
+- States: enumeration of states.
 """
 
 import os

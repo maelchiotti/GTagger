@@ -315,13 +315,3 @@ class MainWindow(QtWidgets.QWidget):
     def open_token_page(self):
         """Opens the Genius website to fetch the client access token."""
         QtGui.QDesktopServices.openUrl(self.token_url)
-
-
-if __name__ == "__main__":
-    app = QtWidgets.QApplication([])
-
-    widget = MainWindow()
-    widget.resize(800, 600)
-    widget.show()
-
-    sys.exit(app.exec())
