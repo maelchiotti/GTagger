@@ -1,36 +1,26 @@
-# GeniusLyrics
+# GTagger
 
-GeniusLyrics is a python tool that adds lyrics from [Genius](https://genius.com/) to `.mp3` files.
+GTagger is a python tool that adds lyrics from [Genius](https://genius.com/) to `.mp3` files.
 
 It uses [wrap-genius](https://github.com/fedecalendino/wrap-genius) to find the track's Genius ID based on its title and artist, and [lyricsgenius](https://lyricsgenius.readthedocs.io/en/master/index.html) to fetch the lyrics automatically.
+
+## WIP
+
+GTagger is a work in progress, so it lacks functionnalities and it may be buggy. To avoid any issue with your files, please backup them first.
 
 ## Usage
 
 - Install the required dependencies:
 
     ```shell
-    pip install wrap-genius lyricsgenius eyed3
+    pip install wrap-genius lyricsgenius eyed3 qtawesome PySide6
     ```
 
-- Get a [Genius access token](https://genius.com/api-clients) (needed for the API)
-
-- Use the following command (arguments ending with a `*` are mandatory):
+- Launch GTagger with the following command:
 
     ```shell
-    geniuslyrics.py <Genius access token*> <tracks folder path*> <options>
+    py main.py
     ```
-
-## Options
-
-Options must be separated by a space.
-
-- `-s` : Search for files recursively in sub-folders
-- `-o` : Overwrite already existing lyrics
-- `-h` : Show help
-
-## WIP
-
-`gui.py` is a work in progress to provide a GUI supporting the functionnalities of `lyricsgenius.py`.
 
 **TODO:**
 

@@ -3,7 +3,6 @@
 Handles the creation of the GUI and the interactions with the user.
 """
 
-import sys
 import pathlib
 from threading import Thread
 import qtawesome
