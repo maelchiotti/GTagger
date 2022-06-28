@@ -11,6 +11,8 @@ from PySide6 import QtCore, QtWidgets, QtGui
 from src.settings import SettingsWindow
 from src.tools import Track, TrackSearch, LyricsSearch, Colors, States
 
+VERSION = "v1.0.0"
+
 class MainWindow(QtWidgets.QWidget):
     """
     Main window of the GUI.
@@ -25,10 +27,12 @@ class MainWindow(QtWidgets.QWidget):
 
         self.tracks: dict[str, Track] = {}
         self.token_url = QtCore.QUrl("https://genius.com/api-clients")
+        
+        self.settings_window = None
 
         self.setup_ui()
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         """Sets up the UI of the window."""
         icon_add_files = qtawesome.icon("ri.file-add-line", color="darkgreen")
         self.action_add_files = QtGui.QAction()
@@ -109,6 +113,8 @@ class MainWindow(QtWidgets.QWidget):
         self.layout.addWidget(self.input_token, 0, 0, 1, 1)
         self.layout.addWidget(self.button_token, 0, 1, 1, 1)
         self.layout.addWidget(self.table, 1, 0, 1, 2)
+        
+        self.setWindowTitle(f"GTagger ({VERSION})")
 
         self.action_add_files.triggered.connect(lambda: self.add_files(False))
         self.action_add_folder.triggered.connect(lambda: self.add_files(True))
@@ -179,7 +185,7 @@ class MainWindow(QtWidgets.QWidget):
         self.thread_add_rows = Thread(target=self.run_add_files, args=(files,))
         self.thread_add_rows.start()
 
-    def run_add_files(self, files: list[str]):
+    def run_add_files(self, files: list[str]) -> None:
         """Runs the thread for `add_files()`.
 
         Args:
@@ -271,7 +277,7 @@ class MainWindow(QtWidgets.QWidget):
             self.action_search_lyrics.setEnabled(False)
 
     @QtCore.Slot()
-    def table_changed(self):
+    def table_changed(self) -> None:
         """The model of the table has changed."""
         if self.table_model.rowCount() > 0:
             self.action_cancel_rows.setEnabled(True)
@@ -281,7 +287,7 @@ class MainWindow(QtWidgets.QWidget):
             self.action_remove_rows.setEnabled(False)
 
     @QtCore.Slot()
-    def save_lyrics(self):
+    def save_lyrics(self) -> None:
         """Saves the lyrics to the files."""
         for row in range(self.table_model.rowCount()):
             filename = self.table_model.item(row, 0).text()
@@ -297,7 +303,7 @@ class MainWindow(QtWidgets.QWidget):
                 )
 
     @QtCore.Slot()
-    def cancel_rows(self):
+    def cancel_rows(self) -> None:
         """Removes the added lyrics from the files."""
         selection = self.table.selectedIndexes()
         for item in selection:
@@ -307,7 +313,7 @@ class MainWindow(QtWidgets.QWidget):
             self.table_model.item(item.row(), 3).setText("")
 
     @QtCore.Slot()
-    def remove_rows(self):
+    def remove_rows(self) -> None:
         """Remove the selected rows."""
         selection = sorted(self.table.selectedIndexes(), reverse=True)
         prev_index = -1
@@ -320,12 +326,13 @@ class MainWindow(QtWidgets.QWidget):
             prev_index = index
 
     @QtCore.Slot()
-    def open_token_page(self):
+    def open_token_page(self) -> None:
         """Opens the Genius website to fetch the client access token."""
         QtGui.QDesktopServices.openUrl(self.token_url)
 
     @QtCore.Slot()
-    def settings(self):
+    def settings(self) -> None:
         """Opens the settings window."""
-        settings_window = SettingsWindow()
-        
+        self.settings_window = QtWidgets.QMainWindow(self)
+        SettingsWindow(self.settings_window)
+        self.settings_window.show()
