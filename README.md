@@ -32,6 +32,8 @@ Download the executable `gtagger.exe` from the [Releases](https://github.com/mae
 
 ## TODO
 
+- Toggle the lyrics save button automatically
+
 - Options:
   - Ignore files with lyrics
   - Do not scan folders recursively

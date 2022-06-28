@@ -1,6 +1,6 @@
-"""Application GUI.
+"""Application's main window.
 
-Handles the creation of the GUI and the interactions with the user.
+Handles the creation of the main window and the interactions with the user.
 """
 
 import pathlib
@@ -8,15 +8,16 @@ from threading import Thread
 import qtawesome
 from PySide6 import QtCore, QtWidgets, QtGui
 
-from tools import Track, TrackSearch, LyricsSearch, Colors, States
-
+from src.settings import SettingsWindow
+from src.tools import Track, TrackSearch, LyricsSearch, Colors, States
 
 class MainWindow(QtWidgets.QWidget):
     """
-    Main window of the GUI
+    Main window of the GUI.
 
     Attributes:
-        tracks (list[Track]): Tracks added by the user to the table.
+        tracks (dict[str, Track]): Tracks added by the user to the table.
+        token_url (str): URL to the Genius web page to get a client access token.
     """
 
     def __init__(self):
@@ -62,6 +63,11 @@ class MainWindow(QtWidgets.QWidget):
         self.action_remove_rows.setIcon(icon_remove_rows)
         self.action_remove_rows.setToolTip("Remove selected rows")
         self.action_remove_rows.setEnabled(False)
+        
+        icon_settings = qtawesome.icon("ri.settings-3-line")
+        self.action_settings = QtGui.QAction()
+        self.action_settings.setIcon(icon_settings)
+        self.action_settings.setToolTip("Settings")
 
         self.tool_bar = QtWidgets.QToolBar()
         self.tool_bar.setIconSize(QtCore.QSize(30, 30))
@@ -73,6 +79,8 @@ class MainWindow(QtWidgets.QWidget):
         self.tool_bar.addSeparator()
         self.tool_bar.addAction(self.action_cancel_rows)
         self.tool_bar.addAction(self.action_remove_rows)
+        self.tool_bar.addSeparator()
+        self.tool_bar.addAction(self.action_settings)
 
         self.input_token = QtWidgets.QLineEdit()
         self.input_token.setPlaceholderText("Enter your Genius client access token")
@@ -108,6 +116,7 @@ class MainWindow(QtWidgets.QWidget):
         self.action_save_lyrics.triggered.connect(self.save_lyrics)
         self.action_cancel_rows.triggered.connect(self.cancel_rows)
         self.action_remove_rows.triggered.connect(self.remove_rows)
+        self.action_settings.triggered.connect(self.settings)
         self.input_token.textChanged.connect(self.token_changed)
         self.table_model.itemChanged.connect(self.table_changed)
         self.button_token.clicked.connect(self.open_token_page)
@@ -314,3 +323,9 @@ class MainWindow(QtWidgets.QWidget):
     def open_token_page(self):
         """Opens the Genius website to fetch the client access token."""
         QtGui.QDesktopServices.openUrl(self.token_url)
+
+    @QtCore.Slot()
+    def settings(self):
+        """Opens the settings window."""
+        settings_window = SettingsWindow()
+        
