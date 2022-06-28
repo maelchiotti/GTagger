@@ -32,7 +32,9 @@ Download the executable `gtagger.exe` from the [Releases](https://github.com/mae
 
 ## TODO
 
-- Toggle the lyrics save button automatically
+- Toggle the save lyrics button automatically
+
+- Improve the settings window to be a `QtCore.Qt.Tool` so that it keeps focus
 
 - Options:
   - Ignore files with lyrics
