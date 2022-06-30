@@ -11,13 +11,14 @@ class SettingsWindow(QtWidgets.QWidget):
     """Settings window of the GUI.
 
     Attributes:
+        ui_window (QtWidgets.QMainWindow): Main window UI.
         settings (dict[str, Any]): Settings names and values.
     """
 
     def __init__(self, ui_window: QtWidgets.QMainWindow):
         super().__init__()
 
-        self.ui_window = ui_window
+        self.ui_window: QtWidgets.QMainWindow = ui_window
         self.settings: dict[str, Any] = {
             "recursive": True,
         }
