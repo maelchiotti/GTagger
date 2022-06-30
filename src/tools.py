@@ -9,6 +9,7 @@ The tools include:
 """
 
 import os
+from pathlib import Path
 import re
 import logging as log
 from enum import Enum
@@ -22,7 +23,7 @@ class Track:
     """Represents a music track.
 
     Attributes:
-        filepath (str): Filepath of the track.
+        filepath (Path): Filepath of the track.
         filename (str): Filename of the track.
         eyed3_tags: Tags read and managed by `eyed3`.
         genius_tags: Tags found by `genius`.
@@ -35,7 +36,7 @@ class Track:
     SPLITTERS = " featuring | feat. | feat | ft. | ft | & | / "
 
     def __init__(self, filepath: str) -> None:
-        self.filepath: str = filepath
+        self.filepath: Path = filepath
         self.filename: str = os.path.basename(filepath)
         self.eyed3_tags = None
         self.genius_tags = None
@@ -116,9 +117,9 @@ class TrackSearch:
             self.genius: genius.Genius = genius.Genius(access_token=self.token)
 
     def search_track(self, track: Track) -> bool:
-        """Searches for a track on Genius.
+        """Searches for a track on Genius using the `track.title` and the `track.artist`.
 
-        The tags found are added to the `genius_tags` attribute.
+        The tags found are added to the `genius_tags` attribute of `track`.
 
         Args:
             track (Track): Track to search.
@@ -194,7 +195,7 @@ class LyricsSearch:
 
     @staticmethod
     def format_lyrics(unformatted_lyrics: str) -> str:
-        """Formats the lyrics by removing unwanted text.
+        """Formats `unformatted_lyrics` by removing unwanted text.
 
         Args:
             unformatted_lyrics (str): Lyrics to format.

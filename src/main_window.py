@@ -4,14 +4,15 @@ Handles the creation of the main window and the interactions with the user.
 """
 
 import pathlib
-from threading import Thread
 import qtawesome
 from PySide6 import QtCore, QtWidgets, QtGui
 
 from src.settings import SettingsWindow
-from src.tools import Track, TrackSearch, LyricsSearch, Colors, States
+from src.threads import ThreadAddRows, ThreadSearchLyrics
+from src.tools import Track, Colors, States
 
 VERSION = "v1.0.0"
+
 
 class MainWindow(QtWidgets.QWidget):
     """
@@ -19,16 +20,24 @@ class MainWindow(QtWidgets.QWidget):
 
     Attributes:
         tracks (dict[str, Track]): Tracks added by the user to the table.
-        token_url (str): URL to the Genius web page to get a client access token.
+        token_url (QtCore.QUrl): URL to the Genius web page to get a client access token.
+        settings_window (QtWidgets.QMainWindow): Settings window.
+        settings (SettingsWindow): Settings.
+        thread_add_rows: (QtCore.QThread): Thread to add rows to the table.
+        thread_search_lyrics: (QtCore.QThread): Thread to search for the lyrics.
     """
 
     def __init__(self):
         super().__init__()
 
         self.tracks: dict[str, Track] = {}
-        self.token_url = QtCore.QUrl("https://genius.com/api-clients")
-        
-        self.settings_window = None
+        self.token_url: QtCore.QUrl = QtCore.QUrl("https://genius.com/api-clients")
+
+        self.settings_window: QtWidgets.QMainWindow = QtWidgets.QMainWindow(self)
+        self.settings: SettingsWindow = SettingsWindow(self.settings_window)
+
+        self.thread_add_rows: QtCore.QThread = None
+        self.thread_search_lyrics: QtCore.QThread = None
 
         self.setup_ui()
 
@@ -67,7 +76,7 @@ class MainWindow(QtWidgets.QWidget):
         self.action_remove_rows.setIcon(icon_remove_rows)
         self.action_remove_rows.setToolTip("Remove selected rows")
         self.action_remove_rows.setEnabled(False)
-        
+
         icon_settings = qtawesome.icon("ri.settings-3-line")
         self.action_settings = QtGui.QAction()
         self.action_settings.setIcon(icon_settings)
@@ -113,7 +122,7 @@ class MainWindow(QtWidgets.QWidget):
         self.layout.addWidget(self.input_token, 0, 0, 1, 1)
         self.layout.addWidget(self.button_token, 0, 1, 1, 1)
         self.layout.addWidget(self.table, 1, 0, 1, 2)
-        
+
         self.setWindowTitle(f"GTagger ({VERSION})")
 
         self.action_add_files.triggered.connect(lambda: self.add_files(False))
@@ -122,7 +131,7 @@ class MainWindow(QtWidgets.QWidget):
         self.action_save_lyrics.triggered.connect(self.save_lyrics)
         self.action_cancel_rows.triggered.connect(self.cancel_rows)
         self.action_remove_rows.triggered.connect(self.remove_rows)
-        self.action_settings.triggered.connect(self.settings)
+        self.action_settings.triggered.connect(self.open_settings)
         self.input_token.textChanged.connect(self.token_changed)
         self.table_model.itemChanged.connect(self.table_changed)
         self.button_token.clicked.connect(self.open_token_page)
@@ -176,85 +185,23 @@ class MainWindow(QtWidgets.QWidget):
             directory = self.select_directories()
             if directory is None:
                 return
-            files = pathlib.Path(directory).rglob("*.mp3")
+            if self.settings.get_setting("recursive"):
+                files = pathlib.Path(directory).rglob("*.mp3")
+            else:
+                files = pathlib.Path(directory).glob("*.mp3")
         else:
             files = self.select_files()
             if files is None:
                 return
 
-        self.thread_add_rows = Thread(target=self.run_add_files, args=(files,))
+        self.thread_add_rows = ThreadAddRows(self, files)
         self.thread_add_rows.start()
-
-    def run_add_files(self, files: list[str]) -> None:
-        """Runs the thread for `add_files()`.
-
-        Args:
-            files (list[str]): List of files to add to the table.
-        """
-        for file in files:
-            track = Track(file)
-            tags_read = track.read_tags()
-            self.tracks[track.filename] = track
-
-            self.table_model.insertRow(self.table_model.rowCount())
-            self.table_model.setItem(
-                self.table_model.rowCount() - 1, 0, QtGui.QStandardItem(track.filename)
-            )
-            if tags_read:
-                self.table_model.setItem(
-                    self.table_model.rowCount() - 1, 1, QtGui.QStandardItem(track.title)
-                )
-                self.table_model.setItem(
-                    self.table_model.rowCount() - 1,
-                    2,
-                    QtGui.QStandardItem(track.main_artist),
-                )
-                self.table_model.setItem(
-                    self.table_model.rowCount() - 1, 3, QtGui.QStandardItem("")
-                )
-                self.table_model.setItem(
-                    self.table_model.rowCount() - 1,
-                    4,
-                    QtGui.QStandardItem(States.TAGS_READ.value),
-                )
-            else:
-                self.table_model.setItem(
-                    self.table_model.rowCount() - 1,
-                    4,
-                    QtGui.QStandardItem(States.TAGS_NOT_READ.value),
-                )
-        if self.is_token_valid():
-            self.action_search_lyrics.setEnabled(True)
 
     @QtCore.Slot()
     def search_lyrics(self) -> None:
-        """Searches for the lyrics of the files in the table."""
-        self.thread_search_lyrics = Thread(target=self.run_search_lyrics)
+        """Searches for the lyrics of the files and adds them in the table."""
+        self.thread_search_lyrics = ThreadSearchLyrics(self)
         self.thread_search_lyrics.start()
-
-    def run_search_lyrics(self) -> None:
-        """Runs the thread for `search_lyrics()`."""
-        if self.table_model.rowCount() == 0 or self.thread_add_rows.is_alive():
-            return
-
-        token = self.input_token.text()
-        for row, track in enumerate(self.tracks.values()):
-            track_search = TrackSearch(token)
-            track_search.search_track(track)
-            lyrics_search = LyricsSearch(token)
-            found_lyrics = lyrics_search.search_lyrics(track)
-            if found_lyrics:
-                lyrics = f"{track.get_lyrics(100)}[...]"
-                item = QtGui.QStandardItem(lyrics)
-                item.setToolTip(track.lyrics)
-                self.table_model.setItem(row, 3, item)
-                self.table_model.setItem(
-                    row, 4, QtGui.QStandardItem(States.LYRICS_FOUND.value)
-                )
-            else:
-                self.table_model.setItem(
-                    row, 4, QtGui.QStandardItem(States.LYRICS_NOT_FOUND.value)
-                )
 
     @QtCore.Slot()
     def token_changed(self) -> None:
@@ -331,8 +278,6 @@ class MainWindow(QtWidgets.QWidget):
         QtGui.QDesktopServices.openUrl(self.token_url)
 
     @QtCore.Slot()
-    def settings(self) -> None:
+    def open_settings(self) -> None:
         """Opens the settings window."""
-        self.settings_window = QtWidgets.QMainWindow(self)
-        SettingsWindow(self.settings_window)
         self.settings_window.show()
