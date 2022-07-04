@@ -32,6 +32,8 @@ Download the executable `gtagger.exe` from the [Releases](https://github.com/mae
 
 ## TODO
 
+- Use a GridLayout and QFrames to display the songs in a prettier way
+
 - Toggle the save lyrics button automatically
 
 - Improve the settings window to be a `QtCore.Qt.Tool` so that it keeps focus
