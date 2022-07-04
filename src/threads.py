@@ -27,6 +27,7 @@ class ThreadAddRows(QtCore.QThread):
         main (MainWindow): Main window.
         files (list[str]): List of files to add to the table.
     """
+    added_row = QtCore.Signal(object)
 
     def __init__(self, main: MainWindow, files: list[str]):
         super().__init__()
@@ -43,34 +44,32 @@ class ThreadAddRows(QtCore.QThread):
             item_filename = QtGui.QStandardItem(track.filename)
             item_filename.setToolTip(str(track.filepath))
             
-            layout = self.build_layout(tags_read, track)
-            self.main.layout_files.addLayout(layout)
+            if tags_read:
+                label_filename = QtWidgets.QLabel()
+                label_title = QtWidgets.QLabel()
+                label_artist = QtWidgets.QLabel()
+                label_lyrics = QtWidgets.QLabel()
+                label_state = QtWidgets.QLabel()
+            else:
+                label_filename = QtWidgets.QLabel("")
+                label_title = QtWidgets.QLabel("")
+                label_artist = QtWidgets.QLabel("")
+                label_lyrics = QtWidgets.QLabel("")
+                label_state = QtWidgets.QLabel(States.TAGS_NOT_READ.value)
+            
+            layout = QtWidgets.QGridLayout()
+            layout.addWidget(label_filename, 0, 0, 1, 2)
+            layout.addWidget(label_title, 1, 0, 1, 1)
+            layout.addWidget(label_artist, 1, 1, 1, 1)
+            layout.addWidget(label_lyrics, 2, 0, 1, 2)
+            layout.addWidget(label_state, 3, 0, 1, 2)
+        
+            print("built")
+            self.added_row.emit(layout)
 
         if self.main.is_token_valid():
             self.main.action_search_lyrics.setEnabled(True)
 
-    def build_layout(self, tags_read, track: Track):
-        if tags_read:
-            self.label_filename = QtWidgets.QLabel(self.main.widget_files)
-            self.label_title = QtWidgets.QLabel(self.main.widget_files)
-            self.label_artist = QtWidgets.QLabel(self.main.widget_files)
-            self.label_lyrics = QtWidgets.QLabel(self.main.widget_files)
-            self.label_state = QtWidgets.QLabel(self.main.widget_files)
-        else:
-            self.label_filename = QtWidgets.QLabel("")
-            self.label_title = QtWidgets.QLabel("")
-            self.label_artist = QtWidgets.QLabel("")
-            self.label_lyrics = QtWidgets.QLabel("")
-            self.label_state = QtWidgets.QLabel(States.TAGS_NOT_READ.value)
-        
-        layout = QtWidgets.QGridLayout()
-        layout.addWidget(self.label_filename, 0, 0, 1, 2)
-        layout.addWidget(self.label_title, 1, 0, 1, 1)
-        layout.addWidget(self.label_artist, 1, 1, 1, 1)
-        layout.addWidget(self.label_lyrics, 2, 0, 1, 2)
-        layout.addWidget(self.label_state, 3, 0, 1, 2)
-        
-        return layout
 
 class ThreadSearchLyrics(QtCore.QThread):
     """Runs the thread for `main.search_lyrics()`.
