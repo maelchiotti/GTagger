@@ -36,6 +36,5 @@ Download the executable `gtagger.exe` from the [Releases](https://github.com/mae
 
 - Improve the settings window to be a `QtCore.Qt.Tool` so that it keeps focus
 
-- Options:
+- Add options:
   - Ignore files with lyrics
-  - Do not scan folders recursively
