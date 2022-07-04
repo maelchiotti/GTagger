@@ -9,9 +9,8 @@ from PySide6 import QtCore, QtWidgets, QtGui
 
 from src.settings import SettingsWindow
 from src.threads import ThreadAddRows, ThreadSearchLyrics
-from src.tools import Track, Colors, States
-
-VERSION = "v1.0.0"
+from src.track import Track
+from src.tools import Colors, States, VERSION
 
 
 class MainWindow(QtWidgets.QWidget):

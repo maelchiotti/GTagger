@@ -1,6 +1,9 @@
 """Application's threads.
 
 Threads handle long operations in the background to avoid blocking the GUI.
+The threads include:
+- ThreadAddRows: add rows to the main table.
+- ThreadSearchLyrics: search tracks' lyrics.
 """
 
 from __future__ import annotations
@@ -8,7 +11,10 @@ from typing import TYPE_CHECKING
 
 from PySide6 import QtCore, QtGui
 
-from src.tools import Track, TrackSearch, LyricsSearch, States
+from src.track import Track
+from src.track_search import TrackSearch
+from src.lyrics_search import LyricsSearch
+from src.tools import States
 
 if TYPE_CHECKING:
     from main_window import MainWindow
