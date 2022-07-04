@@ -9,7 +9,7 @@ The threads include:
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from PySide6 import QtCore, QtGui
+from PySide6 import QtCore, QtGui, QtWidgets
 
 from src.track import Track
 from src.track_search import TrackSearch
@@ -40,42 +40,37 @@ class ThreadAddRows(QtCore.QThread):
             tags_read = track.read_tags()
             self.main.tracks[track.filename] = track
 
-            self.main.table_model.insertRow(self.main.table_model.rowCount())
             item_filename = QtGui.QStandardItem(track.filename)
             item_filename.setToolTip(str(track.filepath))
-            self.main.table_model.setItem(
-                self.main.table_model.rowCount() - 1,
-                0,
-                item_filename,
-            )
-            if tags_read:
-                self.main.table_model.setItem(
-                    self.main.table_model.rowCount() - 1,
-                    1,
-                    QtGui.QStandardItem(track.title),
-                )
-                self.main.table_model.setItem(
-                    self.main.table_model.rowCount() - 1,
-                    2,
-                    QtGui.QStandardItem(track.main_artist),
-                )
-                self.main.table_model.setItem(
-                    self.main.table_model.rowCount() - 1, 3, QtGui.QStandardItem("")
-                )
-                self.main.table_model.setItem(
-                    self.main.table_model.rowCount() - 1,
-                    4,
-                    QtGui.QStandardItem(States.TAGS_READ.value),
-                )
-            else:
-                self.main.table_model.setItem(
-                    self.main.table_model.rowCount() - 1,
-                    4,
-                    QtGui.QStandardItem(States.TAGS_NOT_READ.value),
-                )
+            
+            layout = self.build_layout(tags_read, track)
+            self.main.layout_files.addLayout(layout)
+
         if self.main.is_token_valid():
             self.main.action_search_lyrics.setEnabled(True)
 
+    def build_layout(self, tags_read, track: Track):
+        if tags_read:
+            self.label_filename = QtWidgets.QLabel(self.main.widget_files)
+            self.label_title = QtWidgets.QLabel(self.main.widget_files)
+            self.label_artist = QtWidgets.QLabel(self.main.widget_files)
+            self.label_lyrics = QtWidgets.QLabel(self.main.widget_files)
+            self.label_state = QtWidgets.QLabel(self.main.widget_files)
+        else:
+            self.label_filename = QtWidgets.QLabel("")
+            self.label_title = QtWidgets.QLabel("")
+            self.label_artist = QtWidgets.QLabel("")
+            self.label_lyrics = QtWidgets.QLabel("")
+            self.label_state = QtWidgets.QLabel(States.TAGS_NOT_READ.value)
+        
+        layout = QtWidgets.QGridLayout()
+        layout.addWidget(self.label_filename, 0, 0, 1, 2)
+        layout.addWidget(self.label_title, 1, 0, 1, 1)
+        layout.addWidget(self.label_artist, 1, 1, 1, 1)
+        layout.addWidget(self.label_lyrics, 2, 0, 1, 2)
+        layout.addWidget(self.label_state, 3, 0, 1, 2)
+        
+        return layout
 
 class ThreadSearchLyrics(QtCore.QThread):
     """Runs the thread for `main.search_lyrics()`.

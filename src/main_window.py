@@ -107,20 +107,19 @@ class MainWindow(QtWidgets.QWidget):
         self.button_token.setIcon(self.icon_token)
         self.button_token.setToolTip("Get the token\non Genius website")
 
-        self.table_model = QtGui.QStandardItemModel()
-        self.table_model.setColumnCount(4)
-        self.table_model.setHorizontalHeaderLabels(
-            ["File", "Title", "Artist", "Lyrics", "State"]
-        )
-        self.table = QtWidgets.QTableView()
-        self.table.setModel(self.table_model)
-        self.table.setSortingEnabled(True)
+        self.layout_files = QtWidgets.QVBoxLayout()
 
+        self.widget_files = QtWidgets.QWidget()
+        self.widget_files.setLayout(self.layout_files)
+        
+        self.scroll_area = QtWidgets.QScrollArea()
+        self.scroll_area.setWidget(self.widget_files)
+        
         self.layout = QtWidgets.QGridLayout(self)
         self.layout.setMenuBar(self.tool_bar)
         self.layout.addWidget(self.input_token, 0, 0, 1, 1)
         self.layout.addWidget(self.button_token, 0, 1, 1, 1)
-        self.layout.addWidget(self.table, 1, 0, 1, 2)
+        self.layout.addWidget(self.scroll_area, 1, 0, 1, 2)
 
         self.setWindowTitle(f"GTagger ({VERSION})")
 
@@ -132,7 +131,6 @@ class MainWindow(QtWidgets.QWidget):
         self.action_remove_rows.triggered.connect(self.remove_rows)
         self.action_settings.triggered.connect(self.open_settings)
         self.input_token.textChanged.connect(self.token_changed)
-        self.table_model.itemChanged.connect(self.table_changed)
         self.button_token.clicked.connect(self.open_token_page)
 
     def select_directories(self) -> str:
