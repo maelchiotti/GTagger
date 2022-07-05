@@ -115,6 +115,7 @@ class MainWindow(QtWidgets.QWidget):
         
         self.scroll_area = QtWidgets.QScrollArea()
         self.scroll_area.setWidget(self.widget_files)
+        self.scroll_area.setWidgetResizable(True)
         
         self.layout = QtWidgets.QGridLayout(self)
         self.layout.setMenuBar(self.tool_bar)
@@ -200,17 +201,16 @@ class MainWindow(QtWidgets.QWidget):
             item_filename = QtGui.QStandardItem(track.filename)
             item_filename.setToolTip(str(track.filepath))
             
+            label_filename = QtWidgets.QLabel(track.filename)
             if tags_read:
-                label_filename = QtWidgets.QLabel(track.filename)
                 label_title = QtWidgets.QLabel(track.title)
                 label_artist = QtWidgets.QLabel(track.main_artist)
                 label_lyrics = QtWidgets.QLabel(track.lyrics)
                 label_state = QtWidgets.QLabel(States.TAGS_READ.value)
             else:
-                label_filename = QtWidgets.QLabel("")
-                label_title = QtWidgets.QLabel("")
-                label_artist = QtWidgets.QLabel("")
-                label_lyrics = QtWidgets.QLabel("")
+                label_title = QtWidgets.QLabel("No title")
+                label_artist = QtWidgets.QLabel("No artist")
+                label_lyrics = QtWidgets.QLabel("No lyrics")
                 label_state = QtWidgets.QLabel(States.TAGS_NOT_READ.value)
             
             layout = QtWidgets.QGridLayout()

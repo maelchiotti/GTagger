@@ -33,6 +33,7 @@ Download the executable `gtagger.exe` from the [Releases](https://github.com/mae
 ## TODO
 
 - Use a GridLayout and QFrames to display the songs in a prettier way
+  - Add get methods for the tags to return a placeholder in case a tag is empty
 
 - Toggle the save lyrics button automatically
 
