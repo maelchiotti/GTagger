@@ -203,14 +203,14 @@ class MainWindow(QtWidgets.QWidget):
             
             label_filename = QtWidgets.QLabel(track.filename)
             if tags_read:
-                label_title = QtWidgets.QLabel(track.title)
-                label_artist = QtWidgets.QLabel(track.main_artist)
-                label_lyrics = QtWidgets.QLabel(track.lyrics)
+                label_title = QtWidgets.QLabel(track.get_title())
+                label_artist = QtWidgets.QLabel(track.get_artists())
+                label_lyrics = QtWidgets.QLabel(track.get_lyrics())
                 label_state = QtWidgets.QLabel(States.TAGS_READ.value)
             else:
-                label_title = QtWidgets.QLabel("No title")
-                label_artist = QtWidgets.QLabel("No artist")
-                label_lyrics = QtWidgets.QLabel("No lyrics")
+                label_title = QtWidgets.QLabel("-")
+                label_artist = QtWidgets.QLabel("-")
+                label_lyrics = QtWidgets.QLabel("-")
                 label_state = QtWidgets.QLabel(States.TAGS_NOT_READ.value)
             
             layout = QtWidgets.QGridLayout()
