@@ -8,7 +8,7 @@ import qtawesome
 from PySide6 import QtCore, QtWidgets, QtGui
 
 from src.settings import SettingsWindow
-from src.threads import ThreadAddRows, ThreadSearchLyrics
+from src.threads import ThreadSearchLyrics
 from src.track import Track
 from src.tools import Colors, States, VERSION
 
@@ -22,7 +22,6 @@ class MainWindow(QtWidgets.QWidget):
         token_url (QtCore.QUrl): URL to the Genius web page to get a client access token.
         settings_window (QtWidgets.QMainWindow): Settings window.
         settings (SettingsWindow): Settings.
-        thread_add_rows: (QtCore.QThread): Thread to add rows to the table.
         thread_search_lyrics: (QtCore.QThread): Thread to search for the lyrics.
     """
     
@@ -31,12 +30,12 @@ class MainWindow(QtWidgets.QWidget):
         super().__init__()
 
         self.tracks: dict[str, Track] = {}
+        self.track_layouts: dict[str, TrackLayout] = {}
         self.token_url: QtCore.QUrl = QtCore.QUrl("https://genius.com/api-clients")
 
         self.settings_window: QtWidgets.QMainWindow = QtWidgets.QMainWindow(self)
         self.settings: SettingsWindow = SettingsWindow(self.settings_window)
 
-        self.thread_add_rows: QtCore.QThread = None
         self.thread_search_lyrics: QtCore.QThread = None
 
         self.setup_ui()
@@ -198,32 +197,20 @@ class MainWindow(QtWidgets.QWidget):
             tags_read = track.read_tags()
             self.tracks[track.filename] = track
 
-            item_filename = QtGui.QStandardItem(track.filename)
-            item_filename.setToolTip(str(track.filepath))
-            
-            label_filename = QtWidgets.QLabel(track.filename)
             if tags_read:
-                label_title = QtWidgets.QLabel(track.get_title())
-                label_artist = QtWidgets.QLabel(track.get_artists())
-                label_lyrics = QtWidgets.QLabel(track.get_lyrics())
-                label_state = QtWidgets.QLabel(States.TAGS_READ.value)
+                title = track.get_title()
+                artists = track.get_artists()
+                lyrics = track.get_lyrics()
+                state = States.TAGS_READ.value
             else:
-                label_title = QtWidgets.QLabel("-")
-                label_artist = QtWidgets.QLabel("-")
-                label_lyrics = QtWidgets.QLabel("-")
-                label_state = QtWidgets.QLabel(States.TAGS_NOT_READ.value)
+                title = "-"
+                artists = "-"
+                lyrics = "-"
+                state = States.TAGS_NOT_READ.value
             
-            layout = QtWidgets.QGridLayout()
-            layout.addWidget(label_filename, 0, 0, 1, 2)
-            layout.addWidget(label_title, 1, 0, 1, 1)
-            layout.addWidget(label_artist, 1, 1, 1, 1)
-            layout.addWidget(label_lyrics, 2, 0, 1, 2)
-            layout.addWidget(label_state, 3, 0, 1, 2)
-        
-            self.layout_files.addLayout(layout)
-
-    def add_row(self, layout):
-        self.layout_files.addLayout(layout)
+            track_layout = TrackLayout(track.filepath, track.filename, title, artists, lyrics, state)
+            self.track_layouts[track.filename] = track_layout
+            self.layout_files.addLayout(track_layout)
 
     @QtCore.Slot()
     def search_lyrics(self) -> None:
@@ -309,3 +296,20 @@ class MainWindow(QtWidgets.QWidget):
     def open_settings(self) -> None:
         """Opens the settings window."""
         self.settings_window.show()
+
+
+class TrackLayout(QtWidgets.QGridLayout):
+    def __init__(self, filepath: str, filename: str, title: str, artists: str, lyrics: str, state: str):
+        super().__init__()
+        
+        self.label_filename = QtWidgets.QLabel(filename)
+        self.label_filename.setToolTip(filepath)
+        self.addWidget(self.label_filename, 0, 0, 1, 2)
+        self.label_title = QtWidgets.QLabel(title)
+        self.addWidget(self.label_title, 1, 0, 1, 1)
+        self.label_artist = QtWidgets.QLabel(artists)
+        self.addWidget(self.label_artist, 1, 1, 1, 1)
+        self.label_lyrics = QtWidgets.QLabel(lyrics)
+        self.addWidget(self.label_lyrics, 2, 0, 1, 2)
+        self.label_state = QtWidgets.QLabel(state)
+        self.addWidget(self.label_state, 3, 0, 1, 2)
