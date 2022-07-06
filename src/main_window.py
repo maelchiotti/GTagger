@@ -42,9 +42,17 @@ class MainWindow(QtWidgets.QWidget):
 
     def setup_ui(self) -> None:
         """Sets up the UI of the window."""
+        # TODO create a function to change the color of the icons
         icon_add_files = qtawesome.icon("ri.file-add-line", color="darkgreen")
         self.action_add_files = QtGui.QAction()
-        self.action_add_files.setIcon(icon_add_files)
+        image = QtGui.QPixmap("src/assets/img/icons/fi-page-add.svg")
+        painter = QtGui.QPainter(image)
+        painter.setCompositionMode(QtGui.QPainter.CompositionMode_SourceIn)
+        painter.setBrush(QtGui.QColor("green"))
+        painter.setPen(QtGui.QColor("green"))
+        painter.drawRect(image.rect())
+        icon = QtGui.QIcon(image)
+        self.action_add_files.setIcon(icon)
         self.action_add_files.setToolTip("Select files")
 
         icon_add_folder = qtawesome.icon("ri.folder-add-line", color="darkgreen")
