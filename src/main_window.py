@@ -47,8 +47,10 @@ class MainWindow(QtWidgets.QWidget):
 
     def setup_ui(self) -> None:
         """Sets up the UI of the window."""
+        self.setWindowTitle(f"GTagger ({VERSION})")
+        
         # TODO create a function to change the color of the icons
-        icon_add_files = CustomIcon("page-add", "dark", Colors.lightgreen.value)
+        icon_add_files = CustomIcon("document-add", "dark", Colors.lightgreen.value)
         self.action_add_files = QtGui.QAction()
         self.action_add_files.setIcon(icon_add_files)
         self.action_add_files.setToolTip("Select files")
@@ -122,14 +124,20 @@ class MainWindow(QtWidgets.QWidget):
         self.scroll_area.setWidget(self.widget_files)
         self.scroll_area.setWidgetResizable(True)
         
+        self.layout_main = QtWidgets.QGridLayout()
+        self.layout_main.addWidget(self.input_token, 0, 0, 1, 1)
+        self.layout_main.addWidget(self.button_token, 0, 1, 1, 1)
+        self.layout_main.addWidget(self.scroll_area, 1, 0, 1, 2)
+        self.layout_main.setContentsMargins(5, 5, 5, 0)
+        
+        self.status_bar = QtWidgets.QStatusBar()
+        
         self.layout = QtWidgets.QGridLayout(self)
         self.layout.setMenuBar(self.tool_bar)
-        self.layout.addWidget(self.input_token, 0, 0, 1, 1)
-        self.layout.addWidget(self.button_token, 0, 1, 1, 1)
-        self.layout.addWidget(self.scroll_area, 1, 0, 1, 2)
-
-        self.setWindowTitle(f"GTagger ({VERSION})")
-
+        self.layout.addLayout(self.layout_main, 0, 0, 1, 1)
+        self.layout.addWidget(self.status_bar, 1, 0, 1, 1)
+        self.layout.setContentsMargins(0, 0, 0, 0)
+        
         self.action_add_files.triggered.connect(lambda: self.add_files(False))
         self.action_add_folder.triggered.connect(lambda: self.add_files(True))
         self.action_search_lyrics.triggered.connect(self.search_lyrics)
@@ -316,12 +324,12 @@ class CustomIcon(QtGui.QIcon):
     def __init__(self, icon_name: str, theme: Theme, color: Colors):
         super().__init__()
         
-        icon_name = "fi-" + icon_name + ".svg"
+        icon_name = icon_name + ".svg"
         image_path = os.path.join(PATH_ICONS, icon_name)
         
         if not os.path.exists(image_path):
-            print(image_path)
             log.error("The icon '%s' does not exist", icon_name)
+            return
         
         image = QtGui.QPixmap(image_path)
         
