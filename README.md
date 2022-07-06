@@ -21,7 +21,7 @@ Download the executable `gtagger.exe` from the [Releases](https://github.com/mae
 - Install the required dependencies:
 
     ```shell
-    pip install wrap-genius lyricsgenius eyed3 qtawesome PySide6
+    pip install -r requirements.txt
     ```
 
 - Launch GTagger with the following command:
