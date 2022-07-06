@@ -4,7 +4,7 @@ GTagger is a python tool that adds lyrics from [Genius](https://genius.com/) to 
 
 ![Screenshot of the main window](docs/gtagger.png)
 
-It uses [wrap-genius](https://github.com/fedecalendino/wrap-genius) to find the track's Genius ID based on its title and artist, and [lyricsgenius](https://lyricsgenius.readthedocs.io/en/master/index.html) to fetch the lyrics automatically.
+It uses [wrap-genius](https://github.com/fedecalendino/wrap-genius) to find the track's Genius ID based on its title and artist, and [LyricsGenius](https://github.com/johnwmillr/LyricsGenius) to fetch the lyrics automatically.
 
 ## WIP
 
