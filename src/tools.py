@@ -8,7 +8,7 @@ The tools include:
 from enum import Enum
 
 VERSION = "v1.0.0"
-
+PATH_ICONS = "src/assets/img/icons"
 
 class Colors(Enum):
     """Enumerates usefull (name, hex code) colors."""
@@ -26,3 +26,8 @@ class States(Enum):
     LYRICS_NOT_FOUND = "Couldn't find lyrics"
     LYRICS_SAVED = "Lyrics saved"
     LYRICS_NOT_SAVED = "Couldn't save the lyrics"
+
+
+class Theme(Enum):
+    LIGHT = "light"
+    DARK = "dark"

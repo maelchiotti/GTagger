@@ -3,14 +3,17 @@
 Handles the creation of the main window and the interactions with the user.
 """
 
+import os
 import pathlib
+import logging as log
 import qtawesome
+import qdarktheme
 from PySide6 import QtCore, QtWidgets, QtGui
 
 from src.settings import SettingsWindow
 from src.threads import ThreadSearchLyrics
 from src.track import Track
-from src.tools import Colors, States, VERSION
+from src.tools import PATH_ICONS, Colors, States, VERSION, Theme
 
 
 class MainWindow(QtWidgets.QWidget):
@@ -24,10 +27,12 @@ class MainWindow(QtWidgets.QWidget):
         settings (SettingsWindow): Settings.
         thread_search_lyrics: (QtCore.QThread): Thread to search for the lyrics.
     """
+    signal_change_theme = QtCore.Signal(Theme)
     
-
-    def __init__(self):
+    def __init__(self, app):
         super().__init__()
+        
+        self.app = app
 
         self.tracks: dict[str, Track] = {}
         self.track_layouts: dict[str, TrackLayout] = {}
@@ -43,16 +48,9 @@ class MainWindow(QtWidgets.QWidget):
     def setup_ui(self) -> None:
         """Sets up the UI of the window."""
         # TODO create a function to change the color of the icons
-        icon_add_files = qtawesome.icon("ri.file-add-line", color="darkgreen")
+        icon_add_files = CustomIcon("page-add", "dark", Colors.lightgreen.value)
         self.action_add_files = QtGui.QAction()
-        image = QtGui.QPixmap("src/assets/img/icons/fi-page-add.svg")
-        painter = QtGui.QPainter(image)
-        painter.setCompositionMode(QtGui.QPainter.CompositionMode_SourceIn)
-        painter.setBrush(QtGui.QColor("green"))
-        painter.setPen(QtGui.QColor("green"))
-        painter.drawRect(image.rect())
-        icon = QtGui.QIcon(image)
-        self.action_add_files.setIcon(icon)
+        self.action_add_files.setIcon(icon_add_files)
         self.action_add_files.setToolTip("Select files")
 
         icon_add_folder = qtawesome.icon("ri.folder-add-line", color="darkgreen")
@@ -181,6 +179,14 @@ class MainWindow(QtWidgets.QWidget):
         return validator_state == QtGui.QValidator.State.Acceptable
 
     @QtCore.Slot()
+    def change_theme(self):
+        # todo use a button
+        if self.theme == Theme.LIGHT:
+            QtWidgets.QApplication.instance().setStyleSheet(qdarktheme.load_stylesheet("light", "rounded"))
+        elif self.theme == Theme.DARK:
+            QtWidgets.QApplication.instance().setStyleSheet(qdarktheme.load_stylesheet("dark", "rounded"))
+
+    @QtCore.Slot()
     def add_files(self, select_directory: bool) -> None:
         """Adds the selected files to the table.
 
@@ -306,6 +312,30 @@ class MainWindow(QtWidgets.QWidget):
         self.settings_window.show()
 
 
+class CustomIcon(QtGui.QIcon):
+    def __init__(self, icon_name: str, theme: Theme, color: Colors):
+        super().__init__()
+        
+        icon_name = "fi-" + icon_name + ".svg"
+        image_path = os.path.join(PATH_ICONS, icon_name)
+        
+        if not os.path.exists(image_path):
+            print(image_path)
+            log.error("The icon '%s' does not exist", icon_name)
+        
+        image = QtGui.QPixmap(image_path)
+        
+        if theme == Theme.DARK.value:
+            painter = QtGui.QPainter(image)
+            painter.setCompositionMode(QtGui.QPainter.CompositionMode_SourceIn)
+            painter.setBrush(QtGui.QColor(color))
+            painter.setPen(QtGui.QColor(color))
+            painter.drawRect(image.rect())
+            painter.end()
+        
+        self.addPixmap(image)
+
+        
 class TrackLayout(QtWidgets.QGridLayout):
     def __init__(self, filepath: str, filename: str, title: str, artists: str, lyrics: str, state: str):
         super().__init__()
