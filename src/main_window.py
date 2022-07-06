@@ -13,7 +13,7 @@ from PySide6 import QtCore, QtWidgets, QtGui
 from src.settings import SettingsWindow
 from src.threads import ThreadSearchLyrics
 from src.track import Track
-from src.tools import PATH_ICONS, Colors, States, VERSION, Theme
+from src.tools import VERSION, PATH_ICONS, Colors, States, Themes
 
 
 class MainWindow(QtWidgets.QWidget):
@@ -27,8 +27,6 @@ class MainWindow(QtWidgets.QWidget):
         settings (SettingsWindow): Settings.
         thread_search_lyrics: (QtCore.QThread): Thread to search for the lyrics.
     """
-    signal_change_theme = QtCore.Signal(Theme)
-    
     def __init__(self, app):
         super().__init__()
         
@@ -49,41 +47,46 @@ class MainWindow(QtWidgets.QWidget):
         """Sets up the UI of the window."""
         self.setWindowTitle(f"GTagger ({VERSION})")
         
-        # TODO create a function to change the color of the icons
         icon_add_files = CustomIcon("document-add", "dark", Colors.lightgreen.value)
         self.action_add_files = QtGui.QAction()
         self.action_add_files.setIcon(icon_add_files)
         self.action_add_files.setToolTip("Select files")
 
+        icon_add_folder = CustomIcon("folder-add", "dark", Colors.lightgreen.value)
         icon_add_folder = qtawesome.icon("ri.folder-add-line", color="darkgreen")
         self.action_add_folder = QtGui.QAction()
         self.action_add_folder.setIcon(icon_add_folder)
         self.action_add_folder.setToolTip("Select a folder")
 
+        icon_read_tags = CustomIcon("tag", "dark", Colors.lightgreen.value)
         icon_read_tags = qtawesome.icon("ri.search-2-line", color="darkblue")
         self.action_search_lyrics = QtGui.QAction()
         self.action_search_lyrics.setIcon(icon_read_tags)
         self.action_search_lyrics.setToolTip("Search for the lyrics")
         self.action_search_lyrics.setEnabled(False)
 
+        icon_save_lyrics = CustomIcon("save", "dark", Colors.lightgreen.value)
         icon_save_lyrics = qtawesome.icon("ri.save-3-line", color="darkgreen")
         self.action_save_lyrics = QtGui.QAction()
         self.action_save_lyrics.setIcon(icon_save_lyrics)
         self.action_save_lyrics.setToolTip("Save the lyrics")
         self.action_save_lyrics.setEnabled(True)
 
+        icon_cancel_rows = CustomIcon("document-add", "dark", Colors.lightgreen.value)
         icon_cancel_rows = qtawesome.icon("ri.arrow-go-back-fill", color="darkorange")
         self.action_cancel_rows = QtGui.QAction()
         self.action_cancel_rows.setIcon(icon_cancel_rows)
         self.action_cancel_rows.setToolTip("Cancel the modifications\nof selected rows")
         self.action_cancel_rows.setEnabled(False)
 
+        icon_remove_rows = CustomIcon("document-add", "dark", Colors.lightgreen.value)
         icon_remove_rows = qtawesome.icon("ri.delete-row", color="darkred")
         self.action_remove_rows = QtGui.QAction()
         self.action_remove_rows.setIcon(icon_remove_rows)
         self.action_remove_rows.setToolTip("Remove selected rows")
         self.action_remove_rows.setEnabled(False)
 
+        icon_settings = CustomIcon("document-add", "dark", Colors.lightgreen.value)
         icon_settings = qtawesome.icon("ri.settings-3-line")
         self.action_settings = QtGui.QAction()
         self.action_settings.setIcon(icon_settings)
@@ -189,9 +192,9 @@ class MainWindow(QtWidgets.QWidget):
     @QtCore.Slot()
     def change_theme(self):
         # todo use a button
-        if self.theme == Theme.LIGHT:
+        if self.theme == Themes.LIGHT:
             QtWidgets.QApplication.instance().setStyleSheet(qdarktheme.load_stylesheet("light", "rounded"))
-        elif self.theme == Theme.DARK:
+        elif self.theme == Themes.DARK:
             QtWidgets.QApplication.instance().setStyleSheet(qdarktheme.load_stylesheet("dark", "rounded"))
 
     @QtCore.Slot()
@@ -321,7 +324,7 @@ class MainWindow(QtWidgets.QWidget):
 
 
 class CustomIcon(QtGui.QIcon):
-    def __init__(self, icon_name: str, theme: Theme, color: Colors):
+    def __init__(self, icon_name: str, theme: Themes, color: Colors):
         super().__init__()
         
         icon_name = icon_name + ".svg"
@@ -333,7 +336,7 @@ class CustomIcon(QtGui.QIcon):
         
         image = QtGui.QPixmap(image_path)
         
-        if theme == Theme.DARK.value:
+        if theme == Themes.DARK.value:
             painter = QtGui.QPainter(image)
             painter.setCompositionMode(QtGui.QPainter.CompositionMode_SourceIn)
             painter.setBrush(QtGui.QColor(color))

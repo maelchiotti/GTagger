@@ -28,6 +28,6 @@ class States(Enum):
     LYRICS_NOT_SAVED = "Couldn't save the lyrics"
 
 
-class Theme(Enum):
+class Themes(Enum):
     LIGHT = "light"
     DARK = "dark"
