@@ -12,7 +12,7 @@ from PySide6 import QtCore, QtWidgets, QtGui
 from src.settings import SettingsWindow
 from src.threads import ThreadSearchLyrics
 from src.track import Track
-from src.tools import VERSION, PATH_ICONS, Color_, ColorDark, ColorLight, State, Theme, IconTheme
+from src.tools import VERSION, PATH_ICONS, Color_, ColorLight, State, Theme, IconTheme
 
 
 class MainWindow(QtWidgets.QWidget):
