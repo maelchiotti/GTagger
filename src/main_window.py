@@ -6,7 +6,6 @@ Handles the creation of the main window and the interactions with the user.
 import os
 import pathlib
 import logging as log
-import qtawesome
 import qdarktheme
 from PySide6 import QtCore, QtWidgets, QtGui
 
@@ -21,9 +20,9 @@ class MainWindow(QtWidgets.QWidget):
     Main window of the GUI.
 
     Attributes:
-        theme (Theme): Current theme of the application.
+        gtagger (QtWidgets.QApplication): Current instance of the application. Mainly used to retrieve its theme anywhere.
         tracks (dict[str, Track]): Tracks added by the user.
-        track_layouts (dict[str, TrackLayout]): Layouts containing the informations of the tracks added by the user.
+        track_layouts (dict[Track, TrackLayout]): Layouts containing the informations of the tracks added by the user.
         token_url (QtCore.QUrl): URL to the Genius web page to get a client access token.
         settings_window (QtWidgets.QMainWindow): Settings window.
         settings (SettingsWindow): Settings.
@@ -31,10 +30,9 @@ class MainWindow(QtWidgets.QWidget):
     """
     def __init__(self):
         super().__init__()
-        
-        self.theme = Theme.DARK
+        self.gtagger = QtWidgets.QApplication.instance()
         self.tracks: dict[str, Track] = {}
-        self.track_layouts: dict[str, TrackLayout] = {}
+        self.track_layouts: dict[Track, TrackLayout] = {}
         self.token_url: QtCore.QUrl = QtCore.QUrl("https://genius.com/api-clients")
 
         self.settings_window: QtWidgets.QMainWindow = QtWidgets.QMainWindow(self)
@@ -138,18 +136,20 @@ class MainWindow(QtWidgets.QWidget):
         self.button_theme.clicked.connect(self.change_theme)
 
     def set_icons(self):
-        icon_add_files = CustomIcon(IconTheme.OUTLINE, "documents", Color_.green, self.theme)
-        icon_add_folder = CustomIcon(IconTheme.OUTLINE, "folder-open", Color_.green, self.theme)
-        icon_read_tags = CustomIcon(IconTheme.OUTLINE, "pricetags", Color_.blue, self.theme)
-        icon_save_lyrics = CustomIcon(IconTheme.OUTLINE, "save", Color_.green, self.theme)
-        icon_cancel_rows = CustomIcon(IconTheme.OUTLINE, "arrow-undo", Color_.orange, self.theme)
-        icon_remove_rows = CustomIcon(IconTheme.OUTLINE, "remove-circle", Color_.red, self.theme)
-        icon_settings = CustomIcon(IconTheme.OUTLINE, "settings", Color_.grey, self.theme)
-        icon_token = CustomIcon(IconTheme.OUTLINE, "open", Color_.grey, self.theme)
-        if self.theme == Theme.DARK:
-            icon_theme = CustomIcon(IconTheme.OUTLINE, "sunny", Color_.grey, self.theme)
-        elif self.theme == Theme.LIGHT:
-            icon_theme = CustomIcon(IconTheme.OUTLINE, "moon", Color_.grey, self.theme)
+        """Sets the icons for all the buttons of the application."""
+        theme = self.gtagger.theme
+        icon_add_files = CustomIcon(IconTheme.OUTLINE, "documents", Color_.green, theme)
+        icon_add_folder = CustomIcon(IconTheme.OUTLINE, "folder-open", Color_.green, theme)
+        icon_read_tags = CustomIcon(IconTheme.OUTLINE, "pricetags", Color_.blue, theme)
+        icon_save_lyrics = CustomIcon(IconTheme.OUTLINE, "save", Color_.green, theme)
+        icon_cancel_rows = CustomIcon(IconTheme.OUTLINE, "arrow-undo", Color_.orange, theme)
+        icon_remove_rows = CustomIcon(IconTheme.OUTLINE, "remove-circle", Color_.red, theme)
+        icon_settings = CustomIcon(IconTheme.OUTLINE, "settings", Color_.grey, theme)
+        icon_token = CustomIcon(IconTheme.OUTLINE, "open", Color_.grey, theme)
+        if theme == Theme.DARK:
+            icon_theme = CustomIcon(IconTheme.OUTLINE, "sunny", Color_.grey, theme)
+        elif theme == Theme.LIGHT:
+            icon_theme = CustomIcon(IconTheme.OUTLINE, "moon", Color_.grey, theme)
 
         self.action_add_files.setIcon(icon_add_files)
         self.action_add_folder.setIcon(icon_add_folder)
@@ -201,14 +201,14 @@ class MainWindow(QtWidgets.QWidget):
     @QtCore.Slot()
     def change_theme(self):
         """Changes the theme of the application."""
-        if self.theme == Theme.LIGHT:
-            self.theme = Theme.DARK
+        if self.gtagger.theme == Theme.LIGHT:
+            self.gtagger.theme = Theme.DARK
             self.button_theme.setToolTip("Change to light theme")
-            QtWidgets.QApplication.instance().setStyleSheet(qdarktheme.load_stylesheet("dark", "rounded"))
-        elif self.theme == Theme.DARK:
-            self.theme = Theme.LIGHT
+            self.gtagger.setStyleSheet(qdarktheme.load_stylesheet("dark", "rounded"))
+        elif self.gtagger.theme == Theme.DARK:
+            self.gtagger.theme = Theme.LIGHT
             self.button_theme.setToolTip("Change to dark theme")
-            QtWidgets.QApplication.instance().setStyleSheet(qdarktheme.load_stylesheet("light", "rounded"))
+            self.gtagger.setStyleSheet(qdarktheme.load_stylesheet("light", "rounded"))
         self.set_icons()
 
     @QtCore.Slot()
@@ -250,7 +250,7 @@ class MainWindow(QtWidgets.QWidget):
                 state = State.TAGS_NOT_READ.value
             
             track_layout = TrackLayout(track.filepath, track.filename, title, artists, lyrics, state)
-            self.track_layouts[track.filename] = track_layout
+            self.track_layouts[track] = track_layout
             self.layout_files.addLayout(track_layout)
 
     @QtCore.Slot()
@@ -285,7 +285,7 @@ class MainWindow(QtWidgets.QWidget):
     @QtCore.Slot()
     def table_changed(self) -> None:
         """The model of the table has changed."""
-        if self.table_model.rowCount() > 0:
+        if len(self.track_layouts) > 0:
             self.action_cancel_rows.setEnabled(True)
             self.action_remove_rows.setEnabled(True)
         else:
@@ -295,18 +295,12 @@ class MainWindow(QtWidgets.QWidget):
     @QtCore.Slot()
     def save_lyrics(self) -> None:
         """Saves the lyrics to the files."""
-        for row in range(self.table_model.rowCount()):
-            filename = self.table_model.item(row, 0).text()
-            track = self.tracks[filename]
+        for track, track_layout in self.track_layouts.items():
             saved = track.save_lyrics()
             if saved:
-                self.table_model.setItem(
-                    row, 4, QtGui.QStandardItem(State.LYRICS_SAVED.value)
-                )
+                track_layout.label_state.setText(State.LYRICS_SAVED.value)
             else:
-                self.table_model.setItem(
-                    row, 4, QtGui.QStandardItem(State.LYRICS_NOT_SAVED.value)
-                )
+                track_layout.label_state.setText(State.LYRICS_NOT_SAVED.value)
 
     @QtCore.Slot()
     def cancel_rows(self) -> None:
@@ -365,10 +359,7 @@ class CustomIcon(QtGui.QIcon):
         image = QtGui.QPixmap(image_path)
         
         # Consruct the icon color according to the the current theme
-        if theme == Theme.DARK:
-            color = ColorLight.get_color(icon_color.name)
-        elif theme == Theme.LIGHT:
-            color = ColorDark.get_color(icon_color.name)
+        color = Color_.get_themed_color(theme, icon_color)
         
         # Paint the icon with the constructed color
         painter = QtGui.QPainter(image)
@@ -380,9 +371,12 @@ class CustomIcon(QtGui.QIcon):
         
         self.addPixmap(image)
 
-        
+            
 class TrackLayout(QtWidgets.QGridLayout):
     """Customized layout containing the informations of a track.
+    
+    Attributes:
+        selected (bool): `True` if the track is currently selected.
     
     Displays:
     - Filename (and filepath as a tooltip)
@@ -394,14 +388,35 @@ class TrackLayout(QtWidgets.QGridLayout):
     def __init__(self, filepath: str, filename: str, title: str, artists: str, lyrics: str, state: str):
         super().__init__()
         
+        self.selected: bool = False
+        
         self.label_filename = QtWidgets.QLabel(filename)
         self.label_filename.setToolTip(filepath)
-        self.addWidget(self.label_filename, 0, 0, 1, 2)
         self.label_title = QtWidgets.QLabel(title)
-        self.addWidget(self.label_title, 1, 0, 1, 1)
         self.label_artist = QtWidgets.QLabel(artists)
-        self.addWidget(self.label_artist, 1, 1, 1, 1)
         self.label_lyrics = QtWidgets.QLabel(lyrics)
-        self.addWidget(self.label_lyrics, 2, 0, 1, 2)
         self.label_state = QtWidgets.QLabel(state)
-        self.addWidget(self.label_state, 3, 0, 1, 2)
+        
+        self.grid_layout = QtWidgets.QGridLayout()
+        self.grid_layout.addWidget(self.label_filename, 0, 0, 1, 2)
+        self.grid_layout.addWidget(self.label_title, 1, 0, 1, 1)
+        self.grid_layout.addWidget(self.label_artist, 1, 1, 1, 1)
+        self.grid_layout.addWidget(self.label_lyrics, 2, 0, 1, 2)
+        self.grid_layout.addWidget(self.label_state, 3, 0, 1, 2)
+        
+        self.frame = QtWidgets.QFrame()
+        self.frame.setFrameStyle(QtWidgets.QFrame.NoFrame)
+        self.frame.setLayout(self.grid_layout)
+        self.frame.mouseReleaseEvent = self.mouseReleaseEvent
+        
+        self.addWidget(self.frame, 0, 0, 1, 1)
+
+    def mouseReleaseEvent(self, event: QtGui.QMouseEvent):
+        self.selected = not self.selected
+        if self.selected:
+            color = Color_.black
+            background_color = ColorLight.blue
+            stylesheet = f"color: {color.value}; background-color: {background_color.value};"
+        else:
+            stylesheet = ""
+        self.frame.setStyleSheet(stylesheet)

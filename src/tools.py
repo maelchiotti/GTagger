@@ -5,6 +5,8 @@ The tools include:
 - States: enumeration of states.
 """
 
+from __future__ import annotations
+
 from enum import Enum
 
 VERSION = "v1.0.0"
@@ -19,6 +21,24 @@ class Color_(Enum):
     blue = "#0000FF"
     orange = "#FFA500"
     grey = "#808080"
+    black = "#000000"
+    
+    def get_themed_color(theme: Theme, color: Color_) -> ColorDark | ColorLight:
+        """Returns the dark of light color corresponding to `color` and depending on `theme`.
+        
+        This method is used to retrieve the dark or light color corresponding to a regular color, allowing the application to choose the right color depending on its current theme.
+
+        Args:
+            theme (Theme): Current theme of the application.
+            color (Color_): Color to return in dark or light.
+
+        Returns:
+            ColorDark | ColorLight: Dark or light color corresponding to `color` and depending on `theme`.
+        """
+        if theme == Theme.DARK:
+            return ColorLight.get_color(color.name)
+        elif theme == Theme.LIGHT:
+            return ColorDark.get_color(color.name)
 
 
 class ColorDark(Enum):
@@ -31,11 +51,9 @@ class ColorDark(Enum):
     blue = "#00008B"
     orange = "#FF8C00"
     grey = "#696969"
-
-    def get_color(name):
+    
+    def get_color(name: str):
         """Returns the color corresponding to `name`.
-        
-        This method is used to retrieve the dark color corresponding to a regular color, allowing the application to choose the right color depending on its current theme.
 
         Args:
             name (str): Name of the color to return.
@@ -57,10 +75,8 @@ class ColorLight(Enum):
     orange = "#FFFACD"
     grey = "#D3D3D3"
 
-    def get_color(name):
+    def get_color(name: str):
         """Returns the color corresponding to `name`.
-        
-        This method is used to retrieve the light color corresponding to a regular color, allowing the application to choose the right color depending on its current theme.
 
         Args:
             name (str): Name of the color to return.
