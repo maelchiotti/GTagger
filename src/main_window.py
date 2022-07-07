@@ -48,43 +48,29 @@ class MainWindow(QtWidgets.QWidget):
         """Sets up the UI of the window."""
         self.setWindowTitle(f"GTagger ({VERSION})")
         
-        icon_add_files = CustomIcon(IconTheme.OUTLINE, "documents", Color_.green, self.theme)
         self.action_add_files = QtGui.QAction()
-        self.action_add_files.setIcon(icon_add_files)
         self.action_add_files.setToolTip("Select files")
 
-        icon_add_folder = CustomIcon(IconTheme.OUTLINE, "folder-open", Color_.green, self.theme)
         self.action_add_folder = QtGui.QAction()
-        self.action_add_folder.setIcon(icon_add_folder)
         self.action_add_folder.setToolTip("Select a folder")
 
-        icon_read_tags = CustomIcon(IconTheme.OUTLINE, "pricetags", Color_.blue, self.theme)
         self.action_search_lyrics = QtGui.QAction()
-        self.action_search_lyrics.setIcon(icon_read_tags)
         self.action_search_lyrics.setToolTip("Search for the lyrics")
         self.action_search_lyrics.setEnabled(False)
 
-        icon_save_lyrics = CustomIcon(IconTheme.OUTLINE, "save", Color_.green, self.theme)
         self.action_save_lyrics = QtGui.QAction()
-        self.action_save_lyrics.setIcon(icon_save_lyrics)
         self.action_save_lyrics.setToolTip("Save the lyrics")
         self.action_save_lyrics.setEnabled(True)
 
-        icon_cancel_rows = CustomIcon(IconTheme.OUTLINE, "arrow-undo", Color_.orange, self.theme)
         self.action_cancel_rows = QtGui.QAction()
-        self.action_cancel_rows.setIcon(icon_cancel_rows)
         self.action_cancel_rows.setToolTip("Cancel the modifications\nof selected rows")
         self.action_cancel_rows.setEnabled(False)
 
-        icon_remove_rows = CustomIcon(IconTheme.OUTLINE, "remove-circle", Color_.red, self.theme)
         self.action_remove_rows = QtGui.QAction()
-        self.action_remove_rows.setIcon(icon_remove_rows)
         self.action_remove_rows.setToolTip("Remove selected rows")
         self.action_remove_rows.setEnabled(False)
 
-        icon_settings = CustomIcon(IconTheme.OUTLINE, "settings", Color_.grey, self.theme)
         self.action_settings = QtGui.QAction()
-        self.action_settings.setIcon(icon_settings)
         self.action_settings.setToolTip("Settings")
 
         self.tool_bar = QtWidgets.QToolBar()
@@ -108,9 +94,7 @@ class MainWindow(QtWidgets.QWidget):
         self.validator = QtGui.QRegularExpressionValidator(regex_epx, self)
         self.input_token.setValidator(self.validator)
 
-        self.icon_token = qtawesome.icon("ri.external-link-fill")
         self.button_token = QtWidgets.QPushButton()
-        self.button_token.setIcon(self.icon_token)
         self.button_token.setToolTip("Get the token\non Genius website")
 
         self.layout_files = QtWidgets.QVBoxLayout()
@@ -128,13 +112,19 @@ class MainWindow(QtWidgets.QWidget):
         self.layout_main.addWidget(self.scroll_area, 1, 0, 1, 2)
         self.layout_main.setContentsMargins(5, 5, 5, 0)
         
+        self.button_theme = QtWidgets.QPushButton()
+        self.button_theme.setToolTip("Change to light theme")
+        
         self.status_bar = QtWidgets.QStatusBar()
+        self.status_bar.addPermanentWidget(self.button_theme)
         
         self.layout = QtWidgets.QGridLayout(self)
         self.layout.setMenuBar(self.tool_bar)
         self.layout.addLayout(self.layout_main, 0, 0, 1, 1)
         self.layout.addWidget(self.status_bar, 1, 0, 1, 1)
         self.layout.setContentsMargins(0, 0, 0, 0)
+        
+        self.set_icons()
         
         self.action_add_files.triggered.connect(lambda: self.add_files(False))
         self.action_add_folder.triggered.connect(lambda: self.add_files(True))
@@ -145,6 +135,31 @@ class MainWindow(QtWidgets.QWidget):
         self.action_settings.triggered.connect(self.open_settings)
         self.input_token.textChanged.connect(self.token_changed)
         self.button_token.clicked.connect(self.open_token_page)
+        self.button_theme.clicked.connect(self.change_theme)
+
+    def set_icons(self):
+        icon_add_files = CustomIcon(IconTheme.OUTLINE, "documents", Color_.green, self.theme)
+        icon_add_folder = CustomIcon(IconTheme.OUTLINE, "folder-open", Color_.green, self.theme)
+        icon_read_tags = CustomIcon(IconTheme.OUTLINE, "pricetags", Color_.blue, self.theme)
+        icon_save_lyrics = CustomIcon(IconTheme.OUTLINE, "save", Color_.green, self.theme)
+        icon_cancel_rows = CustomIcon(IconTheme.OUTLINE, "arrow-undo", Color_.orange, self.theme)
+        icon_remove_rows = CustomIcon(IconTheme.OUTLINE, "remove-circle", Color_.red, self.theme)
+        icon_settings = CustomIcon(IconTheme.OUTLINE, "settings", Color_.grey, self.theme)
+        icon_token = CustomIcon(IconTheme.OUTLINE, "open", Color_.grey, self.theme)
+        if self.theme == Theme.DARK:
+            icon_theme = CustomIcon(IconTheme.OUTLINE, "sunny", Color_.grey, self.theme)
+        elif self.theme == Theme.LIGHT:
+            icon_theme = CustomIcon(IconTheme.OUTLINE, "moon", Color_.grey, self.theme)
+
+        self.action_add_files.setIcon(icon_add_files)
+        self.action_add_folder.setIcon(icon_add_folder)
+        self.action_search_lyrics.setIcon(icon_read_tags)
+        self.action_save_lyrics.setIcon(icon_save_lyrics)
+        self.action_cancel_rows.setIcon(icon_cancel_rows)
+        self.action_remove_rows.setIcon(icon_remove_rows)
+        self.action_settings.setIcon(icon_settings)
+        self.button_token.setIcon(icon_token)
+        self.button_theme.setIcon(icon_theme)
 
     def select_directories(self) -> str:
         """Asks user to select a directory.
@@ -184,17 +199,17 @@ class MainWindow(QtWidgets.QWidget):
         return validator_state == QtGui.QValidator.State.Acceptable
 
     @QtCore.Slot()
-    def change_theme(self, theme: Theme):
-        """Changes the theme of the application.
-
-        Args:
-            theme (Theme): New theme to apply.
-        """
-        if theme == Theme.LIGHT:
-            QtWidgets.QApplication.instance().setStyleSheet(qdarktheme.load_stylesheet("light", "rounded"))
-        elif theme == Theme.DARK:
+    def change_theme(self):
+        """Changes the theme of the application."""
+        if self.theme == Theme.LIGHT:
+            self.theme = Theme.DARK
+            self.button_theme.setToolTip("Change to light theme")
             QtWidgets.QApplication.instance().setStyleSheet(qdarktheme.load_stylesheet("dark", "rounded"))
-        self.theme = theme
+        elif self.theme == Theme.DARK:
+            self.theme = Theme.LIGHT
+            self.button_theme.setToolTip("Change to dark theme")
+            QtWidgets.QApplication.instance().setStyleSheet(qdarktheme.load_stylesheet("light", "rounded"))
+        self.set_icons()
 
     @QtCore.Slot()
     def add_files(self, select_directory: bool) -> None:
@@ -351,9 +366,9 @@ class CustomIcon(QtGui.QIcon):
         
         # Consruct the icon color according to the the current theme
         if theme == Theme.DARK:
-            color = ColorLight.get_color(icon_color.value)
+            color = ColorLight.get_color(icon_color.name)
         elif theme == Theme.LIGHT:
-            color = ColorDark.get_color(icon_color.value)
+            color = ColorDark.get_color(icon_color.name)
         
         # Paint the icon with the constructed color
         painter = QtGui.QPainter(image)
