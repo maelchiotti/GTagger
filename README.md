@@ -36,8 +36,6 @@ Download the executable `gtagger.exe` from the [Releases](https://github.com/mae
   - Add a progression bar
   - Add a button to toggle light/dark theme
 
-- Add a function to toggle light/dark theme and corresponding function for icons
-
 - Improve the display of the songs list
 
 - Toggle the save lyrics button automatically
