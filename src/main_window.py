@@ -21,7 +21,9 @@ class MainWindow(QtWidgets.QWidget):
     Main window of the GUI.
 
     Attributes:
-        tracks (dict[str, Track]): Tracks added by the user to the table.
+        theme (Theme): Current theme of the application.
+        tracks (dict[str, Track]): Tracks added by the user.
+        track_layouts (dict[str, TrackLayout]): Layouts containing the informations of the tracks added by the user.
         token_url (QtCore.QUrl): URL to the Genius web page to get a client access token.
         settings_window (QtWidgets.QMainWindow): Settings window.
         settings (SettingsWindow): Settings.
@@ -31,7 +33,6 @@ class MainWindow(QtWidgets.QWidget):
         super().__init__()
         
         self.theme = Theme.DARK
-
         self.tracks: dict[str, Track] = {}
         self.track_layouts: dict[str, TrackLayout] = {}
         self.token_url: QtCore.QUrl = QtCore.QUrl("https://genius.com/api-clients")
@@ -174,8 +175,7 @@ class MainWindow(QtWidgets.QWidget):
     def is_token_valid(self) -> bool:
         """Checks to see if the token is in a valid format.
 
-        Genius client access token have a length of 64 characters,
-        and may include letters, digits, '_' and '-'.
+        Genius client access token have a length of 64 characters, and may include letters, digits, '_' and '-'.
 
         Returns:
             bool: `True` if the token is valid.
@@ -185,6 +185,11 @@ class MainWindow(QtWidgets.QWidget):
 
     @QtCore.Slot()
     def change_theme(self, theme: Theme):
+        """Changes the theme of the application.
+
+        Args:
+            theme (Theme): New theme to apply.
+        """
         if theme == Theme.LIGHT:
             QtWidgets.QApplication.instance().setStyleSheet(qdarktheme.load_stylesheet("light", "rounded"))
         elif theme == Theme.DARK:
@@ -198,6 +203,7 @@ class MainWindow(QtWidgets.QWidget):
         Args:
             select_directory (bool): `True` if the user selected a directory.
         """
+        # Construct the list of files
         if select_directory:
             directory = self.select_directories()
             if directory is None:
@@ -211,6 +217,7 @@ class MainWindow(QtWidgets.QWidget):
             if files is None:
                 return
 
+        # Add the layouts with files' informations
         for file in files:
             track = Track(file)
             tags_read = track.read_tags()
@@ -241,16 +248,19 @@ class MainWindow(QtWidgets.QWidget):
     def token_changed(self) -> None:
         """The token was changed by the user."""
         if len(self.input_token.text()) == 0:
+            # Input is empty
             self.input_token.setStyleSheet("border: 0px")
             self.input_token.setToolTip("Enter token")
             self.action_search_lyrics.setEnabled(False)
         elif self.is_token_valid():
+            # Token is valid
             self.input_token.setStyleSheet(
                 f"border: 0px; background-color: {ColorLight.green.value}"
             )
             self.input_token.setToolTip("Valid token")
             self.action_search_lyrics.setEnabled(True)
         else:
+            # Token is not valid
             self.input_token.setStyleSheet(
                 f"border: 0px; background-color: {ColorLight.red.value}"
             )
@@ -318,9 +328,14 @@ class MainWindow(QtWidgets.QWidget):
 
 
 class CustomIcon(QtGui.QIcon):
+    """Customized icon.
+    
+    Mainly used for the toolbar.
+    """
     def __init__(self, icon_theme: IconTheme, icon_name: str, icon_color: Color_, theme: Theme):
         super().__init__()
         
+        # Construct the icon file path according to the current theme, the icon's theme and the icon's name
         if icon_theme == IconTheme.NORMAL:
             image_path = os.path.join(PATH_ICONS, IconTheme.NORMAL.value, icon_name)
         if icon_theme == IconTheme.OUTLINE:
@@ -334,11 +349,13 @@ class CustomIcon(QtGui.QIcon):
             return
         image = QtGui.QPixmap(image_path)
         
+        # Consruct the icon color according to the the current theme
         if theme == Theme.DARK:
             color = ColorLight.get_color(icon_color.value)
         elif theme == Theme.LIGHT:
             color = ColorDark.get_color(icon_color.value)
         
+        # Paint the icon with the constructed color
         painter = QtGui.QPainter(image)
         painter.setCompositionMode(QtGui.QPainter.CompositionMode_SourceIn)
         painter.setBrush(QtGui.QColor(color.value))
@@ -350,6 +367,15 @@ class CustomIcon(QtGui.QIcon):
 
         
 class TrackLayout(QtWidgets.QGridLayout):
+    """Customized layout containing the informations of a track.
+    
+    Displays:
+    - Filename (and filepath as a tooltip)
+    - Title
+    - Artists
+    - Lyrics
+    - State
+    """
     def __init__(self, filepath: str, filename: str, title: str, artists: str, lyrics: str, state: str):
         super().__init__()
         

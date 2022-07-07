@@ -1,7 +1,8 @@
 """Application's threads.
 
 Threads handle long operations in the background to avoid blocking the GUI.
-The threads include:
+
+Includes:
 - ThreadSearchLyrics: search tracks' lyrics.
 """
 
