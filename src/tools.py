@@ -10,14 +10,40 @@ from enum import Enum
 VERSION = "v1.0.0"
 PATH_ICONS = "src/assets/img/icons"
 
-class Colors(Enum):
+
+class Color_(Enum):
     """Enumerates usefull (name, hex code) colors."""
 
-    lightgreen = "#AED9B2"
-    lightred = "#FF7F7F"
+    green = "green"  # todo
+    red = "red"  # todo
+    blue = "blue"  # todo
+    orange = "orange"  # todo
+    grey = "grey"  # todo
 
 
-class States(Enum):
+class ColorDark(Enum):
+    green = "#006400"
+    red = "#8B0000"
+    blue = "#00008B"
+    orange = "#FF8C00"
+    grey = "#696969"
+
+    def get_color(name):
+        return ColorDark.__getitem__(name)
+    
+
+class ColorLight(Enum):
+    green = "#90EE90"
+    red = "#F08080"
+    blue = "#00008B"  # todo
+    orange = "#FF8C00"  # todo
+    grey = "#696969"  # todo
+
+    def get_color(name):
+        return ColorLight.__getitem__(name)
+
+
+class State(Enum):
     """Enumerates the different states of the application."""
 
     TAGS_READ = "Tags read"
@@ -28,6 +54,12 @@ class States(Enum):
     LYRICS_NOT_SAVED = "Couldn't save the lyrics"
 
 
-class Themes(Enum):
+class Theme(Enum):
     LIGHT = "light"
     DARK = "dark"
+
+
+class IconTheme(Enum):
+    NORMAL = "normal"
+    OUTLINE = "outline"
+    SHARP = "sharp"

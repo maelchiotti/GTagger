@@ -12,7 +12,7 @@ from PySide6 import QtCore, QtGui
 
 from src.track_search import TrackSearch
 from src.lyrics_search import LyricsSearch
-from src.tools import States
+from src.tools import State
 
 if TYPE_CHECKING:
     from main_window import MainWindow
@@ -50,9 +50,9 @@ class ThreadSearchLyrics(QtCore.QThread):
                 item.setToolTip(track.lyrics)
                 self.main.table_model.setItem(row, 3, item)
                 self.main.table_model.setItem(
-                    row, 4, QtGui.QStandardItem(States.LYRICS_FOUND.value)
+                    row, 4, QtGui.QStandardItem(State.LYRICS_FOUND.value)
                 )
             else:
                 self.main.table_model.setItem(
-                    row, 4, QtGui.QStandardItem(States.LYRICS_NOT_FOUND.value)
+                    row, 4, QtGui.QStandardItem(State.LYRICS_NOT_FOUND.value)
                 )
