@@ -56,25 +56,40 @@ class Track:
         return True
 
     def get_title(self) -> str:
+        """Returns the title of the track, or "No title" if the artist is not set.
+
+        Returns:
+            str: Title of the track.
+        """
         if self.title is None or self.title == "":
             return "No title"
         else:
             return self.title
     
     def get_artists(self) -> str:
+        """Returns the artists of the track, or "No artist(s)" if the artists are not set.
+
+        Returns:
+            str: Artists of the track.
+        """
         if not self.artists:
             return "No artist(s)"
         else:
             return ", ".join(self.artists)
     
     def get_main_artist(self) -> str:
+        """Returns the main artist of the track, or "No artist" if the main artist is not set.
+
+        Returns:
+            str: Main artist of the track.
+        """
         if self.main_artist is None or self.main_artist == "":
             return "No artist"
         else:
             return self.main_artist
 
     def get_lyrics(self, length: int = 100) -> str:
-        """Returns the lyrics up to `length` characters.
+        """Returns the lyrics of the track up to `length` characters.
 
         Args:
             length (int): Maximum number of characters to return (default is 100).

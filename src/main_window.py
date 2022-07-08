@@ -31,6 +31,7 @@ class MainWindow(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
         self.gtagger = QtWidgets.QApplication.instance()
+        
         self.tracks: dict[str, Track] = {}
         self.track_layouts: dict[Track, TrackLayout] = {}
         self.token_url: QtCore.QUrl = QtCore.QUrl("https://genius.com/api-clients")
@@ -412,6 +413,13 @@ class TrackLayout(QtWidgets.QGridLayout):
         self.addWidget(self.frame, 0, 0, 1, 1)
 
     def mouseReleaseEvent(self, event: QtGui.QMouseEvent):
+        """Intercepts the mouse release event on the QFrame.
+        
+        Enables the user to (de)select a track.
+
+        Args:
+            event (QtGui.QMouseEvent): Mouse release event.
+        """
         self.selected = not self.selected
         if self.selected:
             color = Color_.black
