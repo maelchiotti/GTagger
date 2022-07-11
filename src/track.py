@@ -7,6 +7,11 @@ import re
 import logging as log
 import time
 import eyed3
+from eyed3.core import Tag, AudioInfo
+from eyed3.id3.frames import ImageFrame
+from PySide6 import QtCore, QtGui, QtWidgets
+
+from src.tools import CustomIcon, Color_, IconTheme, Theme
 
 
 class Track:
@@ -15,7 +20,8 @@ class Track:
     Attributes:
         filepath (Path): Filepath of the track.
         filename (str): Filename of the track.
-        eyed3_tags: Tags read and managed by `eyed3`.
+        eyed3_infos (AudioInfo): Informations read by `eyed3`.
+        eyed3_tags (Tag): Tags read and managed by `eyed3`.
         genius_tags: Tags found by `genius`.
         title (str): Title of the track.
         artist (list[str]): Artists of the track.
@@ -28,10 +34,11 @@ class Track:
     def __init__(self, filepath: str) -> None:
         self.filepath: Path = filepath
         self.filename: str = os.path.basename(filepath)
-        self.eyed3_infos = None
-        self.eyed3_tags = None
+        self.eyed3_infos: AudioInfo = None
+        self.eyed3_tags: Tag = None
         self.genius_tags = None
         self.duration: float = None
+        self.cover: QtGui.QPixmap = None
         self.title: str = None
         self.artists: list[str] = []
         self.main_artist: str = None
@@ -46,8 +53,18 @@ class Track:
         try:
             eyed3_load = eyed3.load(self.filepath)
             self.eyed3_infos = eyed3_load.info
+            if eyed3_load.info is None:
+                return False
             self.eyed3_tags = eyed3_load.tag
             self.duration = self.eyed3_infos.time_secs
+            if len(self.eyed3_tags.images) > 0:
+                image: ImageFrame = self.eyed3_tags.images[0]
+                self.cover = QtGui.QPixmap()
+                self.cover.loadFromData(image.image_data)
+                self.cover = self.cover.scaled(128, 128, QtCore.Qt.KeepAspectRatio)
+            else:
+                theme = QtWidgets.QApplication.instance().theme
+                self.create_cover_placeholder(theme)
             self.title = self.eyed3_tags.title
             if self.eyed3_tags.artist is not None:
                 self.artists = re.split(self.SPLITTERS, self.eyed3_tags.artist)
@@ -62,6 +79,16 @@ class Track:
             )
             return False
         return True
+
+    def create_cover_placeholder(self, theme: Theme) -> None:
+        if len(self.eyed3_tags.images) > 0:
+            return
+        icon: CustomIcon = CustomIcon(IconTheme.OUTLINE, "image", Color_.grey, theme)
+        self.cover = icon.pixmap(icon.actualSize(QtCore.QSize(128, 128)))
+        self.cover = self.cover.scaled(128, 128, QtCore.Qt.KeepAspectRatio)
+
+    def get_filepath(self) -> str:
+        return str(self.filepath)
 
     def get_duration(self) -> str:
         if self.duration is None:

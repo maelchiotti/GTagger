@@ -7,10 +7,146 @@ The tools include:
 
 from __future__ import annotations
 
+import os
+import logging as log
+from PySide6 import QtCore, QtGui, QtWidgets
 from enum import Enum
 
 VERSION = "v1.0.0"
 PATH_ICONS = "src/assets/img/icons"
+
+
+class CustomIcon(QtGui.QIcon):
+    """Customized icon.
+
+    Mainly used for the toolbar.
+    """
+
+    def __init__(
+        self, icon_theme: IconTheme, icon_name: str, icon_color: Color_, theme: Theme
+    ):
+        super().__init__()
+
+        # Construct the icon file path according to the current theme, the icon's theme and the icon's name
+        if icon_theme == IconTheme.NORMAL:
+            image_path = os.path.join(PATH_ICONS, IconTheme.NORMAL.value, icon_name)
+        if icon_theme == IconTheme.OUTLINE:
+            icon_name = icon_name + "-" + IconTheme.OUTLINE.value + ".svg"
+            image_path = os.path.join(PATH_ICONS, IconTheme.OUTLINE.value, icon_name)
+        elif icon_theme == IconTheme.SHARP:
+            icon_name = icon_name + "-" + IconTheme.SHARP.value + ".svg"
+            image_path = os.path.join(PATH_ICONS, IconTheme.SHARP.value, icon_name)
+        if not os.path.exists(image_path):
+            log.error("The icon '%s' does not exist", icon_name)
+            return
+        image = QtGui.QPixmap(image_path)
+
+        # Consruct the icon color according to the the current theme
+        color = Color_.get_themed_color(theme, icon_color)
+
+        # Paint the icon with the constructed color
+        painter = QtGui.QPainter(image)
+        painter.setCompositionMode(QtGui.QPainter.CompositionMode_SourceIn)
+        painter.setBrush(QtGui.QColor(color.value))
+        painter.setPen(QtGui.QColor(color.value))
+        painter.drawRect(image.rect())
+        painter.end()
+
+        self.addPixmap(image)
+
+
+class TrackLayout(QtWidgets.QGridLayout):
+    """Customized layout containing the informations of a track.
+
+    Signals:
+        signal_mouse_event (QtCore.Signal()): Emitted when a mouse event is intercepted.
+
+    Attributes:
+        selected (bool): `True` if the track is currently selected.
+
+    Displays:
+    - Album cover
+    - Filename (and filepath as a tooltip)
+    - Duration
+    - Title
+    - Artists
+    - Lyrics
+    - State
+
+    Layout:
+    ```
+    __|    0    |       1      |     2     |
+    0 [              filename              ]
+    1 [  ...  ]   [ Title    ]   [   ...   ]
+    2 [ album ]   [ Artist   ]   [   lyr   ]
+    3 [ cover ]   [ Duration ]   [   ics   ]
+    4 [  ...  ]   [ State    ]   [   ...   ]
+    ```
+    """
+
+    signal_mouse_event = QtCore.Signal()
+
+    def __init__(
+        self,
+        filepath: str,
+        filename: str,
+        cover: QtGui.QPixmap,
+        duration: str,
+        title: str,
+        artists: str,
+        lyrics: str,
+        state: str,
+    ):
+        super().__init__()
+
+        self.selected: bool = False
+
+        self.label_filename = QtWidgets.QLabel(filename)
+        self.label_filename.setToolTip(filepath)
+        self.label_cover = QtWidgets.QLabel()
+        self.label_cover.setPixmap(cover)
+        self.label_title = QtWidgets.QLabel(title)
+        self.label_artist = QtWidgets.QLabel(artists)
+        self.label_duration = QtWidgets.QLabel(duration)
+        self.label_state = QtWidgets.QLabel(state)
+        self.label_lyrics = QtWidgets.QLabel(lyrics)
+
+        self.grid_layout = QtWidgets.QGridLayout()
+        self.grid_layout.addWidget(self.label_filename, 0, 0, 1, 3)
+        self.grid_layout.addWidget(self.label_cover, 1, 0, 4, 1)
+        self.grid_layout.addWidget(self.label_title, 1, 1, 1, 1)
+        self.grid_layout.addWidget(self.label_artist, 2, 1, 1, 1)
+        self.grid_layout.addWidget(self.label_duration, 3, 1, 1, 1)
+        self.grid_layout.addWidget(self.label_state, 4, 1, 1, 1)
+        self.grid_layout.addWidget(self.label_lyrics, 1, 2, 4, 1)
+
+        self.frame = QtWidgets.QFrame()
+        self.frame.setFrameStyle(QtWidgets.QFrame.NoFrame)
+        self.frame.setLayout(self.grid_layout)
+        self.frame.mouseReleaseEvent = self.mouseReleaseEvent
+
+        self.addWidget(self.frame, 0, 0, 1, 1)
+
+    def mouseReleaseEvent(self, event: QtGui.QMouseEvent):
+        """Intercepts the mouse release event on the QFrame.
+
+        Enables the user to (de)select a track.
+
+        Args:
+            event (QtGui.QMouseEvent): Mouse release event.
+        """
+        self.selected = not self.selected
+        if self.selected:
+            color = Color_.black
+            background_color = ColorLight.blue
+            stylesheet = (
+                f"color: {color.value}; background-color: {background_color.value};"
+            )
+        else:
+            stylesheet = ""
+        self.frame.setStyleSheet(stylesheet)
+
+        self.signal_mouse_event.emit()
 
 
 class Color_(Enum):
