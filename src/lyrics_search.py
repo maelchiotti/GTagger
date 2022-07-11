@@ -8,6 +8,7 @@ from lyricsgenius import types
 
 from src.track import Track
 
+
 class LyricsSearch:
     """Allows to search a track's lyrics on Genius.
 

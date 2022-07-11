@@ -8,7 +8,7 @@ from src.main_window import MainWindow
 from src.tools import Theme
 
 
-if __name__ == "__main__":    
+if __name__ == "__main__":
     gtagger = QtWidgets.QApplication()
 
     gtagger.theme = Theme.DARK

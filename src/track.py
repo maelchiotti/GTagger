@@ -62,7 +62,7 @@ class Track:
             )
             return False
         return True
-    
+
     def get_duration(self) -> str:
         if self.duration is None:
             return "??:??"
@@ -80,7 +80,7 @@ class Track:
             return "No title"
         else:
             return self.title
-    
+
     def get_artists(self) -> str:
         """Returns the artists of the track, or "No artist(s)" if the artists are not set.
 
@@ -91,7 +91,7 @@ class Track:
             return "No artist(s)"
         else:
             return ", ".join(self.artists)
-    
+
     def get_main_artist(self) -> str:
         """Returns the main artist of the track, or "No artist" if the main artist is not set.
 
@@ -105,7 +105,7 @@ class Track:
 
     def get_lyrics(self, lines: int = None, length: int = None) -> str:
         """Returns the lyrics of the track.
-        
+
         If specified, returns a maximum of `lines` lines.
         Otherwise, if specified, returns a maximum of `length` characters.
         In any other case, returns the full lyrics.

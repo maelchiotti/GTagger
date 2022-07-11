@@ -7,6 +7,7 @@ import genius
 
 from src.track import Track
 
+
 class TrackSearch:
     """Allows to search a track on Genius.
 

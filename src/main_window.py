@@ -27,11 +27,12 @@ class MainWindow(QtWidgets.QWidget):
         settings_window (QtWidgets.QMainWindow): Settings window.
         settings (SettingsWindow): Settings.
         thread_search_lyrics: (QtCore.QThread): Thread to search for the lyrics.
-    """    
+    """
+
     def __init__(self):
         super().__init__()
         self.gtagger = QtWidgets.QApplication.instance()
-        
+
         self.tracks: dict[str, Track] = {}
         self.track_layouts: dict[Track, TrackLayout] = {}
         self.token_url: QtCore.QUrl = QtCore.QUrl("https://genius.com/api-clients")
@@ -46,7 +47,7 @@ class MainWindow(QtWidgets.QWidget):
     def setup_ui(self) -> None:
         """Sets up the UI of the window."""
         self.setWindowTitle(f"GTagger ({VERSION})")
-        
+
         self.action_add_files = QtGui.QAction()
         self.action_add_files.setToolTip("Select files")
 
@@ -100,31 +101,31 @@ class MainWindow(QtWidgets.QWidget):
 
         self.widget_files = QtWidgets.QWidget()
         self.widget_files.setLayout(self.layout_files)
-        
+
         self.scroll_area = QtWidgets.QScrollArea()
         self.scroll_area.setWidget(self.widget_files)
         self.scroll_area.setWidgetResizable(True)
-        
+
         self.layout_main = QtWidgets.QGridLayout()
         self.layout_main.addWidget(self.input_token, 0, 0, 1, 1)
         self.layout_main.addWidget(self.button_token, 0, 1, 1, 1)
         self.layout_main.addWidget(self.scroll_area, 1, 0, 1, 2)
         self.layout_main.setContentsMargins(5, 5, 5, 0)
-        
+
         self.button_theme = QtWidgets.QPushButton()
         self.button_theme.setToolTip("Change to light theme")
-        
+
         self.status_bar = QtWidgets.QStatusBar()
         self.status_bar.addPermanentWidget(self.button_theme)
-        
+
         self.layout = QtWidgets.QGridLayout(self)
         self.layout.setMenuBar(self.tool_bar)
         self.layout.addLayout(self.layout_main, 0, 0, 1, 1)
         self.layout.addWidget(self.status_bar, 1, 0, 1, 1)
         self.layout.setContentsMargins(0, 0, 0, 0)
-        
+
         self.set_icons()
-        
+
         self.action_add_files.triggered.connect(lambda: self.add_files(False))
         self.action_add_folder.triggered.connect(lambda: self.add_files(True))
         self.action_search_lyrics.triggered.connect(self.search_lyrics)
@@ -140,11 +141,17 @@ class MainWindow(QtWidgets.QWidget):
         """Sets the icons for all the buttons of the application."""
         theme = self.gtagger.theme
         icon_add_files = CustomIcon(IconTheme.OUTLINE, "documents", Color_.green, theme)
-        icon_add_folder = CustomIcon(IconTheme.OUTLINE, "folder-open", Color_.green, theme)
+        icon_add_folder = CustomIcon(
+            IconTheme.OUTLINE, "folder-open", Color_.green, theme
+        )
         icon_read_tags = CustomIcon(IconTheme.OUTLINE, "pricetags", Color_.blue, theme)
         icon_save_lyrics = CustomIcon(IconTheme.OUTLINE, "save", Color_.green, theme)
-        icon_cancel_rows = CustomIcon(IconTheme.OUTLINE, "arrow-undo", Color_.orange, theme)
-        icon_remove_rows = CustomIcon(IconTheme.OUTLINE, "remove-circle", Color_.red, theme)
+        icon_cancel_rows = CustomIcon(
+            IconTheme.OUTLINE, "arrow-undo", Color_.orange, theme
+        )
+        icon_remove_rows = CustomIcon(
+            IconTheme.OUTLINE, "remove-circle", Color_.red, theme
+        )
         icon_settings = CustomIcon(IconTheme.OUTLINE, "settings", Color_.grey, theme)
         icon_token = CustomIcon(IconTheme.OUTLINE, "open", Color_.grey, theme)
         if theme == Theme.DARK:
@@ -251,8 +258,17 @@ class MainWindow(QtWidgets.QWidget):
                 artists = "-"
                 lyrics = "-"
                 state = State.TAGS_NOT_READ.value
-            
-            track_layout = TrackLayout(track.filepath, track.filename, None, duration, title, artists, lyrics, state)
+
+            track_layout = TrackLayout(
+                track.filepath,
+                track.filename,
+                None,
+                duration,
+                title,
+                artists,
+                lyrics,
+                state,
+            )
             track_layout.signal_mouse_event.connect(self.toggle_actions_cancel_remove)
             self.track_layouts[track] = track_layout
             self.layout_files.addLayout(track_layout)
@@ -347,12 +363,15 @@ class MainWindow(QtWidgets.QWidget):
 
 class CustomIcon(QtGui.QIcon):
     """Customized icon.
-    
+
     Mainly used for the toolbar.
     """
-    def __init__(self, icon_theme: IconTheme, icon_name: str, icon_color: Color_, theme: Theme):
+
+    def __init__(
+        self, icon_theme: IconTheme, icon_name: str, icon_color: Color_, theme: Theme
+    ):
         super().__init__()
-        
+
         # Construct the icon file path according to the current theme, the icon's theme and the icon's name
         if icon_theme == IconTheme.NORMAL:
             image_path = os.path.join(PATH_ICONS, IconTheme.NORMAL.value, icon_name)
@@ -366,10 +385,10 @@ class CustomIcon(QtGui.QIcon):
             log.error("The icon '%s' does not exist", icon_name)
             return
         image = QtGui.QPixmap(image_path)
-        
+
         # Consruct the icon color according to the the current theme
         color = Color_.get_themed_color(theme, icon_color)
-        
+
         # Paint the icon with the constructed color
         painter = QtGui.QPainter(image)
         painter.setCompositionMode(QtGui.QPainter.CompositionMode_SourceIn)
@@ -377,16 +396,19 @@ class CustomIcon(QtGui.QIcon):
         painter.setPen(QtGui.QColor(color.value))
         painter.drawRect(image.rect())
         painter.end()
-        
+
         self.addPixmap(image)
 
 
 class TrackLayout(QtWidgets.QGridLayout):
     """Customized layout containing the informations of a track.
-    
+
+    Signals:
+        signal_mouse_event (QtCore.Signal()): Emitted when a mouse event is intercepted.
+
     Attributes:
         selected (bool): `True` if the track is currently selected.
-    
+
     Displays:
     - Album cover
     - Filename (and filepath as a tooltip)
@@ -395,7 +417,7 @@ class TrackLayout(QtWidgets.QGridLayout):
     - Artists
     - Lyrics
     - State
-    
+
     Layout:
     ```
     __|    0    |       1      |     2     |
@@ -406,24 +428,34 @@ class TrackLayout(QtWidgets.QGridLayout):
     4 [  ...  ]   [ State    ]   [   ...   ]
     ```
     """
+
     signal_mouse_event = QtCore.Signal()
-    
-    def __init__(self, filepath: str, filename: str, album_cover: QtGui.QPixmap, duration: str, title: str, artists: str, lyrics: str, state: str):
+
+    def __init__(
+        self,
+        filepath: str,
+        filename: str,
+        album_cover: QtGui.QPixmap,
+        duration: str,
+        title: str,
+        artists: str,
+        lyrics: str,
+        state: str,
+    ):
         super().__init__()
-        
+
         self.selected: bool = False
-        
+
         self.label_filename = QtWidgets.QLabel(filename)
         self.label_filename.setToolTip(filepath)
         self.label_album_cover = QtWidgets.QLabel()
-#        self.label_album_cover.setPixmap(album_cover)
+        #        self.label_album_cover.setPixmap(album_cover)
         self.label_title = QtWidgets.QLabel(title)
         self.label_artist = QtWidgets.QLabel(artists)
         self.label_duration = QtWidgets.QLabel(duration)
         self.label_state = QtWidgets.QLabel(state)
         self.label_lyrics = QtWidgets.QLabel(lyrics)
-        
-        #todo update position
+
         self.grid_layout = QtWidgets.QGridLayout()
         self.grid_layout.addWidget(self.label_filename, 0, 0, 1, 3)
         self.grid_layout.addWidget(self.label_album_cover, 0, 0, 4, 1)
@@ -432,17 +464,17 @@ class TrackLayout(QtWidgets.QGridLayout):
         self.grid_layout.addWidget(self.label_duration, 3, 1, 1, 1)
         self.grid_layout.addWidget(self.label_state, 4, 1, 1, 1)
         self.grid_layout.addWidget(self.label_lyrics, 1, 2, 4, 1)
-        
+
         self.frame = QtWidgets.QFrame()
         self.frame.setFrameStyle(QtWidgets.QFrame.NoFrame)
         self.frame.setLayout(self.grid_layout)
         self.frame.mouseReleaseEvent = self.mouseReleaseEvent
-        
+
         self.addWidget(self.frame, 0, 0, 1, 1)
 
     def mouseReleaseEvent(self, event: QtGui.QMouseEvent):
         """Intercepts the mouse release event on the QFrame.
-        
+
         Enables the user to (de)select a track.
 
         Args:
@@ -452,9 +484,11 @@ class TrackLayout(QtWidgets.QGridLayout):
         if self.selected:
             color = Color_.black
             background_color = ColorLight.blue
-            stylesheet = f"color: {color.value}; background-color: {background_color.value};"
+            stylesheet = (
+                f"color: {color.value}; background-color: {background_color.value};"
+            )
         else:
             stylesheet = ""
         self.frame.setStyleSheet(stylesheet)
-        
+
         self.signal_mouse_event.emit()

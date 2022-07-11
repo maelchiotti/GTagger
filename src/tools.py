@@ -22,10 +22,10 @@ class Color_(Enum):
     orange = "#FFA500"
     grey = "#808080"
     black = "#000000"
-    
+
     def get_themed_color(theme: Theme, color: Color_) -> ColorDark | ColorLight:
         """Returns the dark of light color corresponding to `color` and depending on `theme`.
-        
+
         This method is used to retrieve the dark or light color corresponding to a regular color, allowing the application to choose the right color depending on its current theme.
 
         Args:
@@ -43,15 +43,16 @@ class Color_(Enum):
 
 class ColorDark(Enum):
     """Enumerates usefull (name, hex) dark colors.
-    
+
     Mainly used for the light theme.
     """
+
     green = "#006400"
     red = "#8B0000"
     blue = "#00008B"
     orange = "#FF8C00"
     grey = "#696969"
-    
+
     def get_color(name: str):
         """Returns the color corresponding to `name`.
 
@@ -62,13 +63,14 @@ class ColorDark(Enum):
             ColorDark: Dark color named `name`.
         """
         return ColorDark.__getitem__(name)
-    
+
 
 class ColorLight(Enum):
     """Enumerates usefull (name, hex) light colors.
-    
+
     Mainly used for the dark theme.
     """
+
     green = "#90EE90"
     red = "#F08080"
     blue = "#ADD8E6"
@@ -100,23 +102,25 @@ class State(Enum):
 
 class Theme(Enum):
     """Enumerates the different themes of the application.
-    
+
     Includes:
     - Dark
     - Light
     """
+
     DARK = "dark"
     LIGHT = "light"
 
 
 class IconTheme(Enum):
     """Enumerates the different themes of the icons.
-    
+
     Includes:
     - Normal
     - Outline (shape is not filled)
     - Sharp (shape's angles are sharper)
     """
+
     NORMAL = "normal"
     OUTLINE = "outline"
     SHARP = "sharp"
