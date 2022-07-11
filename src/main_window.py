@@ -243,7 +243,7 @@ class MainWindow(QtWidgets.QWidget):
                 duration = track.get_duration()
                 title = track.get_title()
                 artists = track.get_artists()
-                lyrics = track.get_lyrics()
+                lyrics = track.get_lyrics(lines=5)
                 state = State.TAGS_READ.value
             else:
                 duration = "-"
@@ -312,7 +312,7 @@ class MainWindow(QtWidgets.QWidget):
         for track, track_layout in self.track_layouts.items():
             if track_layout.selected:
                 track.lyrics.set(track.eyed3_tags.lyrics)
-                track_layout.label_lyrics.setText(track.get_lyrics())
+                track_layout.label_lyrics.setText(track.get_lyrics(lines=5))
 
     @QtCore.Slot()
     def remove_rows(self) -> None:
@@ -403,7 +403,7 @@ class TrackLayout(QtWidgets.QGridLayout):
     1 [  ...  ]   [ Title    ]   [   ...   ]
     2 [ album ]   [ Artist   ]   [   lyr   ]
     3 [ cover ]   [ Duration ]   [   ics   ]
-    4 [  ...  ]                  [   ...   ]
+    4 [  ...  ]   [ State    ]   [   ...   ]
     ```
     """
     signal_mouse_event = QtCore.Signal()
@@ -417,21 +417,21 @@ class TrackLayout(QtWidgets.QGridLayout):
         self.label_filename.setToolTip(filepath)
         self.label_album_cover = QtWidgets.QLabel()
 #        self.label_album_cover.setPixmap(album_cover)
-        self.label_duration = QtWidgets.QLabel(duration)
         self.label_title = QtWidgets.QLabel(title)
         self.label_artist = QtWidgets.QLabel(artists)
-        self.label_lyrics = QtWidgets.QLabel(lyrics)
+        self.label_duration = QtWidgets.QLabel(duration)
         self.label_state = QtWidgets.QLabel(state)
+        self.label_lyrics = QtWidgets.QLabel(lyrics)
         
         #todo update position
         self.grid_layout = QtWidgets.QGridLayout()
         self.grid_layout.addWidget(self.label_filename, 0, 0, 1, 3)
-        self.grid_layout.addWidget(self.label_album_cover, 0, 0, 1, 4)
-        self.grid_layout.addWidget(self.label_duration, 3, 1, 1, 1)
+        self.grid_layout.addWidget(self.label_album_cover, 0, 0, 4, 1)
         self.grid_layout.addWidget(self.label_title, 1, 1, 1, 1)
-        self.grid_layout.addWidget(self.label_artist, 1, 2, 1, 1)
-        self.grid_layout.addWidget(self.label_lyrics, 2, 1, 1, 2)
-        self.grid_layout.addWidget(self.label_state, 3, 1, 1, 2)
+        self.grid_layout.addWidget(self.label_artist, 2, 1, 1, 1)
+        self.grid_layout.addWidget(self.label_duration, 3, 1, 1, 1)
+        self.grid_layout.addWidget(self.label_state, 4, 1, 1, 1)
+        self.grid_layout.addWidget(self.label_lyrics, 1, 2, 4, 1)
         
         self.frame = QtWidgets.QFrame()
         self.frame.setFrameStyle(QtWidgets.QFrame.NoFrame)

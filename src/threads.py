@@ -46,7 +46,7 @@ class ThreadSearchLyrics(QtCore.QThread):
             lyrics_search = LyricsSearch(token)
             found_lyrics = lyrics_search.search_lyrics(track)
             if found_lyrics:
-                lyrics = f"{track.get_lyrics()}[...]"
+                lyrics = f"{track.get_lyrics(lines=5)}[...]"
                 item = QtGui.QStandardItem(lyrics)
                 item.setToolTip(track.lyrics)
                 self.main.table_model.setItem(row, 3, item)

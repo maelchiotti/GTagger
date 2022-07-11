@@ -103,19 +103,30 @@ class Track:
         else:
             return self.main_artist
 
-    def get_lyrics(self, length: int = 100) -> str:
-        """Returns the lyrics of the track up to `length` characters.
+    def get_lyrics(self, lines: int = None, length: int = None) -> str:
+        """Returns the lyrics of the track.
+        
+        If specified, returns a maximum of `lines` lines.
+        Otherwise, if specified, returns a maximum of `length` characters.
+        In any other case, returns the full lyrics.
 
         Args:
-            length (int): Maximum number of characters to return (default is 100).
+            lines (int): Maximum number of lines to return (defaults to `None`).
+            length (int): Maximum number of characters to return (defaults to `None`).
 
         Returns:
-            str: Lyrics up to `length`.
+            str: Lyrics (up to `lines`, `length` or full).
         """
         if self.lyrics is None:
             return "No lyrics"
-        else:            
-            return self.lyrics.get()[:length]
+        else:
+            if lines is not None:
+                lyrics = self.lyrics.split("\n")
+                return "\n".join(lyrics[:lines])
+            elif length is not None:
+                return self.lyrics[:length]
+            else:
+                return self.lyrics
 
     def save_lyrics(self) -> bool:
         """Saves the lyrics to the file.
