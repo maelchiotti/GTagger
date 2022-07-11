@@ -32,11 +32,12 @@ Download the executable `gtagger.exe` from the [Releases](https://github.com/mae
 
 ## TODO
 
+- Ignore corrupted files (Liar Liar)
+
 - Improve the status bar
   - Add a progression bar
-  - Add a button to toggle light/dark theme
 
-- Improve the display of the songs list
+- Improve the display of the songs list (add contour?)
 
 - Toggle the save lyrics button automatically
 
