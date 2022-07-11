@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 import re
 import logging as log
+import time
 import eyed3
 
 
@@ -27,8 +28,10 @@ class Track:
     def __init__(self, filepath: str) -> None:
         self.filepath: Path = filepath
         self.filename: str = os.path.basename(filepath)
+        self.eyed3_infos = None
         self.eyed3_tags = None
         self.genius_tags = None
+        self.duration: float = None
         self.title: str = None
         self.artists: list[str] = []
         self.main_artist: str = None
@@ -41,11 +44,16 @@ class Track:
             bool: `True` if the tags were successfully read.
         """
         try:
-            self.eyed3_tags = eyed3.load(self.filepath).tag
+            eyed3_load = eyed3.load(self.filepath)
+            self.eyed3_infos = eyed3_load.info
+            self.eyed3_tags = eyed3_load.tag
+            self.duration = self.eyed3_infos.time_secs
             self.title = self.eyed3_tags.title
             if self.eyed3_tags.artist is not None:
                 self.artists = re.split(self.SPLITTERS, self.eyed3_tags.artist)
                 self.main_artist = self.artists[0]
+            if len(self.eyed3_tags.lyrics) > 0:
+                self.lyrics = self.eyed3_tags.lyrics[0].text
         except Exception as exception:
             log.error(
                 "Error while reading the tags of file '%s' : %s",
@@ -54,6 +62,13 @@ class Track:
             )
             return False
         return True
+    
+    def get_duration(self) -> str:
+        if self.duration is None:
+            return "??:??"
+        else:
+            duration = time.gmtime(round(self.duration))
+            return time.strftime("%M:%S", duration)
 
     def get_title(self) -> str:
         """Returns the title of the track, or "No title" if the artist is not set.
@@ -99,8 +114,8 @@ class Track:
         """
         if self.lyrics is None:
             return "No lyrics"
-        else:
-            return self.lyrics[:length]
+        else:            
+            return self.lyrics.get()[:length]
 
     def save_lyrics(self) -> bool:
         """Saves the lyrics to the file.
@@ -113,7 +128,7 @@ class Track:
             self.eyed3_tags.save(version=eyed3.id3.ID3_V2_3, encoding="utf-8")
         except Exception as exception:
             log.error(
-                "Error while saveing the lyrics of file '%s' : %s",
+                "Error while saving the lyrics of file '%s' : %s",
                 self.filename,
                 str(exception),
             )

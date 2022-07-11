@@ -27,7 +27,7 @@ class MainWindow(QtWidgets.QWidget):
         settings_window (QtWidgets.QMainWindow): Settings window.
         settings (SettingsWindow): Settings.
         thread_search_lyrics: (QtCore.QThread): Thread to search for the lyrics.
-    """
+    """    
     def __init__(self):
         super().__init__()
         self.gtagger = QtWidgets.QApplication.instance()
@@ -240,17 +240,20 @@ class MainWindow(QtWidgets.QWidget):
             self.tracks[track.filename] = track
 
             if tags_read:
+                duration = track.get_duration()
                 title = track.get_title()
                 artists = track.get_artists()
                 lyrics = track.get_lyrics()
                 state = State.TAGS_READ.value
             else:
+                duration = "-"
                 title = "-"
                 artists = "-"
                 lyrics = "-"
                 state = State.TAGS_NOT_READ.value
             
-            track_layout = TrackLayout(track.filepath, track.filename, title, artists, lyrics, state)
+            track_layout = TrackLayout(track.filepath, track.filename, None, duration, title, artists, lyrics, state)
+            track_layout.signal_mouse_event.connect(self.toggle_actions_cancel_remove)
             self.track_layouts[track] = track_layout
             self.layout_files.addLayout(track_layout)
 
@@ -306,25 +309,30 @@ class MainWindow(QtWidgets.QWidget):
     @QtCore.Slot()
     def cancel_rows(self) -> None:
         """Removes the added lyrics from the files."""
-        selection = self.table.selectedIndexes()
-        for item in selection:
-            filename = self.table_model.item(item.row(), 0).text()
-            track = self.tracks[filename]
-            track.lyrics = None
-            self.table_model.item(item.row(), 3).setText("")
+        for track, track_layout in self.track_layouts.items():
+            if track_layout.selected:
+                track.lyrics.set(track.eyed3_tags.lyrics)
+                track_layout.label_lyrics.setText(track.get_lyrics())
 
     @QtCore.Slot()
     def remove_rows(self) -> None:
         """Remove the selected rows."""
-        selection = sorted(self.table.selectedIndexes(), reverse=True)
-        prev_index = -1
-        for item in selection:
-            index = item.row()
-            if index != prev_index:
-                filename = self.table_model.item(index, 0).text()
-                self.tracks.pop(filename)
-                self.table_model.removeRow(index)
-            prev_index = index
+        for track, track_layout in self.track_layouts.copy().items():
+            if track_layout.selected:
+                track_layout.frame.hide()
+                self.layout_files.removeItem(track_layout)
+                self.track_layouts.pop(track)
+        self.toggle_actions_cancel_remove()
+
+    @QtCore.Slot()
+    def toggle_actions_cancel_remove(self) -> None:
+        for track_layout in self.track_layouts.values():
+            if track_layout.selected:
+                self.action_cancel_rows.setEnabled(True)
+                self.action_remove_rows.setEnabled(True)
+                return
+        self.action_cancel_rows.setEnabled(False)
+        self.action_remove_rows.setEnabled(False)
 
     @QtCore.Slot()
     def open_token_page(self) -> None:
@@ -372,7 +380,7 @@ class CustomIcon(QtGui.QIcon):
         
         self.addPixmap(image)
 
-            
+
 class TrackLayout(QtWidgets.QGridLayout):
     """Customized layout containing the informations of a track.
     
@@ -380,30 +388,50 @@ class TrackLayout(QtWidgets.QGridLayout):
         selected (bool): `True` if the track is currently selected.
     
     Displays:
+    - Album cover
     - Filename (and filepath as a tooltip)
+    - Duration
     - Title
     - Artists
     - Lyrics
     - State
+    
+    Layout:
+    ```
+    __|    0    |       1      |     2     |
+    0 [              filename              ]
+    1 [  ...  ]   [ Title    ]   [   ...   ]
+    2 [ album ]   [ Artist   ]   [   lyr   ]
+    3 [ cover ]   [ Duration ]   [   ics   ]
+    4 [  ...  ]                  [   ...   ]
+    ```
     """
-    def __init__(self, filepath: str, filename: str, title: str, artists: str, lyrics: str, state: str):
+    signal_mouse_event = QtCore.Signal()
+    
+    def __init__(self, filepath: str, filename: str, album_cover: QtGui.QPixmap, duration: str, title: str, artists: str, lyrics: str, state: str):
         super().__init__()
         
         self.selected: bool = False
         
         self.label_filename = QtWidgets.QLabel(filename)
         self.label_filename.setToolTip(filepath)
+        self.label_album_cover = QtWidgets.QLabel()
+#        self.label_album_cover.setPixmap(album_cover)
+        self.label_duration = QtWidgets.QLabel(duration)
         self.label_title = QtWidgets.QLabel(title)
         self.label_artist = QtWidgets.QLabel(artists)
         self.label_lyrics = QtWidgets.QLabel(lyrics)
         self.label_state = QtWidgets.QLabel(state)
         
+        #todo update position
         self.grid_layout = QtWidgets.QGridLayout()
-        self.grid_layout.addWidget(self.label_filename, 0, 0, 1, 2)
-        self.grid_layout.addWidget(self.label_title, 1, 0, 1, 1)
-        self.grid_layout.addWidget(self.label_artist, 1, 1, 1, 1)
-        self.grid_layout.addWidget(self.label_lyrics, 2, 0, 1, 2)
-        self.grid_layout.addWidget(self.label_state, 3, 0, 1, 2)
+        self.grid_layout.addWidget(self.label_filename, 0, 0, 1, 3)
+        self.grid_layout.addWidget(self.label_album_cover, 0, 0, 1, 4)
+        self.grid_layout.addWidget(self.label_duration, 3, 1, 1, 1)
+        self.grid_layout.addWidget(self.label_title, 1, 1, 1, 1)
+        self.grid_layout.addWidget(self.label_artist, 1, 2, 1, 1)
+        self.grid_layout.addWidget(self.label_lyrics, 2, 1, 1, 2)
+        self.grid_layout.addWidget(self.label_state, 3, 1, 1, 2)
         
         self.frame = QtWidgets.QFrame()
         self.frame.setFrameStyle(QtWidgets.QFrame.NoFrame)
@@ -428,3 +456,5 @@ class TrackLayout(QtWidgets.QGridLayout):
         else:
             stylesheet = ""
         self.frame.setStyleSheet(stylesheet)
+        
+        self.signal_mouse_event.emit()
