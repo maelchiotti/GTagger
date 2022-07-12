@@ -146,7 +146,7 @@ class ThreadLyricsSearch(QtCore.QThread):
             lyrics_search = LyricsSearch(self.token)
             found_lyrics = lyrics_search.search_lyrics(track)
             if found_lyrics:
-                lyrics = track.get_lyrics(lines=10)
+                lyrics = track.get_lyrics(lines=8)
                 track_layout.label_lyrics.setText(lyrics)
                 track_layout.label_state.setText(State.LYRICS_FOUND.value)
             else:

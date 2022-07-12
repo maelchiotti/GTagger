@@ -36,7 +36,7 @@ class MainWindow(QtWidgets.QWidget):
         thread_search_lyrics: (QtCore.QThread): Thread to search for the lyrics.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.gtagger = QtWidgets.QApplication.instance()
 
@@ -274,7 +274,7 @@ class MainWindow(QtWidgets.QWidget):
                 track.get_duration(),
                 track.get_title(),
                 track.get_artists(),
-                track.get_lyrics(lines=5),
+                track.get_lyrics(lines=8),
                 State.TAGS_READ.value,
                 self.gtagger.theme,
             )
@@ -348,7 +348,7 @@ class MainWindow(QtWidgets.QWidget):
         for track, track_layout in self.track_layouts.items():
             if track_layout.selected:
                 track.reset_lyrics()
-                track_layout.label_lyrics.setText(track.get_lyrics(lines=5))
+                track_layout.label_lyrics.setText(track.get_lyrics(lines=8))
 
     @QtCore.Slot()
     def remove_rows(self) -> None:

@@ -30,7 +30,7 @@ class CustomIcon(QtGui.QIcon):
 
     def __init__(
         self, icon_theme: IconTheme, icon_name: str, icon_color: Color_, theme: Theme
-    ):
+    ) -> None:
         super().__init__()
 
         # Construct the icon file path according to the current theme, the icon's theme and the icon's name
@@ -104,7 +104,7 @@ class TrackLayout(QtWidgets.QGridLayout):
         lyrics: str,
         state: str,
         theme: Theme,
-    ):
+    ) -> None:
         super().__init__()
 
         self.selected: bool = False
@@ -116,11 +116,13 @@ class TrackLayout(QtWidgets.QGridLayout):
         self.label_cover.setPixmap(self.covers[theme])
         self.label_cover.setFixedWidth(128)
         self.label_title = QtWidgets.QLabel(title)
-        self.label_title.setStyleSheet("font-size: 15pt; font-weight:600;")
+        self.label_title.setStyleSheet("font-size: 15pt; font-weight:800;")
         self.label_artist = QtWidgets.QLabel(artists)
+        self.label_artist.setStyleSheet("font-size: 12pt; font-weight:600;")
         self.label_duration = QtWidgets.QLabel(duration)
         self.label_state = QtWidgets.QLabel(state)
         self.label_lyrics = QtWidgets.QLabel(lyrics)
+        self.label_lyrics.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
 
         self.grid_layout = QtWidgets.QGridLayout()
         self.grid_layout.addWidget(self.label_filename, 0, 0, 1, 3)

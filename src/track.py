@@ -13,9 +13,9 @@ from PySide6 import QtCore, QtGui
 from src.tools import CustomIcon, Color_, IconTheme, Theme
 
 
-class Track:
+class Track(QtCore.QObject):
     """Represents a music track.
-    
+
     Signals:
         signal_lyrics_changed (QtCore.Signal): Emmited when the lyrics of the track are changed.
 
@@ -38,6 +38,8 @@ class Track:
     signal_lyrics_changed = QtCore.Signal()
 
     def __init__(self, filepath: str) -> None:
+        super().__init__()
+
         self.filepath: Path = filepath
         self.filename: str = os.path.basename(filepath)
         self.eyed3_infos: AudioInfo = None
