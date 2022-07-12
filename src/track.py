@@ -15,6 +15,9 @@ from src.tools import CustomIcon, Color_, IconTheme, Theme
 
 class Track:
     """Represents a music track.
+    
+    Signals:
+        signal_lyrics_changed (QtCore.Signal): Emmited when the lyrics of the track are changed.
 
     Attributes:
         filepath (Path): Filepath of the track.
@@ -31,6 +34,8 @@ class Track:
     """
 
     SPLITTERS = " featuring | feat. | feat | ft. | ft | & | / "
+
+    signal_lyrics_changed = QtCore.Signal()
 
     def __init__(self, filepath: str) -> None:
         self.filepath: Path = filepath
@@ -87,8 +92,7 @@ class Track:
             if self.eyed3_tags.artist is not None:
                 self.artists = re.split(self.SPLITTERS, self.eyed3_tags.artist)
                 self.main_artist = self.artists[0]
-            if len(self.eyed3_tags.lyrics) > 0:
-                self.lyrics = self.eyed3_tags.lyrics[0].text
+            self.reset_lyrics()
         except Exception as exception:
             log.error(
                 "Error while reading the tags of file '%s' : %s",
@@ -157,7 +161,7 @@ class Track:
             return self.main_artist
 
     def get_lyrics(self, lines: int = None, length: int = None) -> str:
-        """Returns the lyrics of the track.
+        """Returns the lyrics of the track, or "No lyrics" if the lyrics are not set.
 
         If specified, returns a maximum of `lines` lines.
         Otherwise, if specified, returns a maximum of `length` characters.
@@ -180,6 +184,24 @@ class Track:
                 return self.lyrics[:length]
             else:
                 return self.lyrics
+
+    def set_lyrics(self, lyrics: str | None):
+        """Sets the lyrics of the track to `lyrics`.
+
+        Also emits a signal used to toggle the button to save the lyrics.
+
+        Args:
+            lyrics (str): New lyrics of the track.
+        """
+        self.lyrics = lyrics
+        self.signal_lyrics_changed.emit()
+
+    def reset_lyrics(self):
+        """Resets the lyrics of the track to those read by `eyeD3`, or to `None` it it contained no lyrics."""
+        if len(self.eyed3_tags.lyrics) > 0:
+            self.set_lyrics(self.eyed3_tags.lyrics[0].text)
+        else:
+            self.set_lyrics(None)
 
     def save_lyrics(self) -> bool:
         """Saves the lyrics to the file.

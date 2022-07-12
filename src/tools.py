@@ -65,7 +65,7 @@ class TrackLayout(QtWidgets.QGridLayout):
     """Customized implementation of a `QGridLayout` containing the informations of a track.
 
     Signals:
-        signal_mouse_event (QtCore.Signal()): Emitted when a mouse event is intercepted.
+        signal_mouse_event (QtCore.Signal): Emitted when a mouse event is intercepted.
 
     Attributes:
         selected (bool): `True` if the track is currently selected.

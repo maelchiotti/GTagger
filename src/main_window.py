@@ -259,6 +259,7 @@ class MainWindow(QtWidgets.QWidget):
         # Add the layouts with files' informations
         for file in files:
             track = Track(file)
+            track.signal_lyrics_changed.connect(self.toggle_action_save_lyrics)
             tags_read = track.read_tags()
 
             # Skip the file if the tags could not be read
@@ -333,11 +334,20 @@ class MainWindow(QtWidgets.QWidget):
         self.action_remove_rows.setEnabled(False)
 
     @QtCore.Slot()
+    def toggle_action_save_lyrics(self) -> None:
+        """Toggles the button for saving the lyrics."""
+        for track in self.tracks.values():
+            if track.lyrics is not None:
+                self.action_save_lyrics.setEnabled(True)
+                return
+        self.action_save_lyrics.setEnabled(False)
+
+    @QtCore.Slot()
     def cancel_rows(self) -> None:
         """Removes the added lyrics from the files."""
         for track, track_layout in self.track_layouts.items():
             if track_layout.selected:
-                track.lyrics.set(track.eyed3_tags.lyrics)
+                track.reset_lyrics()
                 track_layout.label_lyrics.setText(track.get_lyrics(lines=5))
 
     @QtCore.Slot()
