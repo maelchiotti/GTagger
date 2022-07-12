@@ -32,14 +32,15 @@ Download the executable `gtagger.exe` from the [Releases](https://github.com/mae
 
 ## TODO
 
-- Ignore corrupted files (Liar Liar)
+**v1.1.0:**
+
+- Fix the lyrics search and display with the new view
+- Toggle the save lyrics button automatically
+
+**Future:**
 
 - Improve the status bar
   - Add a progression bar
-
-- Improve the display of the songs list (add contour?)
-
-- Toggle the save lyrics button automatically
 
 - Improve the settings window to be a `QtCore.Qt.Tool` so that it keeps focus
 
