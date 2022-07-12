@@ -22,9 +22,6 @@ class SettingsWindow(QtWidgets.QWidget):
         self.settings: dict[str, Any] = {
             "recursive": True,
         }
-        self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
-        self.setWindowModality(QtCore.Qt.ApplicationModal)
-        self.setFocusPolicy(QtCore.Qt.StrongFocus)
 
         self.setup_ui()
 
