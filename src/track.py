@@ -9,7 +9,7 @@ import time
 import eyed3
 from eyed3.core import Tag, AudioInfo
 from eyed3.id3.frames import ImageFrame
-from PySide6 import QtCore, QtGui, QtWidgets
+from PySide6 import QtCore, QtGui
 
 from src.tools import CustomIcon, Color_, IconTheme, Theme
 
@@ -68,11 +68,19 @@ class Track:
                 self.covers[Theme.LIGHT] = cover
             else:
                 # If the track doesn't have a cover, build two placeholders
-                icon_dark: CustomIcon = CustomIcon(IconTheme.OUTLINE, "image", Color_.grey, Theme.DARK)
-                cover_dark = icon_dark.pixmap(icon_dark.actualSize(QtCore.QSize(128, 128)))
+                icon_dark: CustomIcon = CustomIcon(
+                    IconTheme.OUTLINE, "image", Color_.grey, Theme.DARK
+                )
+                cover_dark = icon_dark.pixmap(
+                    icon_dark.actualSize(QtCore.QSize(128, 128))
+                )
                 cover_dark = cover_dark.scaled(128, 128, QtCore.Qt.KeepAspectRatio)
-                icon_light: CustomIcon = CustomIcon(IconTheme.OUTLINE, "image", Color_.grey, Theme.LIGHT)
-                cover_light = icon_light.pixmap(icon_light.actualSize(QtCore.QSize(128, 128)))
+                icon_light: CustomIcon = CustomIcon(
+                    IconTheme.OUTLINE, "image", Color_.grey, Theme.LIGHT
+                )
+                cover_light = icon_light.pixmap(
+                    icon_light.actualSize(QtCore.QSize(128, 128))
+                )
                 cover_light = cover_light.scaled(128, 128, QtCore.Qt.KeepAspectRatio)
                 self.covers[Theme.DARK] = cover_dark
                 self.covers[Theme.LIGHT] = cover_light
@@ -104,7 +112,7 @@ class Track:
 
     def get_duration(self) -> str:
         """Returns the formatted duration of the track.
-        
+
         The duration is rounded to the second and returned in the format `MM:SS`.
 
         Returns:

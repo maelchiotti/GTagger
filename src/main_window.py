@@ -147,7 +147,7 @@ class MainWindow(QtWidgets.QWidget):
     def setup_icons(self):
         """Sets up the icons for all the buttons of the application and the covers placeholders."""
         theme = self.gtagger.theme
-        
+
         # Change the icons
         icon_add_files = CustomIcon(IconTheme.OUTLINE, "documents", Color_.green, theme)
         icon_add_folder = CustomIcon(
@@ -177,7 +177,7 @@ class MainWindow(QtWidgets.QWidget):
         self.action_settings.setIcon(icon_settings)
         self.button_token.setIcon(icon_token)
         self.button_theme.setIcon(icon_theme)
-        
+
         # Change the cover placeholders if needed
         for track in self.tracks.values():
             track_layout = self.track_layouts[track]
@@ -274,7 +274,7 @@ class MainWindow(QtWidgets.QWidget):
                 track.get_artists(),
                 track.get_lyrics(lines=5),
                 State.TAGS_READ.value,
-                self.gtagger.theme
+                self.gtagger.theme,
             )
             track_layout.signal_mouse_event.connect(self.toggle_actions_cancel_remove)
             self.track_layouts[track] = track_layout

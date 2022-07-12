@@ -99,7 +99,7 @@ class TrackLayout(QtWidgets.QGridLayout):
         artists: str,
         lyrics: str,
         state: str,
-        theme: Theme
+        theme: Theme,
     ):
         super().__init__()
 
