@@ -23,9 +23,10 @@ class Track:
         eyed3_infos (AudioInfo): Informations read by `eyed3`.
         eyed3_tags (Tag): Tags read and managed by `eyed3`.
         genius_tags: Tags found by `genius`.
+        duration (float): Duration of the track in seconds.
         covers (dict[Theme, QtGui.QPixmap]): Covers of the track (in dark and light theme).
         title (str): Title of the track.
-        artist (list[str]): Artists of the track.
+        artists (list[str]): Artists of the track.
         main_artist (str): Main artist of the track.
         lyrics (str): Lyrics of the track.
     """
@@ -46,7 +47,7 @@ class Track:
         self.lyrics: str = None
 
     def read_tags(self) -> bool:
-        """Uses eyed3 to read the tags from the file and set them.
+        """Uses eyed3 to read the tags from the file and sets them.
 
         Returns:
             bool: `True` if the tags were successfully read.
@@ -65,7 +66,8 @@ class Track:
                 cover = cover.scaled(128, 128, QtCore.Qt.KeepAspectRatio)
                 self.covers[Theme.DARK] = cover
                 self.covers[Theme.LIGHT] = cover
-            else:        
+            else:
+                # If the track doesn't have a cover, build two placeholders
                 icon_dark: CustomIcon = CustomIcon(IconTheme.OUTLINE, "image", Color_.grey, Theme.DARK)
                 cover_dark = icon_dark.pixmap(icon_dark.actualSize(QtCore.QSize(128, 128)))
                 cover_dark = cover_dark.scaled(128, 128, QtCore.Qt.KeepAspectRatio)
@@ -89,15 +91,25 @@ class Track:
             return False
         return True
 
-    def create_cover_placeholder(self, theme: Theme) -> None:
-        if len(self.eyed3_tags.images) > 0:
-            return
-
-
     def get_filepath(self) -> str:
+        """Returns the path to the file.
+
+        Converting to a string is needed because the type of `filepath`
+        changes according to the OS.
+
+        Returns:
+            str: Path to the file.
+        """
         return str(self.filepath)
 
     def get_duration(self) -> str:
+        """Returns the formatted duration of the track.
+        
+        The duration is rounded to the second and returned in the format `MM:SS`.
+
+        Returns:
+            str: Formatted duration of the track
+        """
         if self.duration is None:
             return "??:??"
         else:

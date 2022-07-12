@@ -1,8 +1,10 @@
 """Tools helpful for the GUI.
 
-The tools include:
-- Colors: enumeration of colors.
-- States: enumeration of states.
+Includes:
+- CustomIcon: Customized implementation of a `QIcon`.
+- TrackLayout: Customized implementation of a `QGridLayout` containing the informations of a track.
+- Colors: Enumeration of colors.
+- States: Enumeration of states.
 """
 
 from __future__ import annotations
@@ -17,9 +19,9 @@ PATH_ICONS = "src/assets/img/icons"
 
 
 class CustomIcon(QtGui.QIcon):
-    """Customized icon.
+    """Customized implementation of a `QIcon`.
 
-    Mainly used for the toolbar.
+    Mainly used for the toolbar and the cover placeholder.
     """
 
     def __init__(
@@ -56,29 +58,30 @@ class CustomIcon(QtGui.QIcon):
 
 
 class TrackLayout(QtWidgets.QGridLayout):
-    """Customized layout containing the informations of a track.
+    """Customized implementation of a `QGridLayout` containing the informations of a track.
 
     Signals:
         signal_mouse_event (QtCore.Signal()): Emitted when a mouse event is intercepted.
 
     Attributes:
         selected (bool): `True` if the track is currently selected.
+        covers (dict[Theme, QtGui.QPixmap]): Covers of the track (in dark and light theme).
 
     Displays:
-    - Album cover
     - Filename (and filepath as a tooltip)
-    - Duration
+    - Album cover
     - Title
     - Artists
-    - Lyrics
+    - Duration
     - State
+    - Lyrics
 
     Layout:
     ```
     __|    0    |       1      |     2     |
     0 [              filename              ]
     1 [  ...  ]   [ Title    ]   [   ...   ]
-    2 [ album ]   [ Artist   ]   [   lyr   ]
+    2 [ album ]   [ Artists  ]   [   lyr   ]
     3 [ cover ]   [ Duration ]   [   ics   ]
     4 [  ...  ]   [ State    ]   [   ...   ]
     ```
@@ -95,14 +98,13 @@ class TrackLayout(QtWidgets.QGridLayout):
         title: str,
         artists: str,
         lyrics: str,
-        state: str
+        state: str,
+        theme: Theme
     ):
         super().__init__()
 
         self.selected: bool = False
         self.covers: dict[Theme, QtGui.QPixmap] = covers
-
-        theme: Theme = QtWidgets.QApplication.instance().theme
 
         self.label_filename = QtWidgets.QLabel(filename)
         self.label_filename.setToolTip(filepath)

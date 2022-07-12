@@ -131,7 +131,7 @@ class MainWindow(QtWidgets.QWidget):
         self.layout.addWidget(self.status_bar, 1, 0, 1, 1)
         self.layout.setContentsMargins(0, 0, 0, 0)
 
-        self.set_icons()
+        self.setup_icons()
 
         self.action_add_files.triggered.connect(lambda: self.add_files(False))
         self.action_add_folder.triggered.connect(lambda: self.add_files(True))
@@ -144,9 +144,11 @@ class MainWindow(QtWidgets.QWidget):
         self.button_token.clicked.connect(self.open_token_page)
         self.button_theme.clicked.connect(self.change_theme)
 
-    def set_icons(self):
-        """Sets the icons for all the buttons of the application."""
+    def setup_icons(self):
+        """Sets up the icons for all the buttons of the application and the covers placeholders."""
         theme = self.gtagger.theme
+        
+        # Change the icons
         icon_add_files = CustomIcon(IconTheme.OUTLINE, "documents", Color_.green, theme)
         icon_add_folder = CustomIcon(
             IconTheme.OUTLINE, "folder-open", Color_.green, theme
@@ -166,11 +168,6 @@ class MainWindow(QtWidgets.QWidget):
         elif theme == Theme.LIGHT:
             icon_theme = CustomIcon(IconTheme.OUTLINE, "moon", Color_.grey, theme)
 
-        for track in self.tracks.values():
-            track_layout = self.track_layouts[track]
-            if not track_layout.selected:
-                track_layout.label_cover.setPixmap(track.covers[theme])
-
         self.action_add_files.setIcon(icon_add_files)
         self.action_add_folder.setIcon(icon_add_folder)
         self.action_search_lyrics.setIcon(icon_read_tags)
@@ -180,6 +177,12 @@ class MainWindow(QtWidgets.QWidget):
         self.action_settings.setIcon(icon_settings)
         self.button_token.setIcon(icon_token)
         self.button_theme.setIcon(icon_theme)
+        
+        # Change the cover placeholders if needed
+        for track in self.tracks.values():
+            track_layout = self.track_layouts[track]
+            if not track_layout.selected:
+                track_layout.label_cover.setPixmap(track.covers[theme])
 
     def select_directories(self) -> str:
         """Asks user to select a directory.
@@ -229,7 +232,7 @@ class MainWindow(QtWidgets.QWidget):
             self.gtagger.theme = Theme.LIGHT
             self.button_theme.setToolTip("Change to dark theme")
             self.gtagger.setStyleSheet(qdarktheme.load_stylesheet("light", "rounded"))
-        self.set_icons()
+        self.setup_icons()
 
     @QtCore.Slot()
     def add_files(self, select_directory: bool) -> None:
@@ -257,6 +260,7 @@ class MainWindow(QtWidgets.QWidget):
             track = Track(file)
             tags_read = track.read_tags()
 
+            # Skip the file if the tags could not be read
             if not tags_read:
                 continue
 
@@ -270,6 +274,7 @@ class MainWindow(QtWidgets.QWidget):
                 track.get_artists(),
                 track.get_lyrics(lines=5),
                 State.TAGS_READ.value,
+                self.gtagger.theme
             )
             track_layout.signal_mouse_event.connect(self.toggle_actions_cancel_remove)
             self.track_layouts[track] = track_layout
@@ -305,16 +310,6 @@ class MainWindow(QtWidgets.QWidget):
             self.action_search_lyrics.setEnabled(False)
 
     @QtCore.Slot()
-    def table_changed(self) -> None:
-        """The model of the table has changed."""
-        if len(self.track_layouts) > 0:
-            self.action_cancel_rows.setEnabled(True)
-            self.action_remove_rows.setEnabled(True)
-        else:
-            self.action_cancel_rows.setEnabled(False)
-            self.action_remove_rows.setEnabled(False)
-
-    @QtCore.Slot()
     def save_lyrics(self) -> None:
         """Saves the lyrics to the files."""
         for track, track_layout in self.track_layouts.items():
@@ -323,6 +318,17 @@ class MainWindow(QtWidgets.QWidget):
                 track_layout.label_state.setText(State.LYRICS_SAVED.value)
             else:
                 track_layout.label_state.setText(State.LYRICS_NOT_SAVED.value)
+
+    @QtCore.Slot()
+    def toggle_actions_cancel_remove(self) -> None:
+        """Toggles the buttons for cancelling the lyrics and removing tracks."""
+        for track_layout in self.track_layouts.values():
+            if track_layout.selected:
+                self.action_cancel_rows.setEnabled(True)
+                self.action_remove_rows.setEnabled(True)
+                return
+        self.action_cancel_rows.setEnabled(False)
+        self.action_remove_rows.setEnabled(False)
 
     @QtCore.Slot()
     def cancel_rows(self) -> None:
@@ -341,16 +347,6 @@ class MainWindow(QtWidgets.QWidget):
                 self.layout_files.removeItem(track_layout)
                 self.track_layouts.pop(track)
         self.toggle_actions_cancel_remove()
-
-    @QtCore.Slot()
-    def toggle_actions_cancel_remove(self) -> None:
-        for track_layout in self.track_layouts.values():
-            if track_layout.selected:
-                self.action_cancel_rows.setEnabled(True)
-                self.action_remove_rows.setEnabled(True)
-                return
-        self.action_cancel_rows.setEnabled(False)
-        self.action_remove_rows.setEnabled(False)
 
     @QtCore.Slot()
     def open_token_page(self) -> None:
