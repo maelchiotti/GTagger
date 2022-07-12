@@ -1,5 +1,4 @@
-"""Handles a music track.
-"""
+"""Handles a music track."""
 
 import os
 from pathlib import Path

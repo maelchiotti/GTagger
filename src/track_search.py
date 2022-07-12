@@ -1,5 +1,4 @@
-"""Searches a track on Genius.
-"""
+"""Searches a track on Genius."""
 
 import re
 import logging as log
