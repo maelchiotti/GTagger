@@ -15,13 +15,16 @@ class SettingsWindow(QtWidgets.QWidget):
         settings (dict[str, Any]): Settings names and values.
     """
 
-    def __init__(self, ui_window: QtWidgets.QMainWindow):
-        super().__init__()
+    def __init__(self, parent, ui_window: QtWidgets.QMainWindow):
+        super().__init__(parent)
 
         self.ui_window: QtWidgets.QMainWindow = ui_window
         self.settings: dict[str, Any] = {
             "recursive": True,
         }
+        self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
+        self.setWindowModality(QtCore.Qt.ApplicationModal)
+        self.setFocusPolicy(QtCore.Qt.StrongFocus)
 
         self.setup_ui()
 

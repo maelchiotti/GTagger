@@ -45,7 +45,7 @@ class MainWindow(QtWidgets.QWidget):
         self.token_url: QtCore.QUrl = QtCore.QUrl("https://genius.com/api-clients")
 
         self.settings_window: QtWidgets.QMainWindow = QtWidgets.QMainWindow(self)
-        self.settings: SettingsWindow = SettingsWindow(self.settings_window)
+        self.settings: SettingsWindow = SettingsWindow(self, self.settings_window)
 
         self.thread_search_lyrics: QtCore.QThread = None
 
