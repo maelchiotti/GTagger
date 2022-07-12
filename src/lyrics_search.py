@@ -126,7 +126,10 @@ class LyricsSearch:
 
 
 class ThreadLyricsSearch(QtCore.QThread):
-    """Runs the thread for `main.search_lyrics()`.
+    """Runs the thread for `main_window.search_lyrics()`.
+
+    Uses `TrackSearch` to search the tracks on Genius,
+    and `LyricsSearch` to search and set their lyrics.
 
     Attributes:
         token (str): Token to search the track on Genius.

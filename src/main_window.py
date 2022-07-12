@@ -17,7 +17,6 @@ from src.tools import (
     CustomIcon,
     TrackLayout,
     Color_,
-    ColorLight,
     State,
     Theme,
     IconTheme,
@@ -29,9 +28,8 @@ class MainWindow(QtWidgets.QWidget):
     Main window of the GUI.
 
     Attributes:
-        gtagger (QtWidgets.QApplication): Current instance of the application. Mainly used to retrieve its theme anywhere.
-        tracks (dict[str, Track]): Tracks added by the user.
-        track_layouts (dict[Track, TrackLayout]): Layouts containing the informations of the tracks added by the user.
+        gtagger (QtWidgets.QApplication): Current instance of the application, used to retrieve its theme anywhere.
+        track_layouts (dict[Track, TrackLayout]): Layouts containing the informations of each tracks added by the user.
         token_url (QtCore.QUrl): URL to the Genius web page to get a client access token.
         settings_window (QtWidgets.QMainWindow): Settings window.
         settings (SettingsWindow): Settings.
@@ -42,7 +40,6 @@ class MainWindow(QtWidgets.QWidget):
         super().__init__()
         self.gtagger = QtWidgets.QApplication.instance()
 
-        self.tracks: dict[str, Track] = {}
         self.track_layouts: dict[Track, TrackLayout] = {}
         self.token_url: QtCore.QUrl = QtCore.QUrl("https://genius.com/api-clients")
 
@@ -269,8 +266,8 @@ class MainWindow(QtWidgets.QWidget):
             if files is None:
                 return
 
-        # Add the layouts with files' informations
         for file in files:
+            # Create the track and read its tags
             track = Track(file)
             track.signal_lyrics_changed.connect(self.lyrics_changed)
             tags_read = track.read_tags()
@@ -279,7 +276,7 @@ class MainWindow(QtWidgets.QWidget):
             if not tags_read:
                 continue
 
-            self.tracks[track.filename] = track
+            # Add the layouts with the files' informations
             track_layout = TrackLayout(
                 track.get_filepath(),
                 track.filename,
@@ -297,14 +294,18 @@ class MainWindow(QtWidgets.QWidget):
 
     @QtCore.Slot()
     def search_lyrics(self) -> None:
-        """Searches for the lyrics of the files and adds them in the table."""
+        """Searches for the lyrics of the files."""
         token = self.input_token.text()
         self.thread_search_lyrics = ThreadLyricsSearch(token, self.track_layouts)
         self.thread_search_lyrics.start()
 
     @QtCore.Slot()
     def token_changed(self) -> None:
-        """The token was changed by the user."""
+        """The token was changed by the user.
+
+        Changes the color of the `QLineEdit` according to the new token,
+        and toggles the search button accordingly.
+        """
         theme = self.gtagger.theme
         if len(self.input_token.text()) == 0:
             # Input is empty
@@ -340,9 +341,9 @@ class MainWindow(QtWidgets.QWidget):
 
     @QtCore.Slot()
     def selection_changed(self) -> None:
-        """Selection of the tracks changed.
+        """The selection of the tracks changed.
 
-        Toggle the cancel and remove buttons, and change lyrics color.
+        Toggles the cancel and remove buttons, and changes lyrics color.
         """
         enable_cancel = False
         enable_remove = False
@@ -375,7 +376,7 @@ class MainWindow(QtWidgets.QWidget):
 
     @QtCore.Slot()
     def remove_rows(self) -> None:
-        """Remove the selected rows."""
+        """Removes the selected rows."""
         for track, track_layout in self.track_layouts.copy().items():
             if track_layout.selected:
                 track_layout.frame.hide()
@@ -385,7 +386,10 @@ class MainWindow(QtWidgets.QWidget):
 
     @QtCore.Slot()
     def lyrics_changed(self) -> None:
-        """The lyrics of a track changed."""
+        """The lyrics of a track changed.
+
+        Changes the color of the lyrics according to the current theme.
+        """
         for track, track_layout in self.track_layouts.items():
             if track.lyrics_new is not None:
                 track_layout.label_lyrics.setStyleSheet(

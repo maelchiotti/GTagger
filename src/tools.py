@@ -20,12 +20,13 @@ from enum import Enum
 
 VERSION = "v1.0.0"
 PATH_ICONS = "src/assets/img/icons"
+COVER_SIZE = 128
 
 
 class CustomIcon(QtGui.QIcon):
     """Customized implementation of a `QIcon`.
 
-    Mainly used for the toolbar and the cover placeholder.
+    Allows to use a custom `.svg` icon with a custom color.
     """
 
     def __init__(
@@ -114,7 +115,7 @@ class TrackLayout(QtWidgets.QGridLayout):
         self.label_filename.setToolTip(filepath)
         self.label_cover = QtWidgets.QLabel()
         self.label_cover.setPixmap(self.covers[theme])
-        self.label_cover.setFixedWidth(128)
+        self.label_cover.setFixedWidth(COVER_SIZE)
         self.label_title = QtWidgets.QLabel(title)
         self.label_title.setStyleSheet("font-size: 15pt; font-weight:800;")
         self.label_artist = QtWidgets.QLabel(artists)
@@ -122,7 +123,9 @@ class TrackLayout(QtWidgets.QGridLayout):
         self.label_duration = QtWidgets.QLabel(duration)
         self.label_state = QtWidgets.QLabel(state)
         self.label_lyrics = QtWidgets.QLabel(lyrics)
-        self.label_lyrics.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
+        self.label_lyrics.setSizePolicy(
+            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred
+        )
 
         self.grid_layout = QtWidgets.QGridLayout()
         self.grid_layout.addWidget(self.label_filename, 0, 0, 1, 3)
@@ -178,7 +181,8 @@ class Color_(Enum):
     def get_themed_color(theme: Theme, color: Color_) -> ColorDark | ColorLight:
         """Returns the dark of light color corresponding to `color` and depending on `theme`.
 
-        This method is used to retrieve the dark or light color corresponding to a regular color, allowing the application to choose the right color depending on its current theme.
+        Allows to retrieve the dark or light color corresponding to a regular color,
+        allowing the application to choose the right color depending on its current theme.
 
         Args:
             theme (Theme): Current theme of the application.
@@ -194,10 +198,7 @@ class Color_(Enum):
 
 
 class ColorDark(Enum):
-    """Enumerates usefull (name, hex) dark colors.
-
-    Mainly used for the light theme.
-    """
+    """Enumerates usefull (name, hex) dark colors."""
 
     green = "#006400"
     red = "#8B0000"
@@ -218,10 +219,7 @@ class ColorDark(Enum):
 
 
 class ColorLight(Enum):
-    """Enumerates usefull (name, hex) light colors.
-
-    Mainly used for the dark theme.
-    """
+    """Enumerates usefull (name, hex) light colors."""
 
     green = "#90EE90"
     red = "#F08080"

@@ -10,7 +10,7 @@ from eyed3.core import Tag, AudioInfo
 from eyed3.id3.frames import ImageFrame
 from PySide6 import QtCore, QtGui
 
-from src.tools import CustomIcon, Color_, IconTheme, Theme
+from src.tools import COVER_SIZE, CustomIcon, Color_, IconTheme, Theme
 
 
 class Track(QtCore.QObject):
@@ -69,7 +69,7 @@ class Track(QtCore.QObject):
                 image: ImageFrame = self.eyed3_tags.images[0]
                 cover = QtGui.QPixmap()
                 cover.loadFromData(image.image_data)
-                cover = cover.scaled(128, 128, QtCore.Qt.KeepAspectRatio)
+                cover = cover.scaled(COVER_SIZE, COVER_SIZE, QtCore.Qt.KeepAspectRatio)
                 self.covers[Theme.DARK] = cover
                 self.covers[Theme.LIGHT] = cover
             else:
@@ -78,16 +78,16 @@ class Track(QtCore.QObject):
                     IconTheme.OUTLINE, "image", Color_.grey, Theme.DARK
                 )
                 cover_dark = icon_dark.pixmap(
-                    icon_dark.actualSize(QtCore.QSize(128, 128))
+                    icon_dark.actualSize(QtCore.QSize(COVER_SIZE, COVER_SIZE))
                 )
-                cover_dark = cover_dark.scaled(128, 128, QtCore.Qt.KeepAspectRatio)
+                cover_dark = cover_dark.scaled(COVER_SIZE, COVER_SIZE, QtCore.Qt.KeepAspectRatio)
                 icon_light: CustomIcon = CustomIcon(
                     IconTheme.OUTLINE, "image", Color_.grey, Theme.LIGHT
                 )
                 cover_light = icon_light.pixmap(
-                    icon_light.actualSize(QtCore.QSize(128, 128))
+                    icon_light.actualSize(QtCore.QSize(COVER_SIZE, COVER_SIZE))
                 )
-                cover_light = cover_light.scaled(128, 128, QtCore.Qt.KeepAspectRatio)
+                cover_light = cover_light.scaled(COVER_SIZE, COVER_SIZE, QtCore.Qt.KeepAspectRatio)
                 self.covers[Theme.DARK] = cover_dark
                 self.covers[Theme.LIGHT] = cover_light
             self.title = self.eyed3_tags.title
@@ -164,6 +164,8 @@ class Track(QtCore.QObject):
     def get_lyrics(self, lines: int = None, length: int = None) -> str:
         """Returns the lyrics of the track, or "No lyrics" if the lyrics are not set.
 
+        Returns `new_lyrics` is they are set, otherwise the original ones read by `eyeD3`.
+
         If specified, returns a maximum of `lines` lines.
         Otherwise, if specified, returns a maximum of `length` characters.
         In any other case, returns the full lyrics.
@@ -207,14 +209,15 @@ class Track(QtCore.QObject):
         Returns:
             bool: `True` if the lyrics were successfully saved.
         """
-        try:
-            self.eyed3_tags.lyrics.set(self.lyrics_new)
-            self.eyed3_tags.save(version=eyed3.id3.ID3_V2_3, encoding="utf-8")
-        except Exception as exception:
-            log.error(
-                "Error while saving the lyrics of file '%s' : %s",
-                self.filename,
-                str(exception),
-            )
-            return False
+        if self.lyrics_new is not None:
+            try:
+                self.eyed3_tags.lyrics.set(self.lyrics_new)
+                self.eyed3_tags.save(version=eyed3.id3.ID3_V2_3, encoding="utf-8")
+            except Exception as exception:
+                log.error(
+                    "Error while saving the lyrics of file '%s' : %s",
+                    self.filename,
+                    str(exception),
+                )
+                return False
         return True
