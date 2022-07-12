@@ -188,7 +188,7 @@ class MainWindow(QtWidgets.QWidget):
         for track, track_layout in self.track_layouts.items():
             if not track_layout.selected:
                 track_layout.label_cover.setPixmap(track.covers[theme])
-                if track.lyrics is not None:
+                if track.lyrics_new is not None:
                     track_layout.label_lyrics.setStyleSheet(
                         f"color: {Color_.get_themed_color(self.gtagger.theme, Color_.green).value}"
                     )
@@ -341,22 +341,22 @@ class MainWindow(QtWidgets.QWidget):
     @QtCore.Slot()
     def selection_changed(self) -> None:
         """Selection of the tracks changed.
-        
+
         Toggle the cancel and remove buttons, and change lyrics color.
         """
         enable_cancel = False
         enable_remove = False
         for track, track_layout in self.track_layouts.items():
             if track_layout.selected:
-                if track.lyrics is not None:
+                if track.lyrics_new is not None:
                     track_layout.label_lyrics.setStyleSheet(
                         f"color: {ColorDark.green.value}"
                     )
                 enable_remove = True
-                if track.lyrics is not None:
+                if track.lyrics_new is not None:
                     enable_cancel = True
             else:
-                if track.lyrics is not None:
+                if track.lyrics_new is not None:
                     track_layout.label_lyrics.setStyleSheet(
                         f"color: {Color_.get_themed_color(self.gtagger.theme, Color_.green).value}"
                     )
@@ -387,7 +387,7 @@ class MainWindow(QtWidgets.QWidget):
     def lyrics_changed(self) -> None:
         """The lyrics of a track changed."""
         for track, track_layout in self.track_layouts.items():
-            if track.lyrics is not None:
+            if track.lyrics_new is not None:
                 track_layout.label_lyrics.setStyleSheet(
                     f"color: {Color_.get_themed_color(self.gtagger.theme, Color_.green).value}"
                 )

@@ -50,7 +50,7 @@ class Track(QtCore.QObject):
         self.title: str = None
         self.artists: list[str] = []
         self.main_artist: str = None
-        self.lyrics: str = None
+        self.lyrics_new: str = None
 
     def read_tags(self) -> bool:
         """Uses eyed3 to read the tags from the file and sets them.
@@ -175,8 +175,8 @@ class Track(QtCore.QObject):
         Returns:
             str: Lyrics (up to `lines`, `length` or full).
         """
-        if self.lyrics is not None:
-            lyrics = self.lyrics
+        if self.lyrics_new is not None:
+            lyrics = self.lyrics_new
         elif len(self.eyed3_tags.lyrics) > 0:
             lyrics = self.eyed3_tags.lyrics[0].text
         else:
@@ -198,7 +198,7 @@ class Track(QtCore.QObject):
         Args:
             lyrics (str): New lyrics of the track.
         """
-        self.lyrics = lyrics
+        self.lyrics_new = lyrics
         self.signal_lyrics_changed.emit()
 
     def save_lyrics(self) -> bool:
@@ -208,7 +208,7 @@ class Track(QtCore.QObject):
             bool: `True` if the lyrics were successfully saved.
         """
         try:
-            self.eyed3_tags.lyrics.set(self.lyrics)
+            self.eyed3_tags.lyrics.set(self.lyrics_new)
             self.eyed3_tags.save(version=eyed3.id3.ID3_V2_3, encoding="utf-8")
         except Exception as exception:
             log.error(
