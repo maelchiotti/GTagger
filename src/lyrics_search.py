@@ -104,7 +104,7 @@ class LyricsSearch:
             )
             return False
 
-        track.lyrics = self.format_lyrics(searched_track.lyrics)
+        track.set_lyrics(self.format_lyrics(searched_track.lyrics))
         return True
 
     @staticmethod

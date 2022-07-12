@@ -3,6 +3,7 @@
 Handles the creation of the main window and the interactions with the user.
 """
 
+from os import remove
 import pathlib
 import qdarktheme
 from PySide6 import QtCore, QtWidgets, QtGui
@@ -12,6 +13,7 @@ from src.track import Track
 from src.lyrics_search import ThreadLyricsSearch
 from src.tools import (
     VERSION,
+    ColorDark,
     CustomIcon,
     TrackLayout,
     Color_,
@@ -97,7 +99,7 @@ class MainWindow(QtWidgets.QWidget):
         self.input_token.setPlaceholderText("Enter your Genius client access token")
         self.input_token.setToolTip("Enter token")
         self.input_token.setStyleSheet(
-            f"border: 2px solid {Color_.get_themed_color(self.gtagger.theme, ColorLight.red).value}"
+            f"border: 2px solid {Color_.get_themed_color(self.gtagger.theme, Color_.red).value}"
         )
         regex_epx = QtCore.QRegularExpression("[a-zA-Z0-9_-]{64}")
         self.validator = QtGui.QRegularExpressionValidator(regex_epx, self)
@@ -181,12 +183,19 @@ class MainWindow(QtWidgets.QWidget):
         self.button_token.setIcon(icon_token)
         self.button_theme.setIcon(icon_theme)
 
-        # Change the cover placeholders if needed
-        for track in self.tracks.values():
-            track_layout = self.track_layouts[track]
+        # Change the cover placeholders and if needed,
+        # as well as the lyrics color
+        for track, track_layout in self.track_layouts.items():
             if not track_layout.selected:
                 track_layout.label_cover.setPixmap(track.covers[theme])
+                if track.lyrics is not None:
+                    track_layout.label_lyrics.setStyleSheet(
+                        f"color: {Color_.get_themed_color(self.gtagger.theme, Color_.green).value}"
+                    )
+                else:
+                    track_layout.label_lyrics.setStyleSheet("")
 
+        # Change the color of the token line edit
         self.token_changed()
 
     def select_directories(self) -> str:
@@ -263,7 +272,7 @@ class MainWindow(QtWidgets.QWidget):
         # Add the layouts with files' informations
         for file in files:
             track = Track(file)
-            track.signal_lyrics_changed.connect(self.toggle_action_save_lyrics)
+            track.signal_lyrics_changed.connect(self.lyrics_changed)
             tags_read = track.read_tags()
 
             # Skip the file if the tags could not be read
@@ -282,7 +291,7 @@ class MainWindow(QtWidgets.QWidget):
                 State.TAGS_READ.value,
                 self.gtagger.theme,
             )
-            track_layout.signal_mouse_event.connect(self.toggle_actions_cancel_remove)
+            track_layout.signal_mouse_event.connect(self.selection_changed)
             self.track_layouts[track] = track_layout
             self.layout_files.addLayout(track_layout)
 
@@ -300,21 +309,21 @@ class MainWindow(QtWidgets.QWidget):
         if len(self.input_token.text()) == 0:
             # Input is empty
             self.input_token.setStyleSheet(
-                f"border: 2px solid {Color_.get_themed_color(theme, ColorLight.red).value}"
+                f"border: 2px solid {Color_.get_themed_color(theme, Color_.red).value}"
             )
             self.input_token.setToolTip("Enter token")
             self.action_search_lyrics.setEnabled(False)
         elif not self.is_token_valid():
             # Token is not valid
             self.input_token.setStyleSheet(
-                f"border: 2px solid {Color_.get_themed_color(theme, ColorLight.red).value}"
+                f"border: 2px solid {Color_.get_themed_color(theme, Color_.red).value}"
             )
             self.input_token.setToolTip("Invalid token")
             self.action_search_lyrics.setEnabled(False)
         else:
             # Token is valid
             self.input_token.setStyleSheet(
-                f"border: 2px solid {Color_.get_themed_color(theme, ColorLight.green).value}"
+                f"border: 2px solid {Color_.get_themed_color(theme, Color_.green).value}"
             )
             self.input_token.setToolTip("Valid token")
             self.action_search_lyrics.setEnabled(True)
@@ -330,31 +339,38 @@ class MainWindow(QtWidgets.QWidget):
                 track_layout.label_state.setText(State.LYRICS_NOT_SAVED.value)
 
     @QtCore.Slot()
-    def toggle_actions_cancel_remove(self) -> None:
-        """Toggles the buttons for cancelling the lyrics and removing tracks."""
-        for track_layout in self.track_layouts.values():
+    def selection_changed(self) -> None:
+        """Selection of the tracks changed.
+        
+        Toggle the cancel and remove buttons, and change lyrics color.
+        """
+        enable_cancel = False
+        enable_remove = False
+        for track, track_layout in self.track_layouts.items():
             if track_layout.selected:
-                self.action_cancel_rows.setEnabled(True)
-                self.action_remove_rows.setEnabled(True)
-                return
-        self.action_cancel_rows.setEnabled(False)
-        self.action_remove_rows.setEnabled(False)
-
-    @QtCore.Slot()
-    def toggle_action_save_lyrics(self) -> None:
-        """Toggles the button for saving the lyrics."""
-        for track in self.tracks.values():
-            if track.lyrics is not None:
-                self.action_save_lyrics.setEnabled(True)
-                return
-        self.action_save_lyrics.setEnabled(False)
+                if track.lyrics is not None:
+                    track_layout.label_lyrics.setStyleSheet(
+                        f"color: {ColorDark.green.value}"
+                    )
+                enable_remove = True
+                if track.lyrics is not None:
+                    enable_cancel = True
+            else:
+                if track.lyrics is not None:
+                    track_layout.label_lyrics.setStyleSheet(
+                        f"color: {Color_.get_themed_color(self.gtagger.theme, Color_.green).value}"
+                    )
+                else:
+                    track_layout.label_lyrics.setStyleSheet("")
+        self.action_cancel_rows.setEnabled(enable_cancel)
+        self.action_remove_rows.setEnabled(enable_remove)
 
     @QtCore.Slot()
     def cancel_rows(self) -> None:
         """Removes the added lyrics from the files."""
         for track, track_layout in self.track_layouts.items():
             if track_layout.selected:
-                track.reset_lyrics()
+                track.set_lyrics(None)
                 track_layout.label_lyrics.setText(track.get_lyrics(lines=8))
 
     @QtCore.Slot()
@@ -365,7 +381,20 @@ class MainWindow(QtWidgets.QWidget):
                 track_layout.frame.hide()
                 self.layout_files.removeItem(track_layout)
                 self.track_layouts.pop(track)
-        self.toggle_actions_cancel_remove()
+        self.selection_changed()
+
+    @QtCore.Slot()
+    def lyrics_changed(self) -> None:
+        """The lyrics of a track changed."""
+        for track, track_layout in self.track_layouts.items():
+            if track.lyrics is not None:
+                track_layout.label_lyrics.setStyleSheet(
+                    f"color: {Color_.get_themed_color(self.gtagger.theme, Color_.green).value}"
+                )
+                self.action_save_lyrics.setEnabled(True)
+            else:
+                track_layout.label_lyrics.setStyleSheet("")
+        self.action_save_lyrics.setEnabled(False)
 
     @QtCore.Slot()
     def open_token_page(self) -> None:

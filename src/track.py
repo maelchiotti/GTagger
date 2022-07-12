@@ -94,7 +94,6 @@ class Track(QtCore.QObject):
             if self.eyed3_tags.artist is not None:
                 self.artists = re.split(self.SPLITTERS, self.eyed3_tags.artist)
                 self.main_artist = self.artists[0]
-            self.reset_lyrics()
         except Exception as exception:
             log.error(
                 "Error while reading the tags of file '%s' : %s",
@@ -176,16 +175,20 @@ class Track(QtCore.QObject):
         Returns:
             str: Lyrics (up to `lines`, `length` or full).
         """
-        if self.lyrics is None:
-            return "No lyrics"
+        if self.lyrics is not None:
+            lyrics = self.lyrics
+        elif len(self.eyed3_tags.lyrics) > 0:
+            lyrics = self.eyed3_tags.lyrics[0].text
         else:
-            if lines is not None:
-                lyrics = self.lyrics.split("\n")
-                return "\n".join(lyrics[:lines])
-            elif length is not None:
-                return self.lyrics[:length]
-            else:
-                return self.lyrics
+            return "No lyrics"
+
+        if lines is not None:
+            lyrics = lyrics.split("\n")
+            return "\n".join(lyrics[:lines])
+        elif length is not None:
+            return lyrics[:length]
+        else:
+            return lyrics
 
     def set_lyrics(self, lyrics: str | None):
         """Sets the lyrics of the track to `lyrics`.
@@ -197,13 +200,6 @@ class Track(QtCore.QObject):
         """
         self.lyrics = lyrics
         self.signal_lyrics_changed.emit()
-
-    def reset_lyrics(self):
-        """Resets the lyrics of the track to those read by `eyeD3`, or to `None` it it contained no lyrics."""
-        if len(self.eyed3_tags.lyrics) > 0:
-            self.set_lyrics(self.eyed3_tags.lyrics[0].text)
-        else:
-            self.set_lyrics(None)
 
     def save_lyrics(self) -> bool:
         """Saves the lyrics to the file.
