@@ -3,7 +3,6 @@
 Handles the creation of the main window and the interactions with the user.
 """
 
-from os import remove
 import pathlib
 import qdarktheme
 from PySide6 import QtCore, QtWidgets, QtGui
