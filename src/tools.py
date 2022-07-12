@@ -3,8 +3,12 @@
 Includes:
 - CustomIcon: Customized implementation of a `QIcon`.
 - TrackLayout: Customized implementation of a `QGridLayout` containing the informations of a track.
-- Colors: Enumeration of colors.
-- States: Enumeration of states.
+- Color_: Enumeration of normal colors.
+- ColorDark: Enumeration of light colors for the dark theme.
+- ColorLight: Enumeration of dark colors for the light theme.
+- State: Enumeration of states.
+- Theme: Enumeration of application themes.
+- IconTheme: Enumeration of icon themes.
 """
 
 from __future__ import annotations
