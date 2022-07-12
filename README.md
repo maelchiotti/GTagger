@@ -48,3 +48,5 @@ Download the executable `gtagger.exe` from the [Releases](https://github.com/mae
   - Ignore files with lyrics
 
 - Save and restore preferences using `QSettings`
+
+- Add files in a thread

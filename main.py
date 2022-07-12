@@ -15,7 +15,7 @@ if __name__ == "__main__":
     gtagger.setStyleSheet(qdarktheme.load_stylesheet("dark", "rounded"))
 
     main_window = MainWindow()
-    main_window.resize(800, 600)
+    main_window.resize(1200, 800)
     main_window.show()
 
     sys.exit(gtagger.exec())

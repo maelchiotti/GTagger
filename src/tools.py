@@ -118,6 +118,7 @@ class TrackLayout(QtWidgets.QGridLayout):
         self.label_cover.setFixedWidth(COVER_SIZE)
         self.label_title = QtWidgets.QLabel(title)
         self.label_title.setStyleSheet("font-size: 15pt; font-weight:800;")
+        self.label_title.setFixedWidth(3 * COVER_SIZE)
         self.label_artist = QtWidgets.QLabel(artists)
         self.label_artist.setStyleSheet("font-size: 12pt; font-weight:600;")
         self.label_duration = QtWidgets.QLabel(duration)
@@ -126,6 +127,7 @@ class TrackLayout(QtWidgets.QGridLayout):
         self.label_lyrics.setSizePolicy(
             QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred
         )
+        self.label_lyrics.setMaximumWidth(8 * COVER_SIZE)
 
         self.grid_layout = QtWidgets.QGridLayout()
         self.grid_layout.addWidget(self.label_filename, 0, 0, 1, 3)
