@@ -96,7 +96,9 @@ class MainWindow(QtWidgets.QWidget):
         self.input_token = QtWidgets.QLineEdit()
         self.input_token.setPlaceholderText("Enter your Genius client access token")
         self.input_token.setToolTip("Enter token")
-        self.input_token.setStyleSheet("border: 0px")
+        self.input_token.setStyleSheet(
+            f"border: 2px solid {Color_.get_themed_color(self.gtagger.theme, ColorLight.red).value}"
+        )
         regex_epx = QtCore.QRegularExpression("[a-zA-Z0-9_-]{64}")
         self.validator = QtGui.QRegularExpressionValidator(regex_epx, self)
         self.input_token.setValidator(self.validator)
@@ -132,7 +134,7 @@ class MainWindow(QtWidgets.QWidget):
         self.layout.addWidget(self.status_bar, 1, 0, 1, 1)
         self.layout.setContentsMargins(0, 0, 0, 0)
 
-        self.setup_icons()
+        self.setup_theme()
 
         self.action_add_files.triggered.connect(lambda: self.add_files(False))
         self.action_add_folder.triggered.connect(lambda: self.add_files(True))
@@ -145,8 +147,8 @@ class MainWindow(QtWidgets.QWidget):
         self.button_token.clicked.connect(self.open_token_page)
         self.button_theme.clicked.connect(self.change_theme)
 
-    def setup_icons(self):
-        """Sets up the icons for all the buttons of the application and the covers placeholders."""
+    def setup_theme(self):
+        """Sets up the colors for diverse elements of the application when the theme is changed."""
         theme = self.gtagger.theme
 
         # Change the icons
@@ -184,6 +186,8 @@ class MainWindow(QtWidgets.QWidget):
             track_layout = self.track_layouts[track]
             if not track_layout.selected:
                 track_layout.label_cover.setPixmap(track.covers[theme])
+
+        self.token_changed()
 
     def select_directories(self) -> str:
         """Asks user to select a directory.
@@ -233,7 +237,7 @@ class MainWindow(QtWidgets.QWidget):
             self.gtagger.theme = Theme.LIGHT
             self.button_theme.setToolTip("Change to dark theme")
             self.gtagger.setStyleSheet(qdarktheme.load_stylesheet("light", "rounded"))
-        self.setup_icons()
+        self.setup_theme()
 
     @QtCore.Slot()
     def add_files(self, select_directory: bool) -> None:
@@ -292,25 +296,28 @@ class MainWindow(QtWidgets.QWidget):
     @QtCore.Slot()
     def token_changed(self) -> None:
         """The token was changed by the user."""
+        theme = self.gtagger.theme
         if len(self.input_token.text()) == 0:
             # Input is empty
-            self.input_token.setStyleSheet("border: 0px")
+            self.input_token.setStyleSheet(
+                f"border: 2px solid {Color_.get_themed_color(theme, ColorLight.red).value}"
+            )
             self.input_token.setToolTip("Enter token")
             self.action_search_lyrics.setEnabled(False)
-        elif self.is_token_valid():
-            # Token is valid
-            self.input_token.setStyleSheet(
-                f"border: 0px; background-color: {ColorLight.green.value}"
-            )
-            self.input_token.setToolTip("Valid token")
-            self.action_search_lyrics.setEnabled(True)
-        else:
+        elif not self.is_token_valid():
             # Token is not valid
             self.input_token.setStyleSheet(
-                f"border: 0px; background-color: {ColorLight.red.value}"
+                f"border: 2px solid {Color_.get_themed_color(theme, ColorLight.red).value}"
             )
             self.input_token.setToolTip("Invalid token")
             self.action_search_lyrics.setEnabled(False)
+        else:
+            # Token is valid
+            self.input_token.setStyleSheet(
+                f"border: 2px solid {Color_.get_themed_color(theme, ColorLight.green).value}"
+            )
+            self.input_token.setToolTip("Valid token")
+            self.action_search_lyrics.setEnabled(True)
 
     @QtCore.Slot()
     def save_lyrics(self) -> None:
