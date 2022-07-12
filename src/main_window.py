@@ -8,8 +8,8 @@ import qdarktheme
 from PySide6 import QtCore, QtWidgets, QtGui
 
 from src.settings import SettingsWindow
-from src.threads import ThreadSearchLyrics
 from src.track import Track
+from src.lyrics_search import ThreadLyricsSearch
 from src.tools import (
     VERSION,
     CustomIcon,
@@ -67,7 +67,7 @@ class MainWindow(QtWidgets.QWidget):
 
         self.action_save_lyrics = QtGui.QAction()
         self.action_save_lyrics.setToolTip("Save the lyrics")
-        self.action_save_lyrics.setEnabled(True)
+        self.action_save_lyrics.setEnabled(False)
 
         self.action_cancel_rows = QtGui.QAction()
         self.action_cancel_rows.setToolTip("Cancel the modifications\nof selected rows")
@@ -153,7 +153,7 @@ class MainWindow(QtWidgets.QWidget):
         icon_add_folder = CustomIcon(
             IconTheme.OUTLINE, "folder-open", Color_.green, theme
         )
-        icon_read_tags = CustomIcon(IconTheme.OUTLINE, "pricetags", Color_.blue, theme)
+        icon_search_lyrics = CustomIcon(IconTheme.OUTLINE, "search", Color_.blue, theme)
         icon_save_lyrics = CustomIcon(IconTheme.OUTLINE, "save", Color_.green, theme)
         icon_cancel_rows = CustomIcon(
             IconTheme.OUTLINE, "arrow-undo", Color_.orange, theme
@@ -170,7 +170,7 @@ class MainWindow(QtWidgets.QWidget):
 
         self.action_add_files.setIcon(icon_add_files)
         self.action_add_folder.setIcon(icon_add_folder)
-        self.action_search_lyrics.setIcon(icon_read_tags)
+        self.action_search_lyrics.setIcon(icon_search_lyrics)
         self.action_save_lyrics.setIcon(icon_save_lyrics)
         self.action_cancel_rows.setIcon(icon_cancel_rows)
         self.action_remove_rows.setIcon(icon_remove_rows)
@@ -283,7 +283,8 @@ class MainWindow(QtWidgets.QWidget):
     @QtCore.Slot()
     def search_lyrics(self) -> None:
         """Searches for the lyrics of the files and adds them in the table."""
-        self.thread_search_lyrics = ThreadSearchLyrics(self)
+        token = self.input_token.text()
+        self.thread_search_lyrics = ThreadLyricsSearch(token, self.track_layouts)
         self.thread_search_lyrics.start()
 
     @QtCore.Slot()
