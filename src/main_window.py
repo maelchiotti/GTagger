@@ -105,6 +105,7 @@ class MainWindow(QtWidgets.QWidget):
         self.button_token.setToolTip("Get the token\non Genius website")
 
         self.layout_files = QtWidgets.QVBoxLayout()
+        self.layout_files.setAlignment(QtCore.Qt.AlignTop)
 
         self.widget_files = QtWidgets.QWidget()
         self.widget_files.setLayout(self.layout_files)
