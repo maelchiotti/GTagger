@@ -30,7 +30,7 @@ class Track(QtCore.QObject):
         title (str): Title of the track.
         artists (list[str]): Artists of the track.
         main_artist (str): Main artist of the track.
-        lyrics (str): New lyrics of the track.
+        lyrics_new (str): New lyrics of the track.
     """
 
     SPLITTERS = " featuring | feat. | feat | ft. | ft | & | / "
