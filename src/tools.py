@@ -90,21 +90,24 @@ class TrackLayout(QtWidgets.QGridLayout):
         self,
         filepath: str,
         filename: str,
-        cover: QtGui.QPixmap,
+        covers: dict[Theme, QtGui.QPixmap],
         duration: str,
         title: str,
         artists: str,
         lyrics: str,
-        state: str,
+        state: str
     ):
         super().__init__()
 
         self.selected: bool = False
+        self.covers: dict[Theme, QtGui.QPixmap] = covers
+
+        theme: Theme = QtWidgets.QApplication.instance().theme
 
         self.label_filename = QtWidgets.QLabel(filename)
         self.label_filename.setToolTip(filepath)
         self.label_cover = QtWidgets.QLabel()
-        self.label_cover.setPixmap(cover)
+        self.label_cover.setPixmap(self.covers[theme])
         self.label_title = QtWidgets.QLabel(title)
         self.label_artist = QtWidgets.QLabel(artists)
         self.label_duration = QtWidgets.QLabel(duration)
@@ -121,7 +124,7 @@ class TrackLayout(QtWidgets.QGridLayout):
         self.grid_layout.addWidget(self.label_lyrics, 1, 2, 4, 1)
 
         self.frame = QtWidgets.QFrame()
-        self.frame.setFrameStyle(QtWidgets.QFrame.NoFrame)
+        self.frame.setFrameStyle(QtWidgets.QFrame.StyledPanel | QtWidgets.QFrame.Plain)
         self.frame.setLayout(self.grid_layout)
         self.frame.mouseReleaseEvent = self.mouseReleaseEvent
 
@@ -142,8 +145,11 @@ class TrackLayout(QtWidgets.QGridLayout):
             stylesheet = (
                 f"color: {color.value}; background-color: {background_color.value};"
             )
+            self.label_cover.setPixmap(self.covers[Theme.LIGHT])
         else:
             stylesheet = ""
+            theme: Theme = QtWidgets.QApplication.instance().theme
+            self.label_cover.setPixmap(self.covers[theme])
         self.frame.setStyleSheet(stylesheet)
 
         self.signal_mouse_event.emit()

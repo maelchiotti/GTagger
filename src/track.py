@@ -23,6 +23,7 @@ class Track:
         eyed3_infos (AudioInfo): Informations read by `eyed3`.
         eyed3_tags (Tag): Tags read and managed by `eyed3`.
         genius_tags: Tags found by `genius`.
+        covers (dict[Theme, QtGui.QPixmap]): Covers of the track (in dark and light theme).
         title (str): Title of the track.
         artist (list[str]): Artists of the track.
         main_artist (str): Main artist of the track.
@@ -38,7 +39,7 @@ class Track:
         self.eyed3_tags: Tag = None
         self.genius_tags = None
         self.duration: float = None
-        self.cover: QtGui.QPixmap = None
+        self.covers: dict[Theme, QtGui.QPixmap] = {Theme.DARK: None, Theme.LIGHT: None}
         self.title: str = None
         self.artists: list[str] = []
         self.main_artist: str = None
@@ -59,12 +60,20 @@ class Track:
             self.duration = self.eyed3_infos.time_secs
             if len(self.eyed3_tags.images) > 0:
                 image: ImageFrame = self.eyed3_tags.images[0]
-                self.cover = QtGui.QPixmap()
-                self.cover.loadFromData(image.image_data)
-                self.cover = self.cover.scaled(128, 128, QtCore.Qt.KeepAspectRatio)
-            else:
-                theme = QtWidgets.QApplication.instance().theme
-                self.create_cover_placeholder(theme)
+                cover = QtGui.QPixmap()
+                cover.loadFromData(image.image_data)
+                cover = cover.scaled(128, 128, QtCore.Qt.KeepAspectRatio)
+                self.covers[Theme.DARK] = cover
+                self.covers[Theme.LIGHT] = cover
+            else:        
+                icon_dark: CustomIcon = CustomIcon(IconTheme.OUTLINE, "image", Color_.grey, Theme.DARK)
+                cover_dark = icon_dark.pixmap(icon_dark.actualSize(QtCore.QSize(128, 128)))
+                cover_dark = cover_dark.scaled(128, 128, QtCore.Qt.KeepAspectRatio)
+                icon_light: CustomIcon = CustomIcon(IconTheme.OUTLINE, "image", Color_.grey, Theme.LIGHT)
+                cover_light = icon_light.pixmap(icon_light.actualSize(QtCore.QSize(128, 128)))
+                cover_light = cover_light.scaled(128, 128, QtCore.Qt.KeepAspectRatio)
+                self.covers[Theme.DARK] = cover_dark
+                self.covers[Theme.LIGHT] = cover_light
             self.title = self.eyed3_tags.title
             if self.eyed3_tags.artist is not None:
                 self.artists = re.split(self.SPLITTERS, self.eyed3_tags.artist)
@@ -83,9 +92,7 @@ class Track:
     def create_cover_placeholder(self, theme: Theme) -> None:
         if len(self.eyed3_tags.images) > 0:
             return
-        icon: CustomIcon = CustomIcon(IconTheme.OUTLINE, "image", Color_.grey, theme)
-        self.cover = icon.pixmap(icon.actualSize(QtCore.QSize(128, 128)))
-        self.cover = self.cover.scaled(128, 128, QtCore.Qt.KeepAspectRatio)
+
 
     def get_filepath(self) -> str:
         return str(self.filepath)

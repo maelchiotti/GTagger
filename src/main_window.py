@@ -167,8 +167,9 @@ class MainWindow(QtWidgets.QWidget):
             icon_theme = CustomIcon(IconTheme.OUTLINE, "moon", Color_.grey, theme)
 
         for track in self.tracks.values():
-            track.create_cover_placeholder(theme)
-            self.track_layouts[track].label_cover.setPixmap(track.cover)
+            track_layout = self.track_layouts[track]
+            if not track_layout.selected:
+                track_layout.label_cover.setPixmap(track.covers[theme])
 
         self.action_add_files.setIcon(icon_add_files)
         self.action_add_folder.setIcon(icon_add_folder)
@@ -255,30 +256,20 @@ class MainWindow(QtWidgets.QWidget):
         for file in files:
             track = Track(file)
             tags_read = track.read_tags()
+
+            if not tags_read:
+                continue
+
             self.tracks[track.filename] = track
-
-            if tags_read:
-                duration = track.get_duration()
-                title = track.get_title()
-                artists = track.get_artists()
-                lyrics = track.get_lyrics(lines=5)
-                state = State.TAGS_READ.value
-            else:
-                duration = "-"
-                title = "-"
-                artists = "-"
-                lyrics = "-"
-                state = State.TAGS_NOT_READ.value
-
             track_layout = TrackLayout(
                 track.get_filepath(),
                 track.filename,
-                track.cover,
-                duration,
-                title,
-                artists,
-                lyrics,
-                state,
+                track.covers,
+                track.get_duration(),
+                track.get_title(),
+                track.get_artists(),
+                track.get_lyrics(lines=5),
+                State.TAGS_READ.value,
             )
             track_layout.signal_mouse_event.connect(self.toggle_actions_cancel_remove)
             self.track_layouts[track] = track_layout
