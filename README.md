@@ -20,15 +20,15 @@ Download the executable `gtagger.exe` from the [Releases](https://github.com/mae
 
 - Install the required dependencies:
 
-    ```shell
-    pip install -r requirements.txt
-    ```
+  ```shell
+  pip install -r requirements.txt
+  ```
 
 - Launch GTagger with the following command:
 
-    ```shell
-    py main.py
-    ```
+  ```shell
+  py main.py
+  ```
 
 ## TODO
 
