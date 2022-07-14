@@ -37,11 +37,13 @@ Download the executable `GTagger.exe` from the [Releases](https://github.com/mae
 - Improve the status bar
   - Add a progression bar
 
-- Improve the settings window to be a `QtCore.Qt.Tool` so that it keeps focus
-
 - Add options:
   - Ignore files with lyrics
 
 - Save and restore preferences using `QSettings`
+
+**Future:**
+
+- Improve the settings window to be a `QtCore.Qt.Tool` so that it keeps focus
 
 - Add files in a thread
