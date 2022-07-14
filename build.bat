@@ -1,1 +1,1 @@
-pyinstaller -F -w -n "gtagger" .\main.py
+pyinstaller main.spec

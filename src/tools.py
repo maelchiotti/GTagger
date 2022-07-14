@@ -15,11 +15,11 @@ from __future__ import annotations
 
 import os
 import logging as log
+import sys
 from PySide6 import QtCore, QtGui, QtWidgets
 from enum import Enum
 
 VERSION = "v1.1.0"
-PATH_ICONS = "src/assets/img/icons"
 COVER_SIZE = 128
 LYRICS_LINES = 8
 
@@ -37,13 +37,17 @@ class CustomIcon(QtGui.QIcon):
 
         # Construct the icon file path according to the current theme, the icon's theme and the icon's name
         if icon_theme == IconTheme.NORMAL:
-            image_path = os.path.join(PATH_ICONS, IconTheme.NORMAL.value, icon_name)
+            icon_name = icon_name + ".svg"
+            image_name = os.path.join(IconTheme.NORMAL.value, icon_name)
+            image_path = self.resource_path(image_name)
         if icon_theme == IconTheme.OUTLINE:
             icon_name = icon_name + "-" + IconTheme.OUTLINE.value + ".svg"
-            image_path = os.path.join(PATH_ICONS, IconTheme.OUTLINE.value, icon_name)
+            image_name = os.path.join(IconTheme.OUTLINE.value, icon_name)
+            image_path = self.resource_path(image_name)
         elif icon_theme == IconTheme.SHARP:
             icon_name = icon_name + "-" + IconTheme.SHARP.value + ".svg"
-            image_path = os.path.join(PATH_ICONS, IconTheme.SHARP.value, icon_name)
+            image_name = os.path.join(IconTheme.SHARP.value, icon_name)
+            image_path = self.resource_path(image_name)
         if not os.path.exists(image_path):
             log.error("The icon '%s' does not exist", icon_name)
             return
@@ -61,6 +65,14 @@ class CustomIcon(QtGui.QIcon):
         painter.end()
 
         self.addPixmap(image)
+
+    @staticmethod
+    def resource_path(relative_path):
+        try:
+            base_path = sys._MEIPASS
+        except Exception:
+            base_path = os.path.abspath(".")
+        return os.path.join(base_path, relative_path)
 
 
 class TrackLayout(QtWidgets.QGridLayout):
