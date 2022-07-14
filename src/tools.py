@@ -18,7 +18,7 @@ import logging as log
 from PySide6 import QtCore, QtGui, QtWidgets
 from enum import Enum
 
-VERSION = "v1.0.0"
+VERSION = "v1.1.0"
 PATH_ICONS = "src/assets/img/icons"
 COVER_SIZE = 128
 LYRICS_LINES = 8
