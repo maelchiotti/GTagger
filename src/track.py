@@ -80,14 +80,18 @@ class Track(QtCore.QObject):
                 cover_dark = icon_dark.pixmap(
                     icon_dark.actualSize(QtCore.QSize(COVER_SIZE, COVER_SIZE))
                 )
-                cover_dark = cover_dark.scaled(COVER_SIZE, COVER_SIZE, QtCore.Qt.KeepAspectRatio)
+                cover_dark = cover_dark.scaled(
+                    COVER_SIZE, COVER_SIZE, QtCore.Qt.KeepAspectRatio
+                )
                 icon_light: CustomIcon = CustomIcon(
                     IconTheme.OUTLINE, "image", Color_.grey, Theme.LIGHT
                 )
                 cover_light = icon_light.pixmap(
                     icon_light.actualSize(QtCore.QSize(COVER_SIZE, COVER_SIZE))
                 )
-                cover_light = cover_light.scaled(COVER_SIZE, COVER_SIZE, QtCore.Qt.KeepAspectRatio)
+                cover_light = cover_light.scaled(
+                    COVER_SIZE, COVER_SIZE, QtCore.Qt.KeepAspectRatio
+                )
                 self.covers[Theme.DARK] = cover_dark
                 self.covers[Theme.LIGHT] = cover_light
             self.title = self.eyed3_tags.title
@@ -175,7 +179,7 @@ class Track(QtCore.QObject):
             length (int): Maximum number of characters to return (defaults to `None`).
 
         Returns:
-            str: Lyrics (up to `lines`, `length` or full).
+            str: Lyrics of the track (up to `lines`, `length` or full).
         """
         if self.lyrics_new is not None:
             lyrics = self.lyrics_new
@@ -192,10 +196,22 @@ class Track(QtCore.QObject):
         else:
             return lyrics
 
+    def get_lyrics_original(self) -> str:
+        """Returns the original lyrics of the track read by `eyeD3`,
+        or "No lyrics" if the lyrics are not set.
+
+        Returns:
+            str: Original lyrics of the track.
+        """
+        if len(self.eyed3_tags.lyrics) > 0:
+            return self.eyed3_tags.lyrics[0].text
+        else:
+            return "No lyrics"
+
     def set_lyrics(self, lyrics: str | None):
         """Sets the lyrics of the track to `lyrics`.
 
-        Also emits a signal used to toggle the button to save the lyrics.
+        Also emits a signal indicating that the lyrics have changed.
 
         Args:
             lyrics (str): New lyrics of the track.

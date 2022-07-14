@@ -32,12 +32,7 @@ Download the executable `gtagger.exe` from the [Releases](https://github.com/mae
 
 ## TODO
 
-**v1.1.0:**
-
-- Fix the lyrics search and display with the new view
-- Toggle the save lyrics button automatically
-
-**Future:**
+**v1.2.0:**
 
 - Improve the status bar
   - Add a progression bar

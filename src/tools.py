@@ -21,6 +21,7 @@ from enum import Enum
 VERSION = "v1.0.0"
 PATH_ICONS = "src/assets/img/icons"
 COVER_SIZE = 128
+LYRICS_LINES = 8
 
 
 class CustomIcon(QtGui.QIcon):

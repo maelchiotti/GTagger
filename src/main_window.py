@@ -12,6 +12,7 @@ from src.track import Track
 from src.lyrics_search import ThreadLyricsSearch
 from src.tools import (
     VERSION,
+    LYRICS_LINES,
     ColorDark,
     CustomIcon,
     TrackLayout,
@@ -283,7 +284,7 @@ class MainWindow(QtWidgets.QWidget):
                 track.get_duration(),
                 track.get_title(),
                 track.get_artists(),
-                track.get_lyrics(lines=8),
+                track.get_lyrics(lines=LYRICS_LINES),
                 State.TAGS_READ.value,
                 self.gtagger.theme,
             )
@@ -337,6 +338,10 @@ class MainWindow(QtWidgets.QWidget):
                 track_layout.label_state.setText(State.LYRICS_SAVED.value)
             else:
                 track_layout.label_state.setText(State.LYRICS_NOT_SAVED.value)
+            track.read_tags()
+            track.set_lyrics(None)
+            track_layout.label_lyrics.setText(track.get_lyrics(lines=LYRICS_LINES))
+            track_layout.label_lyrics.setToolTip("")
 
     @QtCore.Slot()
     def selection_changed(self) -> None:
@@ -371,7 +376,8 @@ class MainWindow(QtWidgets.QWidget):
         for track, track_layout in self.track_layouts.items():
             if track_layout.selected:
                 track.set_lyrics(None)
-                track_layout.label_lyrics.setText(track.get_lyrics(lines=8))
+                track_layout.label_lyrics.setText(track.get_lyrics(lines=LYRICS_LINES))
+                track_layout.label_lyrics.setToolTip("")
 
     @QtCore.Slot()
     def remove_rows(self) -> None:
@@ -389,15 +395,21 @@ class MainWindow(QtWidgets.QWidget):
 
         Changes the color of the lyrics according to the current theme.
         """
+        enable_save = False
         for track, track_layout in self.track_layouts.items():
             if track.lyrics_new is not None:
-                track_layout.label_lyrics.setStyleSheet(
-                    f"color: {Color_.get_themed_color(self.gtagger.theme, Color_.green).value}"
-                )
-                self.action_save_lyrics.setEnabled(True)
+                enable_save = True
+                if track_layout.selected:
+                    track_layout.label_lyrics.setStyleSheet(
+                        f"color: {ColorDark.green.value}"
+                    )
+                else:
+                    track_layout.label_lyrics.setStyleSheet(
+                        f"color: {Color_.get_themed_color(self.gtagger.theme, Color_.green).value}"
+                    )
             else:
                 track_layout.label_lyrics.setStyleSheet("")
-        self.action_save_lyrics.setEnabled(False)
+        self.action_save_lyrics.setEnabled(enable_save)
 
     @QtCore.Slot()
     def open_token_page(self) -> None:

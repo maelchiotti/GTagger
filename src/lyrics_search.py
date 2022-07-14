@@ -9,7 +9,7 @@ from lyricsgenius import types
 import genius
 from PySide6 import QtCore
 
-from src.tools import State, TrackLayout
+from src.tools import LYRICS_LINES, State, TrackLayout
 from src.track import Track
 
 
@@ -45,7 +45,11 @@ class TrackSearch:
         if track.title is None or track.main_artist is None:
             return False
         search = f"{track.title} {track.main_artist}"
-        searched_tracks = self.genius.search(search)
+        try:
+            searched_tracks = self.genius.search(search)
+        except Exception as exception:
+            log.error("Unexpected exception: %s", exception)
+            return False
         try:
             searched_track = next(searched_tracks)
         except StopIteration:
@@ -143,14 +147,15 @@ class ThreadLyricsSearch(QtCore.QThread):
         self.track_layouts: dict[Track, TrackLayout] = track_layouts
 
     def run(self):
-        for track, track_layout in self.track_layouts.items():
+        for track, track_layout in self.track_layouts.copy().items():
             track_search = TrackSearch(self.token)
             track_search.search_track(track)
             lyrics_search = LyricsSearch(self.token)
             found_lyrics = lyrics_search.search_lyrics(track)
             if found_lyrics:
-                lyrics = track.get_lyrics(lines=8)
+                lyrics = track.get_lyrics(lines=LYRICS_LINES)
                 track_layout.label_lyrics.setText(lyrics)
+                track_layout.label_lyrics.setToolTip(track.get_lyrics_original())
                 track_layout.label_state.setText(State.LYRICS_FOUND.value)
             else:
                 track_layout.label_state.setText(State.LYRICS_NOT_FOUND.value)
