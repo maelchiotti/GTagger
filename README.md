@@ -14,7 +14,7 @@ GTagger is a work in progress, so it lacks functionnalities and it may be buggy.
 
 ### On Windows
 
-Download the executable `gtagger.exe` from the [Releases](https://github.com/maelchiotti/GTagger/releases) and execute it.
+Download the executable `GTagger.exe` from the [Releases](https://github.com/maelchiotti/GTagger/releases) and execute it.
 
 ### From source
 
