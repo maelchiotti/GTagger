@@ -67,12 +67,24 @@ class CustomIcon(QtGui.QIcon):
         self.addPixmap(image)
 
     @staticmethod
-    def resource_path(relative_path):
+    def resource_path(ressource: str) -> str:
+        """Returns the final path to the application's ressource `ressource`.
+
+        The ressources are stored in a special folder by the OS
+        when extracted from the executable, which path is appended
+        before the relative path to ressource.
+
+        Args:
+            relative_path (str): Relative path to the ressource.
+
+        Returns:
+            str: Path to the ressource.
+        """
         try:
             base_path = sys._MEIPASS
         except Exception:
             base_path = os.path.abspath(".")
-        return os.path.join(base_path, relative_path)
+        return os.path.join(base_path, ressource)
 
 
 class TrackLayout(QtWidgets.QGridLayout):

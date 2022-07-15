@@ -69,7 +69,11 @@ class InformationsWindow(QtWidgets.QWidget):
 
         self.ui_window.setWindowTitle("Informations")
 
-    def set_texts(self, link_color):
+    def set_texts(self, link_color: str) -> None:
+        """Sets the texts of the labels.
+
+        Args:
+            link_color (str): Color of the links."""
         self.label_informations.setText(
             f"""
             <br />
