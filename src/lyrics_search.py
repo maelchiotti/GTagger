@@ -13,7 +13,7 @@ from src.tools import LYRICS_LINES, State, TrackLayout
 from src.track import Track
 
 
-class TrackSearch:
+class TrackSearch(QtCore.QObject):
     """Allows to search a track on Genius.
 
     Attributes:
@@ -61,7 +61,7 @@ class TrackSearch:
         return True
 
 
-class LyricsSearch:
+class LyricsSearch(QtCore.QObject):
     """Allows to search a track's lyrics on Genius.
 
     Attributes:
@@ -97,6 +97,7 @@ class LyricsSearch:
                 )
                 break
             except Exception as exception:
+                self.signal_lyrics_searched.emit()
                 log.error("Unexpected exception: %s", exception)
                 return False
 
@@ -134,11 +135,16 @@ class ThreadLyricsSearch(QtCore.QThread):
 
     Uses `TrackSearch` to search the tracks on Genius,
     and `LyricsSearch` to search and set their lyrics.
+    
+    Signals:
+        signal_lyrics_searched (QtCore.Signal): Emmited when the lyrics of a track have been searched.
 
     Attributes:
         token (str): Token to search the track on Genius.
         track_layouts (dict[Track, TrackLayout]): Layouts of the tracks.
     """
+    
+    signal_lyrics_searched = QtCore.Signal()
 
     def __init__(self, token: str, track_layouts: dict[Track, TrackLayout]) -> None:
         super().__init__()
@@ -147,10 +153,10 @@ class ThreadLyricsSearch(QtCore.QThread):
         self.track_layouts: dict[Track, TrackLayout] = track_layouts
 
     def run(self):
+        lyrics_search = LyricsSearch(self.token)
         for track, track_layout in self.track_layouts.copy().items():
             track_search = TrackSearch(self.token)
             track_search.search_track(track)
-            lyrics_search = LyricsSearch(self.token)
             found_lyrics = lyrics_search.search_lyrics(track)
             if found_lyrics:
                 lyrics = track.get_lyrics(lines=LYRICS_LINES)
@@ -159,3 +165,4 @@ class ThreadLyricsSearch(QtCore.QThread):
                 track_layout.label_state.setText(State.LYRICS_FOUND.value)
             else:
                 track_layout.label_state.setText(State.LYRICS_NOT_FOUND.value)
+            self.signal_lyrics_searched.emit()

@@ -121,10 +121,15 @@ class MainWindow(QtWidgets.QWidget):
         self.layout_main.addWidget(self.scroll_area, 1, 0, 1, 2)
         self.layout_main.setContentsMargins(5, 5, 5, 0)
 
+        self.progression_bar = QtWidgets.QProgressBar()
+        self.progression_bar.setMaximumWidth(300)
+        self.progression_bar.setFixedHeight(25)
+
         self.button_theme = QtWidgets.QPushButton()
         self.button_theme.setToolTip("Change to light theme")
 
         self.status_bar = QtWidgets.QStatusBar()
+        self.status_bar.addPermanentWidget(self.progression_bar)
         self.status_bar.addPermanentWidget(self.button_theme)
 
         self.layout = QtWidgets.QGridLayout(self)
@@ -232,6 +237,10 @@ class MainWindow(QtWidgets.QWidget):
         validator_state = self.validator.validate(self.input_token.text(), 0)[0]
         return validator_state == QtGui.QValidator.State.Acceptable
 
+    def increment_progression_bar(self) -> None:
+        """Increments the progression bar by 1."""
+        self.progression_bar.setValue(self.progression_bar.value() + 1)
+
     @QtCore.Slot()
     def change_theme(self):
         """Changes the theme of the application."""
@@ -266,6 +275,7 @@ class MainWindow(QtWidgets.QWidget):
             if files is None:
                 return
 
+        self.progression_bar.setMaximum(len(files) - 1)
         for file in files:
             # Create the track and read its tags
             track = Track(file)
@@ -274,6 +284,7 @@ class MainWindow(QtWidgets.QWidget):
 
             # Skip the file if the tags could not be read
             if not tags_read:
+                self.increment_progression_bar()
                 continue
 
             # Add the layouts with the files' informations
@@ -291,12 +302,17 @@ class MainWindow(QtWidgets.QWidget):
             track_layout.signal_mouse_event.connect(self.selection_changed)
             self.track_layouts[track] = track_layout
             self.layout_files.addLayout(track_layout)
+            
+            self.increment_progression_bar()
 
     @QtCore.Slot()
     def search_lyrics(self) -> None:
         """Searches for the lyrics of the files."""
         token = self.input_token.text()
         self.thread_search_lyrics = ThreadLyricsSearch(token, self.track_layouts)
+        self.thread_search_lyrics.signal_lyrics_searched.connect(self.lyrics_searched)
+        self.progression_bar.reset()
+        self.progression_bar.setMaximum(len(self.track_layouts) - 1)
         self.thread_search_lyrics.start()
 
     @QtCore.Slot()
@@ -410,6 +426,11 @@ class MainWindow(QtWidgets.QWidget):
             else:
                 track_layout.label_lyrics.setStyleSheet("")
         self.action_save_lyrics.setEnabled(enable_save)
+
+    @QtCore.Slot()
+    def lyrics_searched(self) -> None:
+        """The lyrics of a track have been searched."""
+        self.increment_progression_bar()
 
     @QtCore.Slot()
     def open_token_page(self) -> None:
