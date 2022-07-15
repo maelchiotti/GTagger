@@ -3,32 +3,43 @@
 Handles the creation of the settings window and the interactions with the user.
 """
 
-from typing import Any
 from PySide6 import QtCore, QtWidgets
+
+from src.tools import Settings
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from main import GTagger
 
 
 class SettingsWindow(QtWidgets.QWidget):
     """Settings window of the GUI.
 
-    Attributes:
+    Args:
+        gtagger (GTagger): GTagger application.
         ui_window (QtWidgets.QMainWindow): Main window UI.
-        settings (dict[str, Any]): Settings names and values.
+
+    Attributes:
+        gtagger (GTagger): GTagger application.
+        ui_window (QtWidgets.QMainWindow): Main window UI.
     """
 
-    def __init__(self, parent, ui_window: QtWidgets.QMainWindow):
+    def __init__(self, parent, gtagger, ui_window: QtWidgets.QMainWindow):
         super().__init__(parent)
 
+        self.gtagger: GTagger = gtagger
         self.ui_window: QtWidgets.QMainWindow = ui_window
-        self.settings: dict[str, Any] = {
-            "recursive": True,
-        }
 
         self.setup_ui()
 
     def setup_ui(self) -> None:
         """Sets up the UI of the window."""
         self.checkbox_recursive = QtWidgets.QCheckBox("Recursively search for files")
-        self.checkbox_recursive.setChecked(True)
+        recursive_search = self.gtagger.settings_manager.get_setting(
+            Settings.RECUSRIVE_SEARCH.value, default=True, type=bool
+        )
+        self.checkbox_recursive.setChecked(recursive_search)
 
         self.grid_files = QtWidgets.QGridLayout()
         self.grid_files.addWidget(self.checkbox_recursive, 0, 0, 1, 1)
@@ -44,23 +55,13 @@ class SettingsWindow(QtWidgets.QWidget):
 
         self.ui_window.setWindowTitle("Settings")
 
-        self.checkbox_recursive.stateChanged.connect(self.recursive)
-
-    def get_setting(self, setting: str) -> Any:
-        """Returns the current value for `setting`.
-
-        Args:
-            setting (str): Name of the setting.
-
-        Returns:
-            Any: The value of the setting.
-        """
-        if setting in self.settings:
-            return self.settings[setting]
-        else:
-            return None
+        self.checkbox_recursive.stateChanged.connect(self.toggle_recursive_search)
 
     @QtCore.Slot()
-    def recursive(self) -> None:
+    def toggle_recursive_search(self) -> None:
         """Updates the setting for resursively searching for files."""
-        self.settings["recursive"] = self.checkbox_recursive.isChecked()
+        recursive_search = self.checkbox_recursive.isChecked()
+        self.gtagger.settings_manager.set_setting(
+            Settings.RECUSRIVE_SEARCH.value, recursive_search
+        )
+        self.gtagger.settings_manager.settings.sync()

@@ -175,8 +175,8 @@ class Track(QtCore.QObject):
         In any other case, returns the full lyrics.
 
         Args:
-            lines (int): Maximum number of lines to return (defaults to `None`).
-            length (int): Maximum number of characters to return (defaults to `None`).
+            lines (int): Maximum number of lines to return. Defaults to `None`.
+            length (int): Maximum number of characters to return. Defaults to `None`.
 
         Returns:
             str: Lyrics of the track (up to `lines`, `length` or full).

@@ -183,6 +183,13 @@ class TrackLayout(QtWidgets.QGridLayout):
         self.signal_mouse_event.emit()
 
 
+class Settings(Enum):
+    """Enumerates the settings of the application."""
+
+    THEME = "theme"
+    RECUSRIVE_SEARCH = "recursive_search"
+
+
 class Color_(Enum):
     """Enumerates usefull (name, hex) colors."""
 
@@ -221,7 +228,7 @@ class ColorDark(Enum):
     orange = "#FF8C00"
     grey = "#696969"
 
-    def get_color(name: str):
+    def get_color(name: str) -> ColorDark:
         """Returns the color corresponding to `name`.
 
         Args:
@@ -242,7 +249,7 @@ class ColorLight(Enum):
     orange = "#FFFACD"
     grey = "#D3D3D3"
 
-    def get_color(name: str):
+    def get_color(name: str) -> ColorLight:
         """Returns the color corresponding to `name`.
 
         Args:
@@ -275,6 +282,17 @@ class Theme(Enum):
 
     DARK = "dark"
     LIGHT = "light"
+
+    def get_theme(value: str) -> Theme:
+        """Returns the `Theme` corresponding to `value`.
+
+        Args:
+            value (str): Value of the theme.
+
+        Returns:
+            Theme: Theme corresponding to `value`.
+        """
+        return Theme.__getitem__(value.upper())
 
 
 class IconTheme(Enum):

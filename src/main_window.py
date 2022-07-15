@@ -3,6 +3,8 @@
 Handles the creation of the main window and the interactions with the user.
 """
 
+from __future__ import annotations
+
 import pathlib
 import qdarktheme
 from PySide6 import QtCore, QtWidgets, QtGui
@@ -15,6 +17,7 @@ from src.tools import (
     LYRICS_LINES,
     ColorDark,
     CustomIcon,
+    Settings,
     TrackLayout,
     Color_,
     State,
@@ -22,13 +25,21 @@ from src.tools import (
     IconTheme,
 )
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from main import GTagger
+
 
 class MainWindow(QtWidgets.QWidget):
     """
     Main window of the GUI.
 
+    Args:
+        gtagger (GTagger): GTagger application.
+
     Attributes:
-        gtagger (QtWidgets.QApplication): Current instance of the application, used to retrieve its theme anywhere.
+        gtagger (GTagger): GTagger application.
         track_layouts (dict[Track, TrackLayout]): Layouts containing the informations of each tracks added by the user.
         token_url (QtCore.QUrl): URL to the Genius web page to get a client access token.
         settings_window (QtWidgets.QMainWindow): Settings window.
@@ -36,15 +47,18 @@ class MainWindow(QtWidgets.QWidget):
         thread_search_lyrics: (QtCore.QThread): Thread to search for the lyrics.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, gtagger: GTagger) -> None:
         super().__init__()
-        self.gtagger = QtWidgets.QApplication.instance()
+
+        self.gtagger: GTagger = gtagger
 
         self.track_layouts: dict[Track, TrackLayout] = {}
         self.token_url: QtCore.QUrl = QtCore.QUrl("https://genius.com/api-clients")
 
         self.settings_window: QtWidgets.QMainWindow = QtWidgets.QMainWindow(self)
-        self.settings: SettingsWindow = SettingsWindow(self, self.settings_window)
+        self.settings: SettingsWindow = SettingsWindow(
+            self, self.gtagger, self.settings_window
+        )
 
         self.thread_search_lyrics: QtCore.QThread = None
 
@@ -244,6 +258,7 @@ class MainWindow(QtWidgets.QWidget):
     @QtCore.Slot()
     def change_theme(self):
         """Changes the theme of the application."""
+        # Update the GUI
         if self.gtagger.theme == Theme.LIGHT:
             self.gtagger.theme = Theme.DARK
             self.button_theme.setToolTip("Change to light theme")
@@ -253,6 +268,11 @@ class MainWindow(QtWidgets.QWidget):
             self.button_theme.setToolTip("Change to dark theme")
             self.gtagger.setStyleSheet(qdarktheme.load_stylesheet("light", "rounded"))
         self.setup_theme()
+
+        # Update the settings
+        self.gtagger.settings_manager.set_setting(
+            Settings.THEME.value, self.gtagger.theme.value
+        )
 
     @QtCore.Slot()
     def add_files(self, select_directory: bool) -> None:
@@ -266,10 +286,10 @@ class MainWindow(QtWidgets.QWidget):
             directory = self.select_directories()
             if directory is None:
                 return
-            if self.settings.get_setting("recursive"):
-                files = pathlib.Path(directory).rglob("*.mp3")
+            if self.settings.checkbox_recursive.isChecked():
+                files = list(pathlib.Path(directory).rglob("*.mp3"))
             else:
-                files = pathlib.Path(directory).glob("*.mp3")
+                files = list(pathlib.Path(directory).glob("*.mp3"))
         else:
             files = self.select_files()
             if files is None:
@@ -302,7 +322,7 @@ class MainWindow(QtWidgets.QWidget):
             track_layout.signal_mouse_event.connect(self.selection_changed)
             self.track_layouts[track] = track_layout
             self.layout_files.addLayout(track_layout)
-            
+
             self.increment_progression_bar()
 
     @QtCore.Slot()
