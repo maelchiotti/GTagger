@@ -135,7 +135,7 @@ class ThreadLyricsSearch(QtCore.QThread):
 
     Uses `TrackSearch` to search the tracks on Genius,
     and `LyricsSearch` to search and set their lyrics.
-    
+
     Signals:
         signal_lyrics_searched (QtCore.Signal): Emmited when the lyrics of a track have been searched.
 
@@ -143,7 +143,7 @@ class ThreadLyricsSearch(QtCore.QThread):
         token (str): Token to search the track on Genius.
         track_layouts (dict[Track, TrackLayout]): Layouts of the tracks.
     """
-    
+
     signal_lyrics_searched = QtCore.Signal()
 
     def __init__(self, token: str, track_layouts: dict[Track, TrackLayout]) -> None:

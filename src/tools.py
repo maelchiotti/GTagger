@@ -19,7 +19,7 @@ import sys
 from PySide6 import QtCore, QtGui, QtWidgets
 from enum import Enum
 
-VERSION = "v1.1.0"
+VERSION = "v1.2.0"
 COVER_SIZE = 128
 LYRICS_LINES = 8
 
@@ -198,6 +198,8 @@ class Color_(Enum):
     blue = "#0000FF"
     orange = "#FFA500"
     grey = "#808080"
+    yellow = "#FFFF00"
+    yellow_genius = "#FFFF64"
     black = "#000000"
 
     def get_themed_color(theme: Theme, color: Color_) -> ColorDark | ColorLight:
@@ -227,6 +229,7 @@ class ColorDark(Enum):
     blue = "#00008B"
     orange = "#FF8C00"
     grey = "#696969"
+    yellow = "#DAA520"
 
     def get_color(name: str) -> ColorDark:
         """Returns the color corresponding to `name`.
@@ -248,6 +251,7 @@ class ColorLight(Enum):
     blue = "#ADD8E6"
     orange = "#FFFACD"
     grey = "#D3D3D3"
+    yellow = "#FFFF64"
 
     def get_color(name: str) -> ColorLight:
         """Returns the color corresponding to `name`.

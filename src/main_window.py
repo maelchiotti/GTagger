@@ -8,6 +8,7 @@ from __future__ import annotations
 import pathlib
 import qdarktheme
 from PySide6 import QtCore, QtWidgets, QtGui
+from src.informations import InformationsWindow
 
 from src.settings import SettingsWindow
 from src.track import Track
@@ -60,6 +61,11 @@ class MainWindow(QtWidgets.QWidget):
             self, self.gtagger, self.settings_window
         )
 
+        self.informations_window: QtWidgets.QMainWindow = QtWidgets.QMainWindow(self)
+        self.informations: InformationsWindow = InformationsWindow(
+            self, self.informations_window
+        )
+
         self.thread_search_lyrics: QtCore.QThread = None
 
         self.setup_ui()
@@ -93,6 +99,9 @@ class MainWindow(QtWidgets.QWidget):
         self.action_settings = QtGui.QAction()
         self.action_settings.setToolTip("Settings")
 
+        self.action_informations = QtGui.QAction()
+        self.action_informations.setToolTip("Informations")
+
         self.tool_bar = QtWidgets.QToolBar()
         self.tool_bar.setIconSize(QtCore.QSize(30, 30))
         self.tool_bar.addAction(self.action_add_files)
@@ -105,6 +114,7 @@ class MainWindow(QtWidgets.QWidget):
         self.tool_bar.addAction(self.action_remove_rows)
         self.tool_bar.addSeparator()
         self.tool_bar.addAction(self.action_settings)
+        self.tool_bar.addAction(self.action_informations)
 
         self.input_token = QtWidgets.QLineEdit()
         self.input_token.setPlaceholderText("Enter your Genius client access token")
@@ -161,6 +171,7 @@ class MainWindow(QtWidgets.QWidget):
         self.action_cancel_rows.triggered.connect(self.cancel_rows)
         self.action_remove_rows.triggered.connect(self.remove_rows)
         self.action_settings.triggered.connect(self.open_settings)
+        self.action_informations.triggered.connect(self.open_informations)
         self.input_token.textChanged.connect(self.token_changed)
         self.button_token.clicked.connect(self.open_token_page)
         self.button_theme.clicked.connect(self.change_theme)
@@ -183,7 +194,10 @@ class MainWindow(QtWidgets.QWidget):
             IconTheme.OUTLINE, "remove-circle", Color_.red, theme
         )
         icon_settings = CustomIcon(IconTheme.OUTLINE, "settings", Color_.grey, theme)
-        icon_token = CustomIcon(IconTheme.OUTLINE, "open", Color_.grey, theme)
+        icon_informations = CustomIcon(
+            IconTheme.OUTLINE, "information-circle", Color_.grey, theme
+        )
+        icon_token = CustomIcon(IconTheme.OUTLINE, "open", Color_.yellow, theme)
         if theme == Theme.DARK:
             icon_theme = CustomIcon(IconTheme.OUTLINE, "sunny", Color_.grey, theme)
         elif theme == Theme.LIGHT:
@@ -196,6 +210,7 @@ class MainWindow(QtWidgets.QWidget):
         self.action_cancel_rows.setIcon(icon_cancel_rows)
         self.action_remove_rows.setIcon(icon_remove_rows)
         self.action_settings.setIcon(icon_settings)
+        self.action_informations.setIcon(icon_informations)
         self.button_token.setIcon(icon_token)
         self.button_theme.setIcon(icon_theme)
 
@@ -211,8 +226,25 @@ class MainWindow(QtWidgets.QWidget):
                 else:
                     track_layout.label_lyrics.setStyleSheet("")
 
+        # Change the color of the progress bar
+        self.progression_bar.setStyleSheet(
+            """
+            QProgressBar {
+                color: """ + Color_.grey.value + """;
+            }
+            
+            QProgressBar::chunk {
+                background-color: """ + Color_.yellow_genius.value + """;
+            }
+            """
+        )
+
         # Change the color of the token line edit
         self.token_changed()
+
+        # Change the color of the links
+        link_color = Color_.get_themed_color(theme, Color_.yellow).value
+        self.informations.set_texts(link_color)
 
     def select_directories(self) -> str:
         """Asks user to select a directory.
@@ -461,3 +493,8 @@ class MainWindow(QtWidgets.QWidget):
     def open_settings(self) -> None:
         """Opens the settings window."""
         self.settings_window.show()
+
+    @QtCore.Slot()
+    def open_informations(self) -> None:
+        """Opens the informations window."""
+        self.informations_window.show()

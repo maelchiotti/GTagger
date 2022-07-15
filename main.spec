@@ -57,6 +57,11 @@ a.datas += [
         "DATA",
     ),
     (
+        "outline/information-circle-outline.svg",
+        "src/assets/img/icons/outline/information-circle-outline.svg",
+        "DATA",
+    ),
+    (
         "outline/open-outline.svg",
         "src/assets/img/icons/outline/open-outline.svg",
         "DATA",
