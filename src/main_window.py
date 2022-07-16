@@ -12,7 +12,7 @@ from src.informations import InformationsWindow
 
 from src.settings import SettingsWindow
 from src.track import Track
-from src.lyrics_search import ThreadLyricsSearch
+from src.tag import ThreadLyricsSearch
 from src.tools import (
     VERSION,
     LYRICS_LINES,
