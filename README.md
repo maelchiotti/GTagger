@@ -37,8 +37,6 @@ Download the executable `GTagger.exe` from the [Releases](https://github.com/mae
 - Add options:
   - Ignore files with lyrics
 
-- Add a credits/help window
-
 **Future:**
 
 - Improve the settings window to be a `QtCore.Qt.Tool` so that it keeps focus
