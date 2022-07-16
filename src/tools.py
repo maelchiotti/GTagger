@@ -200,6 +200,7 @@ class Settings(Enum):
 
     THEME = "theme"
     RECUSRIVE_SEARCH = "recursive_search"
+    OVERWRITE_LYRICS = "overwrite_lyrics"
 
 
 class Color_(Enum):

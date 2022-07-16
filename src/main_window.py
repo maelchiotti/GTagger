@@ -230,11 +230,15 @@ class MainWindow(QtWidgets.QWidget):
         self.progression_bar.setStyleSheet(
             """
             QProgressBar {
-                color: """ + Color_.grey.value + """;
+                color: """
+            + Color_.grey.value
+            + """;
             }
             
             QProgressBar::chunk {
-                background-color: """ + Color_.yellow_genius.value + """;
+                background-color: """
+            + Color_.yellow_genius.value
+            + """;
             }
             """
         )
@@ -245,6 +249,8 @@ class MainWindow(QtWidgets.QWidget):
         # Change the color of the links
         link_color = Color_.get_themed_color(theme, Color_.yellow).value
         self.informations.set_texts(link_color)
+        
+        # Change the color of the checkboxes
 
     def select_directories(self) -> str:
         """Asks user to select a directory.
@@ -286,6 +292,19 @@ class MainWindow(QtWidgets.QWidget):
     def increment_progression_bar(self) -> None:
         """Increments the progression bar by 1."""
         self.progression_bar.setValue(self.progression_bar.value() + 1)
+        
+    def set_maximum_progression_bar(self, list: list) -> None:
+        """Set the maximum of the progression bar.
+
+        Args:
+            list (list): List of elements.
+        """
+        maximum = len(list) - 1
+        # The maximum must be at least 1 (occurs when the list has only one element)
+        if maximum == 0:
+            maximum = 1
+            self.progression_bar.setValue(0)
+        self.progression_bar.setMaximum(maximum)
 
     @QtCore.Slot()
     def change_theme(self):
@@ -327,7 +346,9 @@ class MainWindow(QtWidgets.QWidget):
             if files is None:
                 return
 
-        self.progression_bar.setMaximum(len(files) - 1)
+        self.progression_bar.reset()
+        print(self.progression_bar.value())
+        self.set_maximum_progression_bar(files)
         for file in files:
             # Create the track and read its tags
             track = Track(file)
@@ -361,10 +382,12 @@ class MainWindow(QtWidgets.QWidget):
     def search_lyrics(self) -> None:
         """Searches for the lyrics of the files."""
         token = self.input_token.text()
-        self.thread_search_lyrics = ThreadLyricsSearch(token, self.track_layouts)
+        self.thread_search_lyrics = ThreadLyricsSearch(
+            token, self.track_layouts, self.settings.checkbox_overwrite.isChecked()
+        )
         self.thread_search_lyrics.signal_lyrics_searched.connect(self.lyrics_searched)
         self.progression_bar.reset()
-        self.progression_bar.setMaximum(len(self.track_layouts) - 1)
+        self.set_maximum_progression_bar(self.track_layouts)
         self.thread_search_lyrics.start()
 
     @QtCore.Slot()

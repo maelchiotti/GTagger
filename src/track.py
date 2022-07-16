@@ -183,7 +183,7 @@ class Track(QtCore.QObject):
         """
         if self.lyrics_new is not None:
             lyrics = self.lyrics_new
-        elif len(self.eyed3_tags.lyrics) > 0:
+        elif self.has_lyrics_original():
             lyrics = self.eyed3_tags.lyrics[0].text
         else:
             return "No lyrics"
@@ -203,7 +203,7 @@ class Track(QtCore.QObject):
         Returns:
             str: Original lyrics of the track.
         """
-        if len(self.eyed3_tags.lyrics) > 0:
+        if self.has_lyrics_original():
             return self.eyed3_tags.lyrics[0].text
         else:
             return "No lyrics"
@@ -237,3 +237,11 @@ class Track(QtCore.QObject):
                 )
                 return False
         return True
+
+    def has_lyrics_original(self) -> bool:
+        """Returns `True` if the track has original lyrics read by `eyeD3`.
+
+        Returns:
+            bool: `True` if the track has original lyrics.
+        """
+        return len(self.eyed3_tags.lyrics) > 0

@@ -1,4 +1,10 @@
-"""Searches a track's lyrics on Genius."""
+"""Manages the tags of a track.
+
+Includes:
+- TrackSearch: Searches a track on Genuis.
+- LyricsSearch: Searches the lyrics of a track on Genius.
+- ThreadLyricsSearch: Runs the lyrics search.
+"""
 
 from __future__ import annotations
 
@@ -146,15 +152,25 @@ class ThreadLyricsSearch(QtCore.QThread):
 
     signal_lyrics_searched = QtCore.Signal()
 
-    def __init__(self, token: str, track_layouts: dict[Track, TrackLayout]) -> None:
+    def __init__(
+        self,
+        token: str,
+        track_layouts: dict[Track, TrackLayout],
+        overwrite_lyrics: bool,
+    ) -> None:
         super().__init__()
 
         self.token: str = token
         self.track_layouts: dict[Track, TrackLayout] = track_layouts
+        self.overwrite_lyrics: bool = overwrite_lyrics
 
     def run(self):
         lyrics_search = LyricsSearch(self.token)
         for track, track_layout in self.track_layouts.copy().items():
+            if not self.overwrite_lyrics and track.has_lyrics_original():
+                self.signal_lyrics_searched.emit()
+                continue
+
             track_search = TrackSearch(self.token)
             track_search.search_track(track)
             found_lyrics = lyrics_search.search_lyrics(track)
