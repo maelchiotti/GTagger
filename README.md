@@ -34,7 +34,7 @@ Download the executable `GTagger.exe` from the [Releases](https://github.com/mae
 
 **v1.2.0:**
 
-?
+- Improve the state display with a color
 
 **Future:**
 
