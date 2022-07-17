@@ -347,7 +347,6 @@ class MainWindow(QtWidgets.QWidget):
                 return
 
         self.progression_bar.reset()
-        print(self.progression_bar.value())
         self.set_maximum_progression_bar(files)
         for file in files:
             # Create the track and read its tags
@@ -369,7 +368,7 @@ class MainWindow(QtWidgets.QWidget):
                 track.get_title(),
                 track.get_artists(),
                 track.get_lyrics(lines=LYRICS_LINES),
-                State.TAGS_READ.value,
+                State.TAGS_READ,
                 self.gtagger.theme,
             )
             track_layout.signal_mouse_event.connect(self.selection_changed)

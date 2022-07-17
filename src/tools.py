@@ -58,7 +58,7 @@ class CustomIcon(QtGui.QIcon):
             image_path = self.add_resource_path(image_name)
             if not os.path.exists(image_path):
                 image_path = os.path.join(ICONS_PATH, image_name)
-        
+
         if not os.path.exists(image_path):
             log.error("The icon '%s' at '%s' does not exist", icon_name, image_path)
             return
@@ -120,11 +120,11 @@ class TrackLayout(QtWidgets.QGridLayout):
     Layout:
     ```
     __|    0    |       1      |     2     |
-    0 [              filename              ]
-    1 [  ...  ]   [ Title    ]   [   ...   ]
-    2 [ album ]   [ Artists  ]   [   lyr   ]
-    3 [ cover ]   [ Duration ]   [   ics   ]
-    4 [  ...  ]   [ State    ]   [   ...   ]
+    0 [ state | filename                   ]
+    1 [  ...  ]   [ Title    ]   [ ...     ]
+    2 [ album ]   [ Artists  ]   [ lyr     ]
+    3 [ cover ]   [ Duration ]   [ ics     ]
+    4 [  ...  ]   [ State    ]   [ ...     ]
     ```
     """
 
@@ -139,7 +139,7 @@ class TrackLayout(QtWidgets.QGridLayout):
         title: str,
         artists: str,
         lyrics: str,
-        state: str,
+        state: State,
         theme: Theme,
     ) -> None:
         super().__init__()
@@ -147,6 +147,8 @@ class TrackLayout(QtWidgets.QGridLayout):
         self.selected: bool = False
         self.covers: dict[Theme, QtGui.QPixmap] = covers
 
+        self.state_indicator = StateIndicator(state)
+        self.state_indicator.setFixedWidth(17)
         self.label_filename = QtWidgets.QLabel(filename)
         self.label_filename.setToolTip(filepath)
         self.label_cover = QtWidgets.QLabel()
@@ -158,15 +160,20 @@ class TrackLayout(QtWidgets.QGridLayout):
         self.label_artist = QtWidgets.QLabel(artists)
         self.label_artist.setStyleSheet("font-size: 12pt; font-weight:600;")
         self.label_duration = QtWidgets.QLabel(duration)
-        self.label_state = QtWidgets.QLabel(state)
+        self.label_state = QtWidgets.QLabel(state.value)
         self.label_lyrics = QtWidgets.QLabel(lyrics)
         self.label_lyrics.setSizePolicy(
             QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred
         )
         self.label_lyrics.setMaximumWidth(8 * COVER_SIZE)
 
+        self.layout_top = QtWidgets.QHBoxLayout()
+        self.layout_top.addWidget(self.state_indicator)
+        self.layout_top.addWidget(self.label_filename)
+        self.layout_top.addStretch()
+
         self.grid_layout = QtWidgets.QGridLayout()
-        self.grid_layout.addWidget(self.label_filename, 0, 0, 1, 3)
+        self.grid_layout.addLayout(self.layout_top, 0, 0, 1, 3)
         self.grid_layout.addWidget(self.label_cover, 1, 0, 4, 1)
         self.grid_layout.addWidget(self.label_title, 1, 1, 1, 1)
         self.grid_layout.addWidget(self.label_artist, 2, 1, 1, 1)
@@ -204,6 +211,41 @@ class TrackLayout(QtWidgets.QGridLayout):
         self.frame.setStyleSheet(stylesheet)
 
         self.signal_mouse_event.emit()
+
+
+class StateIndicator(QtWidgets.QWidget):
+    def __init__(self, state: State) -> None:
+        super().__init__()
+
+        self.state: State = state
+
+    def paintEvent(self, event: QtGui.QPaintEvent) -> None:
+        if self.state == State.TAGS_READ:
+            color = QtGui.QColor(ColorLight.blue.value)
+        elif self.state == State.TAGS_NOT_READ:
+            color = QtGui.QColor(ColorLight.grey.value)
+        elif self.state == State.LYRICS_FOUND:
+            color = QtGui.QColor(ColorLight.green.value)
+        elif self.state == State.LYRICS_NOT_FOUND:
+            color = QtGui.QColor(ColorLight.orange.value)
+        elif self.state == State.LYRICS_SAVED:
+            color = QtGui.QColor(ColorLight.yellow_genius.value)
+        elif self.state == State.LYRICS_NOT_SAVED:
+            color = QtGui.QColor(ColorLight.red.value)
+
+        brush = QtGui.QBrush()
+        brush.setColor(color)
+        brush.setStyle(QtCore.Qt.SolidPattern)
+
+        painter = QtGui.QPainter(self)
+        painter.setRenderHint(QtGui.QPainter.Antialiasing)
+        painter.setPen(QtCore.Qt.NoPen)
+        painter.setBrush(brush)
+        painter.drawEllipse(2, 2, 15, 15)
+
+    def set_state(self, state: State) -> None:
+        self.state = state
+        self.update()
 
 
 class Settings(Enum):
