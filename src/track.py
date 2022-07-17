@@ -30,6 +30,7 @@ class Track(QtCore.QObject):
         title (str): Title of the track.
         artists (list[str]): Artists of the track.
         main_artist (str): Main artist of the track.
+        album (str): Album of the track.
         lyrics_new (str): New lyrics of the track.
     """
 
@@ -50,6 +51,7 @@ class Track(QtCore.QObject):
         self.title: str = None
         self.artists: list[str] = []
         self.main_artist: str = None
+        self.album: str = None
         self.lyrics_new: str = None
 
     def read_tags(self) -> bool:
@@ -98,6 +100,7 @@ class Track(QtCore.QObject):
             if self.eyed3_tags.artist is not None:
                 self.artists = re.split(self.SPLITTERS, self.eyed3_tags.artist)
                 self.main_artist = self.artists[0]
+            self.album = self.eyed3_tags.album
         except Exception as exception:
             log.error(
                 "Error while reading the tags of file '%s' : %s",
@@ -149,7 +152,7 @@ class Track(QtCore.QObject):
         Returns:
             str: Artists of the track.
         """
-        if not self.artists:
+        if len(self.artists) == 0:
             return "No artist(s)"
         else:
             return ", ".join(self.artists)
@@ -164,6 +167,17 @@ class Track(QtCore.QObject):
             return "No artist"
         else:
             return self.main_artist
+
+    def get_album(self) -> str:
+        """Returns the album of the track, or "No album" if the album is not set.
+
+        Returns:
+            str: Album of the track.
+        """
+        if self.album is None or self.album == "":
+            return "No album"
+        else:
+            return self.album
 
     def get_lyrics(self, lines: int = None, length: int = None) -> str:
         """Returns the lyrics of the track, or "No lyrics" if the lyrics are not set.

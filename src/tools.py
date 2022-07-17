@@ -19,6 +19,11 @@ import sys
 from PySide6 import QtCore, QtGui, QtWidgets
 from enum import Enum
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from src.track import Track
+
 VERSION = "v1.2.0"
 ICONS_PATH = "src/assets/img/icons"
 COVER_SIZE = 128
@@ -119,53 +124,46 @@ class TrackLayout(QtWidgets.QGridLayout):
 
     Layout:
     ```
-    __|    0    |       1      |     2     |
-    0 [ state | filename                   ]
-    1 [  ...  ]   [ Title    ]   [ ...     ]
-    2 [ album ]   [ Artists  ]   [ lyr     ]
-    3 [ cover ]   [ Duration ]   [ ics     ]
-    4 [  ...  ]   [ State    ]   [ ...     ]
+    __|    0   |      1     |     2    |
+    0 [ (state) filename               ]
+    1 [  ...  ] [ Title    ] [ ...     ]
+    2 [ album ] [ Artists  ] [ lyr     ]
+    3 [ cover ] [ Album    ] [ ics     ]
+    4 [  ...  ] [ Duration ] [ ...     ]
     ```
     """
 
     signal_mouse_event = QtCore.Signal()
 
-    def __init__(
-        self,
-        filepath: str,
-        filename: str,
-        covers: dict[Theme, QtGui.QPixmap],
-        duration: str,
-        title: str,
-        artists: str,
-        lyrics: str,
-        state: State,
-        theme: Theme,
-    ) -> None:
+    def __init__(self, track: Track, state: State, theme: Theme) -> None:
         super().__init__()
 
         self.selected: bool = False
-        self.covers: dict[Theme, QtGui.QPixmap] = covers
+        self.covers: dict[Theme, QtGui.QPixmap] = track.covers
 
         self.state_indicator = StateIndicator(state)
         self.state_indicator.setFixedWidth(17)
-        self.label_filename = QtWidgets.QLabel(filename)
-        self.label_filename.setToolTip(filepath)
+        self.state_indicator.setToolTip(state.value)
+        self.label_filename = QtWidgets.QLabel(track.filename)
+        self.label_filename.setToolTip(track.get_filepath())
         self.label_cover = QtWidgets.QLabel()
         self.label_cover.setPixmap(self.covers[theme])
         self.label_cover.setFixedWidth(COVER_SIZE)
-        self.label_title = QtWidgets.QLabel(title)
+        self.label_title = QtWidgets.QLabel(track.get_title())
         self.label_title.setStyleSheet("font-size: 15pt; font-weight:800;")
         self.label_title.setFixedWidth(3 * COVER_SIZE)
-        self.label_artist = QtWidgets.QLabel(artists)
-        self.label_artist.setStyleSheet("font-size: 12pt; font-weight:600;")
-        self.label_duration = QtWidgets.QLabel(duration)
-        self.label_state = QtWidgets.QLabel(state.value)
-        self.label_lyrics = QtWidgets.QLabel(lyrics)
+        self.label_artists = QtWidgets.QLabel(track.get_artists())
+        self.label_artists.setStyleSheet("font-size: 12pt; font-weight:600;")
+        self.label_album = QtWidgets.QLabel(track.get_album())
+        self.label_album.setStyleSheet("font-size: 11pt; font-weight:400;")
+        self.label_duration = QtWidgets.QLabel(f"<i>{track.get_duration()}</i>")
+        self.label_duration.setTextFormat(QtCore.Qt.RichText)
+        self.label_lyrics = QtWidgets.QLabel(track.get_lyrics(lines=LYRICS_LINES))
         self.label_lyrics.setSizePolicy(
             QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred
         )
         self.label_lyrics.setMaximumWidth(8 * COVER_SIZE)
+        self.label_lyrics.setToolTip(track.get_lyrics())
 
         self.layout_top = QtWidgets.QHBoxLayout()
         self.layout_top.addWidget(self.state_indicator)
@@ -176,9 +174,9 @@ class TrackLayout(QtWidgets.QGridLayout):
         self.grid_layout.addLayout(self.layout_top, 0, 0, 1, 3)
         self.grid_layout.addWidget(self.label_cover, 1, 0, 4, 1)
         self.grid_layout.addWidget(self.label_title, 1, 1, 1, 1)
-        self.grid_layout.addWidget(self.label_artist, 2, 1, 1, 1)
-        self.grid_layout.addWidget(self.label_duration, 3, 1, 1, 1)
-        self.grid_layout.addWidget(self.label_state, 4, 1, 1, 1)
+        self.grid_layout.addWidget(self.label_artists, 2, 1, 1, 1)
+        self.grid_layout.addWidget(self.label_album, 3, 1, 1, 1)
+        self.grid_layout.addWidget(self.label_duration, 4, 1, 1, 1)
         self.grid_layout.addWidget(self.label_lyrics, 1, 2, 4, 1)
 
         self.frame = QtWidgets.QFrame()
@@ -229,7 +227,7 @@ class StateIndicator(QtWidgets.QWidget):
         elif self.state == State.LYRICS_NOT_FOUND:
             color = QtGui.QColor(ColorLight.orange.value)
         elif self.state == State.LYRICS_SAVED:
-            color = QtGui.QColor(ColorLight.yellow_genius.value)
+            color = QtGui.QColor(Color_.yellow_genius.value)
         elif self.state == State.LYRICS_NOT_SAVED:
             color = QtGui.QColor(ColorLight.red.value)
 

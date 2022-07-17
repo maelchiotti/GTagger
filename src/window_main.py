@@ -249,7 +249,7 @@ class MainWindow(QtWidgets.QWidget):
         # Change the color of the links
         link_color = Color_.get_themed_color(theme, Color_.yellow).value
         self.informations.set_texts(link_color)
-        
+
         # Change the color of the checkboxes
 
     def select_directories(self) -> str:
@@ -292,7 +292,7 @@ class MainWindow(QtWidgets.QWidget):
     def increment_progression_bar(self) -> None:
         """Increments the progression bar by 1."""
         self.progression_bar.setValue(self.progression_bar.value() + 1)
-        
+
     def set_maximum_progression_bar(self, list: list) -> None:
         """Set the maximum of the progression bar.
 
@@ -361,13 +361,7 @@ class MainWindow(QtWidgets.QWidget):
 
             # Add the layouts with the files' informations
             track_layout = TrackLayout(
-                track.get_filepath(),
-                track.filename,
-                track.covers,
-                track.get_duration(),
-                track.get_title(),
-                track.get_artists(),
-                track.get_lyrics(lines=LYRICS_LINES),
+                track,
                 State.TAGS_READ,
                 self.gtagger.theme,
             )
@@ -425,9 +419,11 @@ class MainWindow(QtWidgets.QWidget):
         for track, track_layout in self.track_layouts.items():
             saved = track.save_lyrics()
             if saved:
-                track_layout.label_state.setText(State.LYRICS_SAVED.value)
+                track_layout.state_indicator.set_state(State.LYRICS_SAVED)
+                track_layout.state_indicator.setToolTip(State.LYRICS_SAVED.value)
             else:
-                track_layout.label_state.setText(State.LYRICS_NOT_SAVED.value)
+                track_layout.state_indicator.set_state(State.LYRICS_NOT_SAVED)
+                track_layout.state_indicator.setToolTip(State.LYRICS_NOT_SAVED.value)
             track.read_tags()
             track.set_lyrics(None)
             track_layout.label_lyrics.setText(track.get_lyrics(lines=LYRICS_LINES))
