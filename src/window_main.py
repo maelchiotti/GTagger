@@ -73,34 +73,48 @@ class MainWindow(QtWidgets.QWidget):
     def setup_ui(self) -> None:
         """Sets up the UI of the window."""
         self.setWindowTitle(f"GTagger ({VERSION})")
+        
+        # Setup the windows icons
+        icon_window_main = CustomIcon(IconTheme.SHARP, "pricetag", Color_.black, Theme.LIGHT)
+        self.setWindowIcon(icon_window_main)
+        icon_window_settings = CustomIcon(IconTheme.SHARP, "settings", Color_.black, Theme.LIGHT)
+        self.settings_window.setWindowIcon(icon_window_settings)
+        icon_window_informations = CustomIcon(IconTheme.SHARP, "information-circle", Color_.black, Theme.LIGHT)
+        self.informations_window.setWindowIcon(icon_window_informations)
 
-        self.action_add_files = QtGui.QAction()
+        # Setup the toolbar
+        self.action_add_files = QtGui.QAction("Select files")
         self.action_add_files.setToolTip("Select files")
 
-        self.action_add_folder = QtGui.QAction()
+        self.action_add_folder = QtGui.QAction("Select a folder")
         self.action_add_folder.setToolTip("Select a folder")
 
-        self.action_search_lyrics = QtGui.QAction()
+        self.action_search_lyrics = QtGui.QAction("Search for the lyrics")
         self.action_search_lyrics.setToolTip("Search for the lyrics")
         self.action_search_lyrics.setEnabled(False)
 
-        self.action_save_lyrics = QtGui.QAction()
+        self.action_save_lyrics = QtGui.QAction("Save the lyrics")
         self.action_save_lyrics.setToolTip("Save the lyrics")
         self.action_save_lyrics.setEnabled(False)
 
-        self.action_cancel_rows = QtGui.QAction()
+        self.action_cancel_rows = QtGui.QAction("Cancel the modifications")
         self.action_cancel_rows.setToolTip("Cancel the modifications\nof selected rows")
         self.action_cancel_rows.setEnabled(False)
 
-        self.action_remove_rows = QtGui.QAction()
+        self.action_remove_rows = QtGui.QAction("Remove rows")
         self.action_remove_rows.setToolTip("Remove selected rows")
         self.action_remove_rows.setEnabled(False)
 
-        self.action_settings = QtGui.QAction()
+        self.action_settings = QtGui.QAction("Settings")
         self.action_settings.setToolTip("Settings")
 
-        self.action_informations = QtGui.QAction()
+        self.action_informations = QtGui.QAction("Informations")
         self.action_informations.setToolTip("Informations")
+
+        spacer = QtWidgets.QWidget()
+        spacer.setSizePolicy(
+            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred
+        )
 
         self.tool_bar = QtWidgets.QToolBar()
         self.tool_bar.setIconSize(QtCore.QSize(30, 30))
@@ -112,10 +126,11 @@ class MainWindow(QtWidgets.QWidget):
         self.tool_bar.addSeparator()
         self.tool_bar.addAction(self.action_cancel_rows)
         self.tool_bar.addAction(self.action_remove_rows)
-        self.tool_bar.addSeparator()
+        self.tool_bar.addWidget(spacer)
         self.tool_bar.addAction(self.action_settings)
         self.tool_bar.addAction(self.action_informations)
 
+        # Setup the input token
         self.input_token = QtWidgets.QLineEdit()
         self.input_token.setPlaceholderText("Enter your Genius client access token")
         self.input_token.setToolTip("Enter token")
@@ -129,6 +144,7 @@ class MainWindow(QtWidgets.QWidget):
         self.button_token = QtWidgets.QPushButton()
         self.button_token.setToolTip("Get the token\non Genius website")
 
+        # Setup the main layout of the files
         self.layout_files = QtWidgets.QVBoxLayout()
         self.layout_files.setAlignment(QtCore.Qt.AlignTop)
 
@@ -145,6 +161,7 @@ class MainWindow(QtWidgets.QWidget):
         self.layout_main.addWidget(self.scroll_area, 1, 0, 1, 2)
         self.layout_main.setContentsMargins(5, 5, 5, 0)
 
+        # Setup the status bar
         self.progression_bar = QtWidgets.QProgressBar()
         self.progression_bar.setMaximumWidth(300)
         self.progression_bar.setFixedHeight(25)

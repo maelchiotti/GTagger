@@ -263,6 +263,7 @@ class Color_(Enum):
     orange = "#FFA500"
     grey = "#808080"
     yellow = "#FFFF00"
+
     yellow_genius = "#FFFF64"
     black = "#000000"
 
@@ -295,6 +296,8 @@ class ColorDark(Enum):
     grey = "#696969"
     yellow = "#DAA520"
 
+    black = "#000000"
+
     def get_color(name: str) -> ColorDark:
         """Returns the color corresponding to `name`.
 
@@ -316,6 +319,8 @@ class ColorLight(Enum):
     orange = "#FFFACD"
     grey = "#D3D3D3"
     yellow = "#FFFF64"
+
+    black = "#000000"
 
     def get_color(name: str) -> ColorLight:
         """Returns the color corresponding to `name`.
