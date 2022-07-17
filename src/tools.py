@@ -20,6 +20,7 @@ from PySide6 import QtCore, QtGui, QtWidgets
 from enum import Enum
 
 VERSION = "v1.2.0"
+ICONS_PATH = "src/assets/img/icons"
 COVER_SIZE = 128
 LYRICS_LINES = 8
 
@@ -35,21 +36,31 @@ class CustomIcon(QtGui.QIcon):
     ) -> None:
         super().__init__()
 
-        # Construct the icon file path according to the current theme, the icon's theme and the icon's name
+        # Construct the icon file path according to the current theme,
+        # the icon's theme and the icon's name.
+        # The images are retrieved from the ressource folder when using an executable,
+        # or from the assets folder when running from source.
         if icon_theme == IconTheme.NORMAL:
             icon_name = icon_name + ".svg"
             image_name = os.path.join(IconTheme.NORMAL.value, icon_name)
-            image_path = self.resource_path(image_name)
+            image_path = self.add_resource_path(image_name)
+            if not os.path.exists(image_path):
+                image_path = os.path.join(ICONS_PATH, image_name)
         if icon_theme == IconTheme.OUTLINE:
             icon_name = icon_name + "-" + IconTheme.OUTLINE.value + ".svg"
             image_name = os.path.join(IconTheme.OUTLINE.value, icon_name)
-            image_path = self.resource_path(image_name)
+            image_path = self.add_resource_path(image_name)
+            if not os.path.exists(image_path):
+                image_path = os.path.join(ICONS_PATH, image_name)
         elif icon_theme == IconTheme.SHARP:
             icon_name = icon_name + "-" + IconTheme.SHARP.value + ".svg"
             image_name = os.path.join(IconTheme.SHARP.value, icon_name)
-            image_path = self.resource_path(image_name)
+            image_path = self.add_resource_path(image_name)
+            if not os.path.exists(image_path):
+                image_path = os.path.join(ICONS_PATH, image_name)
+        
         if not os.path.exists(image_path):
-            log.error("The icon '%s' does not exist", icon_name)
+            log.error("The icon '%s' at '%s' does not exist", icon_name, image_path)
             return
         image = QtGui.QPixmap(image_path)
 
@@ -67,7 +78,7 @@ class CustomIcon(QtGui.QIcon):
         self.addPixmap(image)
 
     @staticmethod
-    def resource_path(ressource: str) -> str:
+    def add_resource_path(ressource: str) -> str:
         """Returns the final path to the application's ressource `ressource`.
 
         The ressources are stored in a special folder by the OS

@@ -5,7 +5,7 @@ from typing import Any
 import qdarktheme
 from PySide6 import QtCore, QtWidgets
 
-from src.main_window import MainWindow
+from src.window_main import MainWindow
 from src.tools import Settings, Theme
 
 
@@ -22,6 +22,7 @@ class GTagger(QtWidgets.QApplication):
 
         QtCore.QCoreApplication.setOrganizationName("Maël Chiotti")
         QtCore.QCoreApplication.setApplicationName("GTagger")
+        QtCore.QCoreApplication.setOrganizationDomain("https://github.com/maelchiotti")
 
         # Create the settings manager
         self.settings_manager: SettingsManager = SettingsManager()

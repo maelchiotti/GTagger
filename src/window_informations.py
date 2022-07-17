@@ -10,7 +10,7 @@ from src.tools import VERSION, Color_
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from src.main_window import MainWindow
+    from src.window_main import MainWindow
 
 
 class InformationsWindow(QtWidgets.QWidget):
@@ -35,9 +35,23 @@ class InformationsWindow(QtWidgets.QWidget):
 
     def setup_ui(self) -> None:
         """Sets up the UI of the window."""
-        self.label_gtagger = QtWidgets.QLabel("GTagger " + VERSION)
+        self.label_gtagger = QtWidgets.QLabel(QtCore.QCoreApplication.applicationName())
         self.label_gtagger.setAlignment(QtCore.Qt.AlignCenter)
         self.label_gtagger.setStyleSheet("font-size: 20pt; font-weight:800")
+        
+        self.label_developper = QtWidgets.QLabel()
+        self.label_developper.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_developper.setStyleSheet("font-size: 14pt; font-weight:600")
+        self.label_developper.setTextFormat(QtCore.Qt.RichText)
+        self.label_developper.setTextInteractionFlags(
+            QtCore.Qt.TextBrowserInteraction
+        )
+        self.label_developper.setOpenExternalLinks(True)
+        
+        self.label_version = QtWidgets.QLabel(f"<i>{VERSION}</i>")
+        self.label_version.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_version.setStyleSheet("font-size: 12pt;")
+        self.label_developper.setTextFormat(QtCore.Qt.RichText)
 
         self.label_informations = QtWidgets.QLabel()
         self.label_informations.setAlignment(QtCore.Qt.AlignCenter)
@@ -64,8 +78,10 @@ class InformationsWindow(QtWidgets.QWidget):
         self.ui_window.setCentralWidget(self.centralwidget)
 
         self.layout.addWidget(self.label_gtagger, 0, 0, QtCore.Qt.AlignCenter)
-        self.layout.addWidget(self.label_informations, 1, 0, QtCore.Qt.AlignCenter)
-        self.layout.addWidget(self.label_credits, 2, 0)
+        self.layout.addWidget(self.label_developper, 1, 0, QtCore.Qt.AlignCenter)
+        self.layout.addWidget(self.label_version, 2, 0, QtCore.Qt.AlignCenter)
+        self.layout.addWidget(self.label_informations, 3, 0, QtCore.Qt.AlignCenter)
+        self.layout.addWidget(self.label_credits, 4, 0)
 
         self.ui_window.setWindowTitle("Informations")
 
@@ -74,10 +90,16 @@ class InformationsWindow(QtWidgets.QWidget):
 
         Args:
             link_color (str): Color of the links."""
+        self.label_developper.setText(
+            f"""
+            <a href="{QtCore.QCoreApplication.organizationDomain()}" style="color: {link_color}">{QtCore.QCoreApplication.organizationName()}</a>
+            """
+        )
+        
         self.label_informations.setText(
             f"""
             <br />
-            GTagger is a python tool that adds lyrics from <a href="https://genius.com" style="color: {link_color}">Genius</a> to .mp3 files.
+            GTagger is a python tool that adds lyrics from <a href="https://genius.com" style="color: {link_color}">Genius</a> to <i>.mp3</i> files.
             <br />
             The code is open-source and hosted on <a href="https://github.com/maelchiotti/GTagger" style="color: {link_color}">GitHub</a>
             under the <a href="https://github.com/maelchiotti/GTagger/blob/main/LICENSE.txt" style="color: {link_color}">MIT license</a>.

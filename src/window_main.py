@@ -8,9 +8,9 @@ from __future__ import annotations
 import pathlib
 import qdarktheme
 from PySide6 import QtCore, QtWidgets, QtGui
-from src.informations import InformationsWindow
+from src.window_informations import InformationsWindow
 
-from src.settings import SettingsWindow
+from src.window_settings import SettingsWindow
 from src.track import Track
 from src.tag import ThreadLyricsSearch
 from src.tools import (
