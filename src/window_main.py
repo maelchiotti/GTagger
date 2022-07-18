@@ -8,9 +8,10 @@ from __future__ import annotations
 import pathlib
 import qdarktheme
 from PySide6 import QtCore, QtWidgets, QtGui
-from src.window_informations import InformationsWindow
+from src.window_help import WindowHelp
+from src.window_informations import WindowInformations
 
-from src.window_settings import SettingsWindow
+from src.window_settings import WindowSettings
 from src.track import Track
 from src.tag import ThreadLyricsSearch
 from src.tools import (
@@ -32,7 +33,7 @@ if TYPE_CHECKING:
     from main import GTagger
 
 
-class MainWindow(QtWidgets.QWidget):
+class WindowMain(QtWidgets.QWidget):
     """
     Main window of the GUI.
 
@@ -43,10 +44,12 @@ class MainWindow(QtWidgets.QWidget):
         gtagger (GTagger): GTagger application.
         track_layouts (dict[Track, TrackLayout]): Layouts containing the informations of each tracks added by the user.
         token_url (QtCore.QUrl): URL to the Genius web page to get a client access token.
-        settings_window (QtWidgets.QMainWindow): Settings window.
+        window_settings (QtWidgets.QMainWindow): Settings window.
         settings (SettingsWindow): Settings.
-        informations_window (QtWidgets.QMainWindow): Informations window.
+        window_informations (QtWidgets.QMainWindow): Informations window.
         informations (InformationsWindow): Informations.
+        window_help (QtWidgets.QMainWindow) : Help window.
+        help (WindowHelp) : Help.
         thread_search_lyrics: (QtCore.QThread): Thread to search for the lyrics.
     """
 
@@ -58,15 +61,18 @@ class MainWindow(QtWidgets.QWidget):
         self.track_layouts: dict[Track, TrackLayout] = {}
         self.token_url: QtCore.QUrl = QtCore.QUrl("https://genius.com/api-clients")
 
-        self.settings_window: QtWidgets.QMainWindow = QtWidgets.QMainWindow(self)
-        self.settings: SettingsWindow = SettingsWindow(
-            self, self.gtagger, self.settings_window
+        self.window_settings: QtWidgets.QMainWindow = QtWidgets.QMainWindow(self)
+        self.settings: WindowSettings = WindowSettings(
+            self, self.gtagger, self.window_settings
         )
 
-        self.informations_window: QtWidgets.QMainWindow = QtWidgets.QMainWindow(self)
-        self.informations: InformationsWindow = InformationsWindow(
-            self, self.informations_window
+        self.window_informations: QtWidgets.QMainWindow = QtWidgets.QMainWindow(self)
+        self.informations: WindowInformations = WindowInformations(
+            self, self.window_informations
         )
+
+        self.window_help: QtWidgets.QMainWindow = QtWidgets.QMainWindow(self)
+        self.help: WindowHelp = WindowHelp(self, self.window_help)
 
         self.thread_search_lyrics: QtCore.QThread = None
 
@@ -102,6 +108,9 @@ class MainWindow(QtWidgets.QWidget):
 
         self.action_informations = QtGui.QAction("Informations")
         self.action_informations.setToolTip("Informations")
+        
+        self.action_help = QtGui.QAction("Help")
+        self.action_help.setToolTip("Help")
 
         spacer = QtWidgets.QWidget()
         spacer.setSizePolicy(
@@ -121,6 +130,7 @@ class MainWindow(QtWidgets.QWidget):
         self.tool_bar.addWidget(spacer)
         self.tool_bar.addAction(self.action_settings)
         self.tool_bar.addAction(self.action_informations)
+        self.tool_bar.addAction(self.action_help)
 
         # Setup the input token
         self.input_token = QtWidgets.QLineEdit()
@@ -185,7 +195,7 @@ class MainWindow(QtWidgets.QWidget):
         self.layout.addLayout(self.layout_main, 0, 0, 1, 1)
         self.layout.addWidget(self.status_bar, 1, 0, 1, 1)
         self.layout.setContentsMargins(0, 0, 0, 0)
-        
+
         self.setWindowTitle(f"GTagger ({VERSION})")
 
         # Setup the windows icons
@@ -196,14 +206,14 @@ class MainWindow(QtWidgets.QWidget):
         icon_window_settings = CustomIcon(
             IconTheme.SHARP, "settings", Color_.black, Theme.LIGHT
         )
-        self.settings_window.setWindowIcon(icon_window_settings)
+        self.window_settings.setWindowIcon(icon_window_settings)
         icon_window_informations = CustomIcon(
             IconTheme.SHARP, "information-circle", Color_.black, Theme.LIGHT
         )
-        self.informations_window.setWindowIcon(icon_window_informations)
+        self.window_informations.setWindowIcon(icon_window_informations)
 
         self.setup_theme()
-        
+
         self.action_add_files.triggered.connect(lambda: self.add_files(False))
         self.action_add_folder.triggered.connect(lambda: self.add_files(True))
         self.action_search_lyrics.triggered.connect(self.search_lyrics)
@@ -212,6 +222,7 @@ class MainWindow(QtWidgets.QWidget):
         self.action_remove_rows.triggered.connect(self.remove_rows)
         self.action_settings.triggered.connect(self.open_settings)
         self.action_informations.triggered.connect(self.open_informations)
+        self.action_help.triggered.connect(self.open_help)
         self.input_token.textChanged.connect(self.token_changed)
         self.button_token.clicked.connect(self.open_token_page)
         self.button_theme.clicked.connect(self.change_theme)
@@ -237,6 +248,9 @@ class MainWindow(QtWidgets.QWidget):
         icon_informations = CustomIcon(
             IconTheme.OUTLINE, "information-circle", Color_.grey, theme
         )
+        icon_help = CustomIcon(
+            IconTheme.OUTLINE, "help-circle", Color_.grey, theme
+        )
         icon_token = CustomIcon(IconTheme.OUTLINE, "open", Color_.yellow, theme)
         if theme == Theme.DARK:
             icon_theme = CustomIcon(IconTheme.OUTLINE, "sunny", Color_.grey, theme)
@@ -251,6 +265,7 @@ class MainWindow(QtWidgets.QWidget):
         self.action_remove_rows.setIcon(icon_remove_rows)
         self.action_settings.setIcon(icon_settings)
         self.action_informations.setIcon(icon_informations)
+        self.action_help.setIcon(icon_help)
         self.button_token.setIcon(icon_token)
         self.button_theme.setIcon(icon_theme)
 
@@ -531,9 +546,14 @@ class MainWindow(QtWidgets.QWidget):
     @QtCore.Slot()
     def open_settings(self) -> None:
         """Opens the settings window."""
-        self.settings_window.show()
+        self.window_settings.show()
 
     @QtCore.Slot()
     def open_informations(self) -> None:
         """Opens the informations window."""
-        self.informations_window.show()
+        self.window_informations.show()
+
+    @QtCore.Slot()
+    def open_help(self) -> None:
+        """Opens the help window."""
+        self.window_help.show()

@@ -10,26 +10,26 @@ from src.tools import VERSION, Color_
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from src.window_main import MainWindow
+    from src.window_main import WindowMain
 
 
-class InformationsWindow(QtWidgets.QWidget):
+class WindowInformations(QtWidgets.QWidget):
     """Informations window of the GUI.
 
     Args:
         gtagger (GTagger): GTagger application.
-        ui_window (QtWidgets.QMainWindow): Main window UI.
+        window (QtWidgets.QMainWindow): Window UI.
 
     Attributes:
         gtagger (GTagger): GTagger application.
-        ui_window (QtWidgets.QMainWindow): Main window UI.
+        window (QtWidgets.QMainWindow): Window UI.
     """
 
     def __init__(self, parent, ui_window: QtWidgets.QMainWindow):
         super().__init__(parent)
 
-        self.main: MainWindow = parent
-        self.ui_window: QtWidgets.QMainWindow = ui_window
+        self.main: WindowMain = parent
+        self.window: QtWidgets.QMainWindow = ui_window
 
         self.setup_ui()
 
@@ -71,17 +71,17 @@ class InformationsWindow(QtWidgets.QWidget):
         ).value
         self.set_texts(link_color)
 
-        self.centralwidget = QtWidgets.QWidget(self.ui_window)
+        self.centralwidget = QtWidgets.QWidget(self.window)
         self.layout = QtWidgets.QGridLayout(self.centralwidget)
-        self.ui_window.setCentralWidget(self.centralwidget)
+        self.window.setCentralWidget(self.centralwidget)
 
-        self.layout.addWidget(self.label_gtagger, 0, 0, QtCore.Qt.AlignCenter)
-        self.layout.addWidget(self.label_developper, 1, 0, QtCore.Qt.AlignCenter)
-        self.layout.addWidget(self.label_version, 2, 0, QtCore.Qt.AlignCenter)
-        self.layout.addWidget(self.label_informations, 3, 0, QtCore.Qt.AlignCenter)
-        self.layout.addWidget(self.label_credits, 4, 0)
+        self.layout.addWidget(self.label_gtagger, 0, 0, 1, 1, QtCore.Qt.AlignCenter)
+        self.layout.addWidget(self.label_developper, 1, 0, 1, 1, QtCore.Qt.AlignCenter)
+        self.layout.addWidget(self.label_version, 2, 0, 1, 1, QtCore.Qt.AlignCenter)
+        self.layout.addWidget(self.label_informations, 3, 0, 1, 1, QtCore.Qt.AlignCenter)
+        self.layout.addWidget(self.label_credits, 4, 0, 1, 1)
 
-        self.ui_window.setWindowTitle("Informations")
+        self.window.setWindowTitle("Informations")
 
     def set_texts(self, link_color: str) -> None:
         """Sets the texts of the labels.

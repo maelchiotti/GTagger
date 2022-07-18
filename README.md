@@ -34,10 +34,12 @@ Download the executable `GTagger.exe` from the [Releases](https://github.com/mae
 
 **v1.2.0:**
 
-- ?
+- Add a help window:
+  - General use instructions
+  - Legend of the state indicator
 
 **Future:**
 
-- Improve the settings window to be a `QtCore.Qt.Tool` so that it keeps focus
+- Improve the settings and informations windows to be `QtCore.Qt.Tool`s so that they keep focus
 
 - Add files in a thread

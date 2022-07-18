@@ -13,23 +13,23 @@ if TYPE_CHECKING:
     from main import GTagger
 
 
-class SettingsWindow(QtWidgets.QWidget):
+class WindowSettings(QtWidgets.QWidget):
     """Settings window of the GUI.
 
     Args:
         gtagger (GTagger): GTagger application.
-        ui_window (QtWidgets.QMainWindow): Main window UI.
+        window (QtWidgets.QMainWindow): Window UI.
 
     Attributes:
         gtagger (GTagger): GTagger application.
-        ui_window (QtWidgets.QMainWindow): Main window UI.
+        window (QtWidgets.QMainWindow): Window UI.
     """
 
     def __init__(self, parent, gtagger, ui_window: QtWidgets.QMainWindow):
         super().__init__(parent)
 
         self.gtagger: GTagger = gtagger
-        self.ui_window: QtWidgets.QMainWindow = ui_window
+        self.window: QtWidgets.QMainWindow = ui_window
 
         self.setup_ui()
 
@@ -80,13 +80,13 @@ class SettingsWindow(QtWidgets.QWidget):
         self.box_files = QtWidgets.QGroupBox("Files")
         self.box_files.setLayout(self.grid_files)
 
-        self.centralwidget = QtWidgets.QWidget(self.ui_window)
+        self.centralwidget = QtWidgets.QWidget(self.window)
         self.layout = QtWidgets.QGridLayout(self.centralwidget)
-        self.ui_window.setCentralWidget(self.centralwidget)
+        self.window.setCentralWidget(self.centralwidget)
 
         self.layout.addWidget(self.box_files, 0, 0, 1, 1)
 
-        self.ui_window.setWindowTitle("Settings")
+        self.window.setWindowTitle("Settings")
 
         self.checkbox_recursive.stateChanged.connect(self.toggle_recursive_search)
         self.checkbox_overwrite.stateChanged.connect(self.toggle_overwrite_lyrics)

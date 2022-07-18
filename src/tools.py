@@ -142,7 +142,6 @@ class TrackLayout(QtWidgets.QGridLayout):
         self.covers: dict[Theme, QtGui.QPixmap] = track.covers
 
         self.state_indicator = StateIndicator(state)
-        self.state_indicator.setFixedWidth(17)
         self.state_indicator.setToolTip(state.value)
         self.label_filename = QtWidgets.QLabel(track.filename)
         self.label_filename.setToolTip(track.get_filepath())
@@ -212,20 +211,24 @@ class TrackLayout(QtWidgets.QGridLayout):
 
 
 class StateIndicator(QtWidgets.QWidget):
-    def __init__(self, state: State) -> None:
+    def __init__(
+        self, state: State, x: int = 2, y: int = 2, w: int = 15, h: int = 15
+    ) -> None:
         super().__init__()
 
         self.state: State = state
+        self.x: int = x
+        self.y: int = y
+        self.w: int = w
+        self.h: int = h
 
     def paintEvent(self, event: QtGui.QPaintEvent) -> None:
         if self.state == State.TAGS_READ:
             color = QtGui.QColor(ColorLight.blue.value)
-        elif self.state == State.TAGS_NOT_READ:
-            color = QtGui.QColor(ColorLight.grey.value)
         elif self.state == State.LYRICS_FOUND:
             color = QtGui.QColor(ColorLight.green.value)
         elif self.state == State.LYRICS_NOT_FOUND:
-            color = QtGui.QColor(ColorLight.orange.value)
+            color = QtGui.QColor(Color_.orange.value)
         elif self.state == State.LYRICS_SAVED:
             color = QtGui.QColor(Color_.yellow_genius.value)
         elif self.state == State.LYRICS_NOT_SAVED:
@@ -239,7 +242,10 @@ class StateIndicator(QtWidgets.QWidget):
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
         painter.setPen(QtCore.Qt.NoPen)
         painter.setBrush(brush)
-        painter.drawEllipse(2, 2, 15, 15)
+        painter.drawEllipse(self.x, self.y, self.w, self.h)
+
+        self.setFixedWidth(self.x + self.w)
+        self.setFixedHeight(self.y + self.h)
 
     def set_state(self, state: State) -> None:
         self.state = state

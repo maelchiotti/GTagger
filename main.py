@@ -5,7 +5,7 @@ from typing import Any
 import qdarktheme
 from PySide6 import QtCore, QtWidgets
 
-from src.window_main import MainWindow
+from src.window_main import WindowMain
 from src.tools import Settings, Theme
 
 
@@ -85,7 +85,7 @@ class SettingsManager(QtCore.QObject):
 if __name__ == "__main__":
     gtagger = GTagger()
 
-    main_window = MainWindow(gtagger)
+    main_window = WindowMain(gtagger)
     main_window.resize(1200, 800)
     main_window.show()
 
