@@ -45,6 +45,8 @@ class MainWindow(QtWidgets.QWidget):
         token_url (QtCore.QUrl): URL to the Genius web page to get a client access token.
         settings_window (QtWidgets.QMainWindow): Settings window.
         settings (SettingsWindow): Settings.
+        informations_window (QtWidgets.QMainWindow): Informations window.
+        informations (InformationsWindow): Informations.
         thread_search_lyrics: (QtCore.QThread): Thread to search for the lyrics.
     """
 
@@ -72,16 +74,6 @@ class MainWindow(QtWidgets.QWidget):
 
     def setup_ui(self) -> None:
         """Sets up the UI of the window."""
-        self.setWindowTitle(f"GTagger ({VERSION})")
-        
-        # Setup the windows icons
-        icon_window_main = CustomIcon(IconTheme.SHARP, "pricetag", Color_.black, Theme.LIGHT)
-        self.setWindowIcon(icon_window_main)
-        icon_window_settings = CustomIcon(IconTheme.SHARP, "settings", Color_.black, Theme.LIGHT)
-        self.settings_window.setWindowIcon(icon_window_settings)
-        icon_window_informations = CustomIcon(IconTheme.SHARP, "information-circle", Color_.black, Theme.LIGHT)
-        self.informations_window.setWindowIcon(icon_window_informations)
-
         # Setup the toolbar
         self.action_add_files = QtGui.QAction("Select files")
         self.action_add_files.setToolTip("Select files")
@@ -165,6 +157,21 @@ class MainWindow(QtWidgets.QWidget):
         self.progression_bar = QtWidgets.QProgressBar()
         self.progression_bar.setMaximumWidth(300)
         self.progression_bar.setFixedHeight(25)
+        self.progression_bar.setStyleSheet(
+            """
+            QProgressBar {
+                color: """
+            + Color_.grey.value
+            + """;
+            }
+            
+            QProgressBar::chunk {
+                background-color: """
+            + Color_.yellow_genius.value
+            + """;
+            }
+            """
+        )
 
         self.button_theme = QtWidgets.QPushButton()
         self.button_theme.setToolTip("Change to light theme")
@@ -178,9 +185,25 @@ class MainWindow(QtWidgets.QWidget):
         self.layout.addLayout(self.layout_main, 0, 0, 1, 1)
         self.layout.addWidget(self.status_bar, 1, 0, 1, 1)
         self.layout.setContentsMargins(0, 0, 0, 0)
+        
+        self.setWindowTitle(f"GTagger ({VERSION})")
+
+        # Setup the windows icons
+        icon_window_main = CustomIcon(
+            IconTheme.SHARP, "pricetag", Color_.black, Theme.LIGHT
+        )
+        self.setWindowIcon(icon_window_main)
+        icon_window_settings = CustomIcon(
+            IconTheme.SHARP, "settings", Color_.black, Theme.LIGHT
+        )
+        self.settings_window.setWindowIcon(icon_window_settings)
+        icon_window_informations = CustomIcon(
+            IconTheme.SHARP, "information-circle", Color_.black, Theme.LIGHT
+        )
+        self.informations_window.setWindowIcon(icon_window_informations)
 
         self.setup_theme()
-
+        
         self.action_add_files.triggered.connect(lambda: self.add_files(False))
         self.action_add_folder.triggered.connect(lambda: self.add_files(True))
         self.action_search_lyrics.triggered.connect(self.search_lyrics)
@@ -243,31 +266,12 @@ class MainWindow(QtWidgets.QWidget):
                 else:
                     track_layout.label_lyrics.setStyleSheet("")
 
-        # Change the color of the progress bar
-        self.progression_bar.setStyleSheet(
-            """
-            QProgressBar {
-                color: """
-            + Color_.grey.value
-            + """;
-            }
-            
-            QProgressBar::chunk {
-                background-color: """
-            + Color_.yellow_genius.value
-            + """;
-            }
-            """
-        )
-
         # Change the color of the token line edit
         self.token_changed()
 
         # Change the color of the links
         link_color = Color_.get_themed_color(theme, Color_.yellow).value
         self.informations.set_texts(link_color)
-
-        # Change the color of the checkboxes
 
     def select_directories(self) -> str:
         """Asks user to select a directory.

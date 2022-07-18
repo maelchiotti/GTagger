@@ -83,7 +83,6 @@ class SettingsManager(QtCore.QObject):
 
 
 if __name__ == "__main__":
-    # Create the application
     gtagger = GTagger()
 
     main_window = MainWindow(gtagger)

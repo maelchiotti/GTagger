@@ -38,16 +38,14 @@ class InformationsWindow(QtWidgets.QWidget):
         self.label_gtagger = QtWidgets.QLabel(QtCore.QCoreApplication.applicationName())
         self.label_gtagger.setAlignment(QtCore.Qt.AlignCenter)
         self.label_gtagger.setStyleSheet("font-size: 20pt; font-weight:800")
-        
+
         self.label_developper = QtWidgets.QLabel()
         self.label_developper.setAlignment(QtCore.Qt.AlignCenter)
         self.label_developper.setStyleSheet("font-size: 14pt; font-weight:600")
         self.label_developper.setTextFormat(QtCore.Qt.RichText)
-        self.label_developper.setTextInteractionFlags(
-            QtCore.Qt.TextBrowserInteraction
-        )
+        self.label_developper.setTextInteractionFlags(QtCore.Qt.TextBrowserInteraction)
         self.label_developper.setOpenExternalLinks(True)
-        
+
         self.label_version = QtWidgets.QLabel(f"<i>{VERSION}</i>")
         self.label_version.setAlignment(QtCore.Qt.AlignCenter)
         self.label_version.setStyleSheet("font-size: 12pt;")
@@ -89,13 +87,14 @@ class InformationsWindow(QtWidgets.QWidget):
         """Sets the texts of the labels.
 
         Args:
-            link_color (str): Color of the links."""
+            link_color (str): Color of the links.
+        """
         self.label_developper.setText(
             f"""
             <a href="{QtCore.QCoreApplication.organizationDomain()}" style="color: {link_color}">{QtCore.QCoreApplication.organizationName()}</a>
             """
         )
-        
+
         self.label_informations.setText(
             f"""
             <br />

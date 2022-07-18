@@ -3,9 +3,9 @@
 Handles the creation of the settings window and the interactions with the user.
 """
 
-from PySide6 import QtCore, QtWidgets, QtGui
+from PySide6 import QtCore, QtWidgets
 
-from src.tools import Color_, CustomIcon, Settings
+from src.tools import Color_, Settings
 
 from typing import TYPE_CHECKING
 
