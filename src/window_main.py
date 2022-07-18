@@ -353,6 +353,12 @@ class WindowMain(QtWidgets.QWidget):
         self.progression_bar.setMaximum(maximum)
 
     def remove_layout(self, track: Track, track_layout: TrackLayout) -> None:
+        """Removes a track layout.
+
+        Args:
+            track (Track): Track to remove.
+            track_layout (TrackLayout): Track layout to remove.
+        """
         track_layout.frame.hide()
         self.layout_files.removeItem(track_layout)
         self.track_layouts.pop(track)
@@ -557,7 +563,7 @@ class WindowMain(QtWidgets.QWidget):
 
     @QtCore.Slot()
     def remove_selected_layouts(self) -> None:
-        """Removes the selected rows."""
+        """Removes the selected layouts."""
         for track, track_layout in self.track_layouts.copy().items():
             if track_layout.selected:
                 self.remove_layout(track, track_layout)

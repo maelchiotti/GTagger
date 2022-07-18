@@ -15,6 +15,7 @@ class GTagger(QtWidgets.QApplication):
     Attributes:
         settings_manager (SettingsManager): Settings manager of the application.
         theme (Theme): Current theme of the application.
+        mode (Mode): Current layout mode of the application.
     """
 
     def __init__(self) -> None:

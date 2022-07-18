@@ -150,6 +150,11 @@ class TrackLayout(QtWidgets.QGridLayout):
             self.setup_compact_mode(track)
 
     def setup_normal_mode(self, track: Track):
+        """Sets up the layout as normal mode.
+
+        Args:
+            track (Track): Track containing the informations to display.
+        """
         self.state_indicator = StateIndicator(self.state)
         self.state_indicator.setToolTip(self.state.value)
         self.label_filename = QtWidgets.QLabel(track.filename)
@@ -196,6 +201,11 @@ class TrackLayout(QtWidgets.QGridLayout):
         self.addWidget(self.frame, 0, 0, 1, 1)
 
     def setup_compact_mode(self, track: Track):
+        """Sets up the layout as compact mode.
+
+        Args:
+            track (Track): Track containing the informations to display.
+        """
         self.state_indicator = StateIndicator(self.state)
         self.state_indicator.setToolTip(self.state.value)
         self.label_cover = QtWidgets.QLabel()
@@ -233,7 +243,7 @@ class TrackLayout(QtWidgets.QGridLayout):
         self.addWidget(self.frame, 0, 0, 1, 1)
 
     def mouseReleaseEvent(self, event: QtGui.QMouseEvent):
-        """Intercepts the mouse release event on the QFrame.
+        """Intercepts the mouse release event on the `QFrame`.
 
         Enables the user to (de)select a track.
 
@@ -260,10 +270,16 @@ class TrackLayout(QtWidgets.QGridLayout):
         self.signal_mouse_event.emit()
 
     def resizeEvent(self, newSize: QtGui.QResizeEvent):
+        """Intercepts the resize event on the `QFrame`.
+
+        Args:
+            newSize (QtGui.QResizeEvent): Resize event.
+        """
         self.label_artists.setFixedWidth(0.33 * newSize.size().width())
 
 
 class StateIndicator(QtWidgets.QWidget):
+    """Filled and colored circle indicating the state of a track."""
     def __init__(
         self, state: State, x: int = 2, y: int = 2, w: int = 15, h: int = 15
     ) -> None:
@@ -276,6 +292,11 @@ class StateIndicator(QtWidgets.QWidget):
         self.h: int = h
 
     def paintEvent(self, event: QtGui.QPaintEvent) -> None:
+        """Intercepts the paint event of the `QWidget`.
+
+        Args:
+            event (QtGui.QPaintEvent): Paint event.
+        """
         if self.state == State.TAGS_READ:
             color = QtGui.QColor(ColorLight.blue.value)
         elif self.state == State.LYRICS_FOUND:
@@ -301,6 +322,11 @@ class StateIndicator(QtWidgets.QWidget):
         self.setFixedHeight(self.y + self.h)
 
     def set_state(self, state: State) -> None:
+        """Sets the state of the indicator to `state` and repaints it.
+
+        Args:
+            state (State): New state.
+        """
         self.state = state
         self.update()
 
