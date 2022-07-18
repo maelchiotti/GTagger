@@ -150,7 +150,6 @@ class TrackLayout(QtWidgets.QGridLayout):
         self.label_cover.setFixedWidth(COVER_SIZE)
         self.label_title = QtWidgets.QLabel(track.get_title())
         self.label_title.setStyleSheet("font-size: 15pt; font-weight:800;")
-        self.label_title.setFixedWidth(3 * COVER_SIZE)
         self.label_artists = QtWidgets.QLabel(track.get_artists())
         self.label_artists.setStyleSheet("font-size: 12pt; font-weight:600;")
         self.label_album = QtWidgets.QLabel(track.get_album())
@@ -161,7 +160,6 @@ class TrackLayout(QtWidgets.QGridLayout):
         self.label_lyrics.setSizePolicy(
             QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred
         )
-        self.label_lyrics.setMaximumWidth(8 * COVER_SIZE)
         self.label_lyrics.setToolTip(track.get_lyrics())
 
         self.layout_top = QtWidgets.QHBoxLayout()
@@ -182,6 +180,7 @@ class TrackLayout(QtWidgets.QGridLayout):
         self.frame.setFrameStyle(QtWidgets.QFrame.StyledPanel | QtWidgets.QFrame.Plain)
         self.frame.setLayout(self.grid_layout)
         self.frame.mouseReleaseEvent = self.mouseReleaseEvent
+        self.frame.resizeEvent = self.resizeEvent
 
         self.addWidget(self.frame, 0, 0, 1, 1)
 
@@ -193,6 +192,10 @@ class TrackLayout(QtWidgets.QGridLayout):
         Args:
             event (QtGui.QMouseEvent): Mouse release event.
         """
+        # Only take into account the left mouse button
+        if event.button() != QtCore.Qt.LeftButton:
+            return
+        
         self.selected = not self.selected
         if self.selected:
             color = Color_.black
@@ -208,6 +211,9 @@ class TrackLayout(QtWidgets.QGridLayout):
         self.frame.setStyleSheet(stylesheet)
 
         self.signal_mouse_event.emit()
+        
+    def resizeEvent(self, newSize: QtGui.QResizeEvent):
+        self.label_title.setFixedWidth(0.33 * newSize.size().width())
 
 
 class StateIndicator(QtWidgets.QWidget):
