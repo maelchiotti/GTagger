@@ -62,9 +62,15 @@ class WindowHelp(QtWidgets.QWidget):
         # State indicator legend
         self.indicator_blue = StateIndicator(State.TAGS_READ, x=0, y=0, w=20, h=20)
         self.indicator_green = StateIndicator(State.LYRICS_FOUND, x=0, y=0, w=20, h=20)
-        self.indicator_orange = StateIndicator(State.LYRICS_NOT_FOUND, x=0, y=0, w=20, h=20)
-        self.indicator_yellow_genius = StateIndicator(State.LYRICS_SAVED, x=0, y=0, w=20, h=20)
-        self.indicator_red = StateIndicator(State.LYRICS_NOT_SAVED, x=0, y=0, w=20, h=20)
+        self.indicator_orange = StateIndicator(
+            State.LYRICS_NOT_FOUND, x=0, y=0, w=20, h=20
+        )
+        self.indicator_yellow_genius = StateIndicator(
+            State.LYRICS_SAVED, x=0, y=0, w=20, h=20
+        )
+        self.indicator_red = StateIndicator(
+            State.LYRICS_NOT_SAVED, x=0, y=0, w=20, h=20
+        )
 
         self.label_state_indicator_title = QtWidgets.QLabel(
             """
@@ -111,19 +117,13 @@ class WindowHelp(QtWidgets.QWidget):
         self.layout_legend.addWidget(self.indicator_orange, 2, 0, 1, 1)
         self.layout_legend.addWidget(self.indicator_yellow_genius, 3, 0, 1, 1)
         self.layout_legend.addWidget(self.indicator_red, 4, 0, 1, 1)
-        
-        
-        self.layout_legend.addWidget(
-            self.label_state_indicator_read, 0, 1, 1, 1)
-        self.layout_legend.addWidget(
-            self.label_state_indicator_found, 1, 1, 1, 1)
-        self.layout_legend.addWidget(
-            self.label_state_indicator_not_found, 2, 1, 1, 1)
-        self.layout_legend.addWidget(
-            self.label_state_indicator_saved, 3, 1, 1, 1)
-        self.layout_legend.addWidget(
-            self.label_state_indicator_not_saved, 4, 1, 1, 1)
-        
+
+        self.layout_legend.addWidget(self.label_state_indicator_read, 0, 1, 1, 1)
+        self.layout_legend.addWidget(self.label_state_indicator_found, 1, 1, 1, 1)
+        self.layout_legend.addWidget(self.label_state_indicator_not_found, 2, 1, 1, 1)
+        self.layout_legend.addWidget(self.label_state_indicator_saved, 3, 1, 1, 1)
+        self.layout_legend.addWidget(self.label_state_indicator_not_saved, 4, 1, 1, 1)
+
         self.layout_state_indicator = QtWidgets.QGridLayout()
         self.layout_state_indicator.addWidget(
             self.label_state_indicator_title, 0, 0, 1, 1
