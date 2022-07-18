@@ -18,6 +18,10 @@ from PySide6 import QtCore
 from src.tools import LYRICS_LINES, State, TrackLayout
 from src.track import Track
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from main import GTagger
 
 class TrackSearch(QtCore.QObject):
     """Allows to search a track on Genius.
@@ -157,12 +161,14 @@ class ThreadLyricsSearch(QtCore.QThread):
         token: str,
         track_layouts: dict[Track, TrackLayout],
         overwrite_lyrics: bool,
+        gtagger: GTagger
     ) -> None:
         super().__init__()
 
         self.token: str = token
         self.track_layouts: dict[Track, TrackLayout] = track_layouts
         self.overwrite_lyrics: bool = overwrite_lyrics
+        self.gtagger: GTagger = gtagger
 
     def run(self):
         lyrics_search = LyricsSearch(self.token)
@@ -175,7 +181,7 @@ class ThreadLyricsSearch(QtCore.QThread):
             track_search.search_track(track)
             found_lyrics = lyrics_search.search_lyrics(track)
             if found_lyrics:
-                lyrics = track.get_lyrics(lines=LYRICS_LINES)
+                lyrics = track.get_lyrics(lines=LYRICS_LINES[self.gtagger.mode])
                 track_layout.label_lyrics.setText(lyrics)
                 track_layout.label_lyrics.setToolTip(track.get_lyrics_original())
                 track_layout.state_indicator.set_state(State.LYRICS_FOUND)

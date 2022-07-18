@@ -6,7 +6,7 @@ import qdarktheme
 from PySide6 import QtCore, QtWidgets
 
 from src.window_main import WindowMain
-from src.tools import Settings, Theme
+from src.tools import Mode, Settings, Theme
 
 
 class GTagger(QtWidgets.QApplication):
@@ -28,11 +28,17 @@ class GTagger(QtWidgets.QApplication):
         self.settings_manager: SettingsManager = SettingsManager()
 
         # Load the theme setting and default it to dark if it is not set
-        setting_theme = self.settings_manager.get_setting(
-            Settings.THEME.value, default=Theme.DARK.value
+        self.theme: Theme = Theme.get_theme(
+            self.settings_manager.get_setting(
+                Settings.THEME.value, default=Theme.DARK.value
+            )
         )
-        self.theme: Theme = Theme.get_theme(setting_theme)
         self.setStyleSheet(qdarktheme.load_stylesheet(self.theme.value, "rounded"))
+        
+        # Load the mode setting and default it to normal if it is not set
+        self.mode: Mode = Mode.get_mode(
+            self.settings_manager.get_setting(Settings.MODE.value, Mode.NORMAL.value)
+        )
 
 
 class SettingsManager(QtCore.QObject):

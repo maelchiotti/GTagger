@@ -41,3 +41,5 @@ Download the executable `GTagger.exe` from the [Releases](https://github.com/mae
 - Improve the settings and informations windows to be `QtCore.Qt.Tool`s so that they keep focus
 
 - Add files in a thread
+
+- Add a compact mode (small cover, title + artist, lyrics on 2 lines)

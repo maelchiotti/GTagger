@@ -15,10 +15,12 @@ from src.window_settings import WindowSettings
 from src.track import Track
 from src.tag import ThreadLyricsSearch
 from src.tools import (
+    TOKEN_URL,
     VERSION,
     LYRICS_LINES,
     ColorDark,
     CustomIcon,
+    Mode,
     Settings,
     TrackLayout,
     Color_,
@@ -43,7 +45,6 @@ class WindowMain(QtWidgets.QWidget):
     Attributes:
         gtagger (GTagger): GTagger application.
         track_layouts (dict[Track, TrackLayout]): Layouts containing the informations of each tracks added by the user.
-        token_url (QtCore.QUrl): URL to the Genius web page to get a client access token.
         window_settings (QtWidgets.QMainWindow): Settings window.
         settings (SettingsWindow): Settings.
         window_informations (QtWidgets.QMainWindow): Informations window.
@@ -59,7 +60,6 @@ class WindowMain(QtWidgets.QWidget):
         self.gtagger: GTagger = gtagger
 
         self.track_layouts: dict[Track, TrackLayout] = {}
-        self.token_url: QtCore.QUrl = QtCore.QUrl("https://genius.com/api-clients")
 
         self.window_settings: QtWidgets.QMainWindow = QtWidgets.QMainWindow(self)
         self.settings: WindowSettings = WindowSettings(
@@ -108,7 +108,7 @@ class WindowMain(QtWidgets.QWidget):
 
         self.action_informations = QtGui.QAction("Informations")
         self.action_informations.setToolTip("Informations")
-        
+
         self.action_help = QtGui.QAction("Help")
         self.action_help.setToolTip("Help")
 
@@ -183,11 +183,12 @@ class WindowMain(QtWidgets.QWidget):
             """
         )
 
+        self.button_mode = QtWidgets.QPushButton()
         self.button_theme = QtWidgets.QPushButton()
-        self.button_theme.setToolTip("Change to light theme")
 
         self.status_bar = QtWidgets.QStatusBar()
         self.status_bar.addPermanentWidget(self.progression_bar)
+        self.status_bar.addPermanentWidget(self.button_mode)
         self.status_bar.addPermanentWidget(self.button_theme)
 
         self.layout = QtWidgets.QGridLayout(self)
@@ -219,17 +220,19 @@ class WindowMain(QtWidgets.QWidget):
         self.action_search_lyrics.triggered.connect(self.search_lyrics)
         self.action_save_lyrics.triggered.connect(self.save_lyrics)
         self.action_cancel_rows.triggered.connect(self.cancel_rows)
-        self.action_remove_rows.triggered.connect(self.remove_rows)
+        self.action_remove_rows.triggered.connect(self.remove_selected_layouts)
         self.action_settings.triggered.connect(self.open_settings)
         self.action_informations.triggered.connect(self.open_informations)
         self.action_help.triggered.connect(self.open_help)
         self.input_token.textChanged.connect(self.token_changed)
         self.button_token.clicked.connect(self.open_token_page)
+        self.button_mode.clicked.connect(self.change_mode)
         self.button_theme.clicked.connect(self.change_theme)
 
     def setup_theme(self):
         """Sets up the colors for diverse elements of the application when the theme is changed."""
         theme = self.gtagger.theme
+        mode = self.gtagger.mode
 
         # Change the icons
         icon_add_files = CustomIcon(IconTheme.OUTLINE, "documents", Color_.green, theme)
@@ -248,14 +251,20 @@ class WindowMain(QtWidgets.QWidget):
         icon_informations = CustomIcon(
             IconTheme.OUTLINE, "information-circle", Color_.grey, theme
         )
-        icon_help = CustomIcon(
-            IconTheme.OUTLINE, "help-circle", Color_.grey, theme
-        )
+        icon_help = CustomIcon(IconTheme.OUTLINE, "help-circle", Color_.grey, theme)
         icon_token = CustomIcon(IconTheme.OUTLINE, "open", Color_.yellow, theme)
         if theme == Theme.DARK:
+            self.button_theme.setToolTip("Switch to light theme")
             icon_theme = CustomIcon(IconTheme.OUTLINE, "sunny", Color_.grey, theme)
         elif theme == Theme.LIGHT:
+            self.button_theme.setToolTip("Switch to dark theme")
             icon_theme = CustomIcon(IconTheme.OUTLINE, "moon", Color_.grey, theme)
+        if mode == Mode.NORMAL:
+            self.button_mode.setToolTip("Switch to compact mode")
+            icon_mode = CustomIcon(IconTheme.OUTLINE, "contract", Color_.grey, theme)
+        elif mode == Mode.COMPACT:
+            self.button_mode.setToolTip("Switch to normal mode")
+            icon_mode = CustomIcon(IconTheme.OUTLINE, "expand", Color_.grey, theme)
 
         self.action_add_files.setIcon(icon_add_files)
         self.action_add_folder.setIcon(icon_add_folder)
@@ -267,13 +276,14 @@ class WindowMain(QtWidgets.QWidget):
         self.action_informations.setIcon(icon_informations)
         self.action_help.setIcon(icon_help)
         self.button_token.setIcon(icon_token)
+        self.button_mode.setIcon(icon_mode)
         self.button_theme.setIcon(icon_theme)
 
         # Change the cover placeholders and if needed,
         # as well as the lyrics color
         for track, track_layout in self.track_layouts.items():
             if not track_layout.selected:
-                track_layout.label_cover.setPixmap(track.covers[theme])
+                track_layout.label_cover.setPixmap(track.covers[(theme, mode)])
                 if track.lyrics_new is not None:
                     track_layout.label_lyrics.setStyleSheet(
                         f"color: {Color_.get_themed_color(self.gtagger.theme, Color_.green).value}"
@@ -342,18 +352,58 @@ class WindowMain(QtWidgets.QWidget):
             self.progression_bar.setValue(0)
         self.progression_bar.setMaximum(maximum)
 
+    def remove_layout(self, track: Track, track_layout: TrackLayout) -> None:
+        track_layout.frame.hide()
+        self.layout_files.removeItem(track_layout)
+        self.track_layouts.pop(track)
+
+    @QtCore.Slot()
+    def change_mode(self) -> None:
+        """Changes the layout mode of the application."""
+        # Update the button
+        if self.gtagger.mode == Mode.COMPACT:
+            self.gtagger.mode = Mode.NORMAL
+            self.button_mode.setToolTip("Switch to compact mode")
+            self.button_mode.setIcon(
+                CustomIcon(
+                    IconTheme.OUTLINE, "contract", Color_.grey, self.gtagger.theme
+                )
+            )
+        elif self.gtagger.mode == Mode.NORMAL:
+            self.gtagger.mode = Mode.COMPACT
+            self.button_mode.setToolTip("Switch to normal mode")
+            self.button_mode.setIcon(
+                CustomIcon(IconTheme.OUTLINE, "expand", Color_.grey, self.gtagger.theme)
+            )
+
+        # Update the GUI
+        for track, track_layout_old in self.track_layouts.copy().items():
+            track_layout_new = TrackLayout(track, track_layout_old.state, self.gtagger)
+            self.remove_layout(track, track_layout_old)
+            self.track_layouts[track] = track_layout_new
+            self.layout_files.addLayout(track_layout_new)
+
+        # Update the settings
+        self.gtagger.settings_manager.set_setting(
+            Settings.MODE.value, self.gtagger.mode.value
+        )
+
     @QtCore.Slot()
     def change_theme(self):
         """Changes the theme of the application."""
-        # Update the GUI
+        # Update the button
         if self.gtagger.theme == Theme.LIGHT:
             self.gtagger.theme = Theme.DARK
-            self.button_theme.setToolTip("Change to light theme")
-            self.gtagger.setStyleSheet(qdarktheme.load_stylesheet("dark", "rounded"))
+            self.button_theme.setToolTip("Switch to light theme")
         elif self.gtagger.theme == Theme.DARK:
             self.gtagger.theme = Theme.LIGHT
-            self.button_theme.setToolTip("Change to dark theme")
+            self.button_theme.setToolTip("Switch to dark theme")
             self.gtagger.setStyleSheet(qdarktheme.load_stylesheet("light", "rounded"))
+
+        # Update the GUI
+        self.gtagger.setStyleSheet(
+            qdarktheme.load_stylesheet(self.gtagger.theme.value, "rounded")
+        )
         self.setup_theme()
 
         # Update the settings
@@ -399,7 +449,7 @@ class WindowMain(QtWidgets.QWidget):
             track_layout = TrackLayout(
                 track,
                 State.TAGS_READ,
-                self.gtagger.theme,
+                self.gtagger,
             )
             track_layout.signal_mouse_event.connect(self.selection_changed)
             self.track_layouts[track] = track_layout
@@ -462,7 +512,9 @@ class WindowMain(QtWidgets.QWidget):
                 track_layout.state_indicator.setToolTip(State.LYRICS_NOT_SAVED.value)
             track.read_tags()
             track.set_lyrics(None)
-            track_layout.label_lyrics.setText(track.get_lyrics(lines=LYRICS_LINES))
+            track_layout.label_lyrics.setText(
+                track.get_lyrics(lines=LYRICS_LINES[self.gtagger.mode])
+            )
             track_layout.label_lyrics.setToolTip("")
 
     @QtCore.Slot()
@@ -498,17 +550,17 @@ class WindowMain(QtWidgets.QWidget):
         for track, track_layout in self.track_layouts.items():
             if track_layout.selected:
                 track.set_lyrics(None)
-                track_layout.label_lyrics.setText(track.get_lyrics(lines=LYRICS_LINES))
+                track_layout.label_lyrics.setText(
+                    track.get_lyrics(lines=LYRICS_LINES[self.gtagger.mode])
+                )
                 track_layout.label_lyrics.setToolTip("")
 
     @QtCore.Slot()
-    def remove_rows(self) -> None:
+    def remove_selected_layouts(self) -> None:
         """Removes the selected rows."""
         for track, track_layout in self.track_layouts.copy().items():
             if track_layout.selected:
-                track_layout.frame.hide()
-                self.layout_files.removeItem(track_layout)
-                self.track_layouts.pop(track)
+                self.remove_layout(track, track_layout)
         self.selection_changed()
 
     @QtCore.Slot()
@@ -541,7 +593,7 @@ class WindowMain(QtWidgets.QWidget):
     @QtCore.Slot()
     def open_token_page(self) -> None:
         """Opens the Genius website to fetch the client access token."""
-        QtGui.QDesktopServices.openUrl(self.token_url)
+        QtGui.QDesktopServices.openUrl(TOKEN_URL)
 
     @QtCore.Slot()
     def open_settings(self) -> None:

@@ -22,12 +22,12 @@ from enum import Enum
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from main import GTagger
     from src.track import Track
 
 VERSION = "v1.2.0"
 ICONS_PATH = "src/assets/img/icons"
-COVER_SIZE = 128
-LYRICS_LINES = 8
+TOKEN_URL = QtCore.QUrl("https://genius.com/api-clients")
 
 
 class CustomIcon(QtGui.QIcon):
@@ -135,19 +135,28 @@ class TrackLayout(QtWidgets.QGridLayout):
 
     signal_mouse_event = QtCore.Signal()
 
-    def __init__(self, track: Track, state: State, theme: Theme) -> None:
+    def __init__(self, track: Track, state: State, gtagger: GTagger) -> None:
         super().__init__()
+
+        self.state: State = state
+        self.gtagger: GTagger = gtagger
 
         self.selected: bool = False
         self.covers: dict[Theme, QtGui.QPixmap] = track.covers
 
-        self.state_indicator = StateIndicator(state)
-        self.state_indicator.setToolTip(state.value)
+        if self.gtagger.mode == Mode.NORMAL:
+            self.setup_normal_mode(track)
+        elif self.gtagger.mode == Mode.COMPACT:
+            self.setup_compact_mode(track)
+
+    def setup_normal_mode(self, track: Track):
+        self.state_indicator = StateIndicator(self.state)
+        self.state_indicator.setToolTip(self.state.value)
         self.label_filename = QtWidgets.QLabel(track.filename)
         self.label_filename.setToolTip(track.get_filepath())
         self.label_cover = QtWidgets.QLabel()
-        self.label_cover.setPixmap(self.covers[theme])
-        self.label_cover.setFixedWidth(COVER_SIZE)
+        self.label_cover.setPixmap(self.covers[(self.gtagger.theme, self.gtagger.mode)])
+        self.label_cover.setFixedWidth(COVER_SIZE[self.gtagger.mode])
         self.label_title = QtWidgets.QLabel(track.get_title())
         self.label_title.setStyleSheet("font-size: 15pt; font-weight:800;")
         self.label_artists = QtWidgets.QLabel(track.get_artists())
@@ -156,25 +165,64 @@ class TrackLayout(QtWidgets.QGridLayout):
         self.label_album.setStyleSheet("font-size: 11pt; font-weight:400;")
         self.label_duration = QtWidgets.QLabel(f"<i>{track.get_duration()}</i>")
         self.label_duration.setTextFormat(QtCore.Qt.RichText)
-        self.label_lyrics = QtWidgets.QLabel(track.get_lyrics(lines=LYRICS_LINES))
+        self.label_lyrics = QtWidgets.QLabel(
+            track.get_lyrics(lines=LYRICS_LINES[self.gtagger.mode])
+        )
         self.label_lyrics.setSizePolicy(
             QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred
         )
         self.label_lyrics.setToolTip(track.get_lyrics())
 
-        self.layout_top = QtWidgets.QHBoxLayout()
-        self.layout_top.addWidget(self.state_indicator)
-        self.layout_top.addWidget(self.label_filename)
-        self.layout_top.addStretch()
+        self.layout_title = QtWidgets.QHBoxLayout()
+        self.layout_title.addWidget(self.state_indicator)
+        self.layout_title.addWidget(self.label_filename)
+        self.layout_title.addStretch()
 
         self.grid_layout = QtWidgets.QGridLayout()
-        self.grid_layout.addLayout(self.layout_top, 0, 0, 1, 3)
+        self.grid_layout.addLayout(self.layout_title, 0, 0, 1, 3)
         self.grid_layout.addWidget(self.label_cover, 1, 0, 4, 1)
         self.grid_layout.addWidget(self.label_title, 1, 1, 1, 1)
         self.grid_layout.addWidget(self.label_artists, 2, 1, 1, 1)
         self.grid_layout.addWidget(self.label_album, 3, 1, 1, 1)
         self.grid_layout.addWidget(self.label_duration, 4, 1, 1, 1)
         self.grid_layout.addWidget(self.label_lyrics, 1, 2, 4, 1)
+
+        self.frame = QtWidgets.QFrame()
+        self.frame.setFrameStyle(QtWidgets.QFrame.StyledPanel | QtWidgets.QFrame.Plain)
+        self.frame.setLayout(self.grid_layout)
+        self.frame.mouseReleaseEvent = self.mouseReleaseEvent
+        self.frame.resizeEvent = self.resizeEvent
+
+        self.addWidget(self.frame, 0, 0, 1, 1)
+
+    def setup_compact_mode(self, track: Track):
+        self.state_indicator = StateIndicator(self.state)
+        self.state_indicator.setToolTip(self.state.value)
+        self.label_cover = QtWidgets.QLabel()
+        self.label_cover.setPixmap(self.covers[(self.gtagger.theme, self.gtagger.mode)])
+        self.label_cover.setFixedWidth(COVER_SIZE[self.gtagger.mode])
+        self.label_title = QtWidgets.QLabel(track.get_title())
+        self.label_title.setStyleSheet("font-size: 15pt; font-weight:800;")
+        self.label_artists = QtWidgets.QLabel(track.get_artists())
+        self.label_artists.setStyleSheet("font-size: 12pt; font-weight:600;")
+        self.label_lyrics = QtWidgets.QLabel(
+            track.get_lyrics(lines=LYRICS_LINES[self.gtagger.mode])
+        )
+        self.label_lyrics.setSizePolicy(
+            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred
+        )
+        self.label_lyrics.setToolTip(track.get_lyrics())
+
+        self.layout_title = QtWidgets.QHBoxLayout()
+        self.layout_title.addWidget(self.state_indicator)
+        self.layout_title.addWidget(self.label_title)
+        self.layout_title.addStretch()
+
+        self.grid_layout = QtWidgets.QGridLayout()
+        self.grid_layout.addWidget(self.label_cover, 0, 0, 2, 1)
+        self.grid_layout.addLayout(self.layout_title, 0, 1, 1, 1)
+        self.grid_layout.addWidget(self.label_artists, 1, 1, 1, 1)
+        self.grid_layout.addWidget(self.label_lyrics, 0, 2, 2, 1)
 
         self.frame = QtWidgets.QFrame()
         self.frame.setFrameStyle(QtWidgets.QFrame.StyledPanel | QtWidgets.QFrame.Plain)
@@ -195,7 +243,7 @@ class TrackLayout(QtWidgets.QGridLayout):
         # Only take into account the left mouse button
         if event.button() != QtCore.Qt.LeftButton:
             return
-        
+
         self.selected = not self.selected
         if self.selected:
             color = Color_.black
@@ -203,17 +251,16 @@ class TrackLayout(QtWidgets.QGridLayout):
             stylesheet = (
                 f"color: {color.value}; background-color: {background_color.value};"
             )
-            self.label_cover.setPixmap(self.covers[Theme.LIGHT])
+            self.label_cover.setPixmap(self.covers[(Theme.LIGHT, self.gtagger.mode)])
         else:
             stylesheet = ""
-            theme: Theme = QtWidgets.QApplication.instance().theme
-            self.label_cover.setPixmap(self.covers[theme])
+            self.label_cover.setPixmap(self.covers[(self.gtagger.theme, self.gtagger.mode)])
         self.frame.setStyleSheet(stylesheet)
 
         self.signal_mouse_event.emit()
-        
+
     def resizeEvent(self, newSize: QtGui.QResizeEvent):
-        self.label_title.setFixedWidth(0.33 * newSize.size().width())
+        self.label_artists.setFixedWidth(0.33 * newSize.size().width())
 
 
 class StateIndicator(QtWidgets.QWidget):
@@ -262,6 +309,7 @@ class Settings(Enum):
     """Enumerates the settings of the application."""
 
     THEME = "theme"
+    MODE = "mode"
     RECUSRIVE_SEARCH = "recursive_search"
     OVERWRITE_LYRICS = "overwrite_lyrics"
 
@@ -385,10 +433,37 @@ class IconTheme(Enum):
 
     Includes:
     - Normal
-    - Outline (shape is not filled)
-    - Sharp (shape's angles are sharper)
+    - Outline: shape is not filled)
+    - Sharp: shape's angles are sharper)
     """
 
     NORMAL = "normal"
     OUTLINE = "outline"
     SHARP = "sharp"
+
+
+class Mode(Enum):
+    """Enumerates the different layout modes of the track layout.
+
+    Includes:
+    - Normal: normal layout with all informations
+    - Compact: compact layout with only important informations
+    """
+
+    NORMAL = "normal"
+    COMPACT = "compact"
+
+    def get_mode(value: str) -> Mode:
+        """Returns the `Mode` corresponding to `value`.
+
+        Args:
+            value (str): Value of the mode.
+
+        Returns:
+            Mode: Mode corresponding to `value`.
+        """
+        return Mode.__getitem__(value.upper())
+
+
+COVER_SIZE = {Mode.NORMAL: 128, Mode.COMPACT: 32}
+LYRICS_LINES = {Mode.NORMAL: 8, Mode.COMPACT: 2}
