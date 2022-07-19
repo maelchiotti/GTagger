@@ -1,0 +1,19 @@
+import abc
+from ..utils import safe_unicode as safe_unicode, sanitize_filename as sanitize_filename
+from _typeshed import Incomplete
+from abc import ABC, abstractmethod
+
+class BaseEntity(ABC, metaclass=abc.ABCMeta):
+    id: Incomplete
+    def __init__(self, id) -> None: ...
+    @abstractmethod
+    def save_lyrics(self, filename, extension: str = ..., overwrite: bool = ..., ensure_ascii: bool = ..., sanitize: bool = ..., verbose: bool = ...): ...
+    @abstractmethod
+    def to_dict(self): ...
+    @abstractmethod
+    def to_json(self, data, filename: Incomplete | None = ..., sanitize: bool = ..., ensure_ascii: bool = ...): ...
+    @abstractmethod
+    def to_text(self, data, filename: Incomplete | None = ..., sanitize: bool = ...): ...
+
+class Stats:
+    def __init__(self, json_dict) -> None: ...

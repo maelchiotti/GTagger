@@ -6,7 +6,6 @@ import re
 import logging as log
 import time
 import eyed3
-from eyed3.core import Tag, AudioInfo
 from eyed3.id3.frames import ImageFrame
 from PySide6 import QtCore, QtGui
 
@@ -22,9 +21,6 @@ class Track(QtCore.QObject):
     Attributes:
         filepath (Path): Filepath of the track.
         filename (str): Filename of the track.
-        eyed3_infos (AudioInfo): Informations read by `eyed3`.
-        eyed3_tags (Tag): Tags read and managed by `eyed3`.
-        genius_tags: Tags found by `genius`.
         duration (float): Duration of the track in seconds.
         covers (dict[tuple[Theme, Mode], QtGui.QPixmap]): Covers of the track (in dark and light theme and in normal and compact mode).
         title (str): Title of the track.
@@ -32,6 +28,10 @@ class Track(QtCore.QObject):
         main_artist (str): Main artist of the track.
         album (str): Album of the track.
         lyrics_new (str): New lyrics of the track.
+        
+        eyed3_infos (eyed3.core.AudioInfo | None): Informations read by `eyed3`.
+        eyed3_tags (eyed3.core.Tag | None): Tags read and managed by `eyed3`.
+        genius_tags (genius.api.Song | None): Tags found by `genius`.
     """
 
     SPLITTERS = " featuring | feat. | feat | ft. | ft | & | / "
@@ -43,9 +43,6 @@ class Track(QtCore.QObject):
 
         self.filepath: Path = filepath
         self.filename: str = os.path.basename(filepath)
-        self.eyed3_infos: AudioInfo = None
-        self.eyed3_tags: Tag = None
-        self.genius_tags = None
         self.duration: float = 0.0
         self.covers: dict[tuple[Theme, Mode], QtGui.QPixmap] = {}
         self.title: str = ""
@@ -71,10 +68,18 @@ class Track(QtCore.QObject):
                 image: ImageFrame = self.eyed3_tags.images[0]
                 cover = QtGui.QPixmap()
                 cover.loadFromData(image.image_data)
-                cover_normal = cover.scaled(COVER_SIZE[Mode.NORMAL], COVER_SIZE[Mode.NORMAL], QtCore.Qt.KeepAspectRatio)
+                cover_normal = cover.scaled(
+                    COVER_SIZE[Mode.NORMAL],
+                    COVER_SIZE[Mode.NORMAL],
+                    QtCore.Qt.KeepAspectRatio,
+                )
                 self.covers[(Theme.DARK, Mode.NORMAL)] = cover_normal
                 self.covers[(Theme.LIGHT, Mode.NORMAL)] = cover_normal
-                cover_compact = cover.scaled(COVER_SIZE[Mode.COMPACT], COVER_SIZE[Mode.COMPACT], QtCore.Qt.KeepAspectRatio)
+                cover_compact = cover.scaled(
+                    COVER_SIZE[Mode.COMPACT],
+                    COVER_SIZE[Mode.COMPACT],
+                    QtCore.Qt.KeepAspectRatio,
+                )
                 self.covers[(Theme.DARK, Mode.COMPACT)] = cover_compact
                 self.covers[(Theme.LIGHT, Mode.COMPACT)] = cover_compact
             else:
@@ -83,28 +88,40 @@ class Track(QtCore.QObject):
                     IconTheme.OUTLINE, "image", Color_.grey, Theme.DARK
                 )
                 cover_dark = icon_dark.pixmap(
-                    icon_dark.actualSize(QtCore.QSize(COVER_SIZE[Mode.NORMAL], COVER_SIZE[Mode.NORMAL]))
+                    icon_dark.actualSize(
+                        QtCore.QSize(COVER_SIZE[Mode.NORMAL], COVER_SIZE[Mode.NORMAL])
+                    )
                 )
                 cover_dark_normal = cover_dark.scaled(
-                    COVER_SIZE[Mode.NORMAL], COVER_SIZE[Mode.NORMAL], QtCore.Qt.KeepAspectRatio
+                    COVER_SIZE[Mode.NORMAL],
+                    COVER_SIZE[Mode.NORMAL],
+                    QtCore.Qt.KeepAspectRatio,
                 )
                 cover_dark_compact = cover_dark.scaled(
-                    COVER_SIZE[Mode.COMPACT], COVER_SIZE[Mode.COMPACT], QtCore.Qt.KeepAspectRatio
+                    COVER_SIZE[Mode.COMPACT],
+                    COVER_SIZE[Mode.COMPACT],
+                    QtCore.Qt.KeepAspectRatio,
                 )
                 self.covers[(Theme.DARK, Mode.NORMAL)] = cover_dark_normal
                 self.covers[(Theme.DARK, Mode.COMPACT)] = cover_dark_compact
-                
+
                 icon_light: CustomIcon = CustomIcon(
                     IconTheme.OUTLINE, "image", Color_.grey, Theme.LIGHT
                 )
                 cover_light = icon_light.pixmap(
-                    icon_light.actualSize(QtCore.QSize(COVER_SIZE[Mode.NORMAL], COVER_SIZE[Mode.NORMAL]))
+                    icon_light.actualSize(
+                        QtCore.QSize(COVER_SIZE[Mode.NORMAL], COVER_SIZE[Mode.NORMAL])
+                    )
                 )
                 cover_light_normal = cover_light.scaled(
-                    COVER_SIZE[Mode.NORMAL], COVER_SIZE[Mode.NORMAL], QtCore.Qt.KeepAspectRatio
+                    COVER_SIZE[Mode.NORMAL],
+                    COVER_SIZE[Mode.NORMAL],
+                    QtCore.Qt.KeepAspectRatio,
                 )
                 cover_light_compact = cover_light.scaled(
-                    COVER_SIZE[Mode.COMPACT], COVER_SIZE[Mode.COMPACT], QtCore.Qt.KeepAspectRatio
+                    COVER_SIZE[Mode.COMPACT],
+                    COVER_SIZE[Mode.COMPACT],
+                    QtCore.Qt.KeepAspectRatio,
                 )
                 self.covers[(Theme.LIGHT, Mode.NORMAL)] = cover_light_normal
                 self.covers[(Theme.LIGHT, Mode.COMPACT)] = cover_light_compact

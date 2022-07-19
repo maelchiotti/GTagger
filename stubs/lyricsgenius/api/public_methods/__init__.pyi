@@ -1,0 +1,14 @@
+from .album import AlbumMethods as AlbumMethods
+from .annotation import AnnotationMethods as AnnotationMethods
+from .article import ArticleMethods as ArticleMethods
+from .artist import ArtistMethods as ArtistMethods
+from .cover_art import CoverArtMethods as CoverArtMethods
+from .discussion import DiscussionMethods as DiscussionMethods
+from .leaderboard import LeaderboardMethods as LeaderboardMethods
+from .misc import MiscMethods as MiscMethods
+from .question import QuestionMethods as QuestionMethods
+from .referent import ReferentMethods as ReferentMethods
+from .search import SearchMethods as SearchMethods
+from .song import SongMethods as SongMethods
+from .user import UserMethods as UserMethods
+from .video import VideoMethods as VideoMethods
