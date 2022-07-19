@@ -6,7 +6,7 @@ import qdarktheme
 from PySide6 import QtCore, QtWidgets
 
 from src.window_main import WindowMain
-from src.tools import Mode, Settings, Theme
+from src.tools import Color_, Mode, Settings, Theme
 
 
 class GTagger(QtWidgets.QApplication):
@@ -34,11 +34,44 @@ class GTagger(QtWidgets.QApplication):
                 Settings.THEME.value, default=Theme.DARK.value
             )
         )
-        self.setStyleSheet(qdarktheme.load_stylesheet(self.theme.value, "rounded"))
-        
+        self.set_stylesheet()
+
         # Load the mode setting and default it to normal if it is not set
         self.mode: Mode = Mode.get_mode(
             self.settings_manager.get_setting(Settings.MODE.value, Mode.NORMAL.value)
+        )
+
+    def set_stylesheet(self):
+        """Sets the stylesheet of the application.
+
+        Uses the stylesheet of `qdarktheme` and adds some custom styling.
+        """
+        self.setStyleSheet(
+            qdarktheme.load_stylesheet(self.theme.value, "rounded")
+            + """
+            
+            QCheckBox:unchecked:hover {
+                border-bottom: 2px solid """
+            + Color_.yellow_genius.value
+            + """;
+            }
+            QCheckBox:checked:hover {
+                border-bottom: 2px solid """
+            + Color_.yellow_genius.value
+            + """;
+            }
+            
+            QProgressBar {
+                color: """
+            + Color_.grey.value
+            + """;
+            }
+            QProgressBar::chunk {
+                background-color: """
+            + Color_.yellow_genius.value
+            + """;
+            }
+            """
         )
 
 

@@ -167,21 +167,6 @@ class WindowMain(QtWidgets.QWidget):
         self.progression_bar = QtWidgets.QProgressBar()
         self.progression_bar.setMaximumWidth(300)
         self.progression_bar.setFixedHeight(25)
-        self.progression_bar.setStyleSheet(
-            """
-            QProgressBar {
-                color: """
-            + Color_.grey.value
-            + """;
-            }
-            
-            QProgressBar::chunk {
-                background-color: """
-            + Color_.yellow_genius.value
-            + """;
-            }
-            """
-        )
 
         self.button_mode = QtWidgets.QPushButton()
         self.button_theme = QtWidgets.QPushButton()
@@ -404,12 +389,9 @@ class WindowMain(QtWidgets.QWidget):
         elif self.gtagger.theme == Theme.DARK:
             self.gtagger.theme = Theme.LIGHT
             self.button_theme.setToolTip("Switch to dark theme")
-            self.gtagger.setStyleSheet(qdarktheme.load_stylesheet("light", "rounded"))
 
         # Update the GUI
-        self.gtagger.setStyleSheet(
-            qdarktheme.load_stylesheet(self.gtagger.theme.value, "rounded")
-        )
+        self.gtagger.set_stylesheet()
         self.setup_theme()
 
         # Update the settings

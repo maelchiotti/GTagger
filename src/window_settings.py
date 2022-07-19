@@ -40,18 +40,6 @@ class WindowSettings(QtWidgets.QWidget):
             Settings.RECUSRIVE_SEARCH.value, default=True, type=bool
         )
         self.checkbox_recursive.setChecked(recursive_search)
-        self.checkbox_recursive.setStyleSheet(
-            """
-            QCheckBox:unchecked:hover {
-                border-bottom: 2px solid """
-            + Color_.yellow_genius.value
-            + """}
-            QCheckBox:checked:hover {
-                border-bottom: 2px solid """
-            + Color_.yellow_genius.value
-            + """}
-            """
-        )
 
         self.checkbox_overwrite = QtWidgets.QCheckBox(
             "Overwrite already existing lyrics"
@@ -60,18 +48,6 @@ class WindowSettings(QtWidgets.QWidget):
             Settings.OVERWRITE_LYRICS.value, default=True, type=bool
         )
         self.checkbox_overwrite.setChecked(overwrite_lyrics)
-        self.checkbox_overwrite.setStyleSheet(
-            """
-            QCheckBox:unchecked:hover {
-                border-bottom: 2px solid """
-            + Color_.yellow_genius.value
-            + """}
-            QCheckBox:checked:hover {
-                border-bottom: 2px solid """
-            + Color_.yellow_genius.value
-            + """}
-            """
-        )
 
         self.grid_files = QtWidgets.QGridLayout()
         self.grid_files.addWidget(self.checkbox_recursive, 0, 0, 1, 1)
