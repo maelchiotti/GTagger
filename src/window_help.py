@@ -137,10 +137,9 @@ class WindowHelp(QtWidgets.QWidget):
         self.frame_state_indicator.setLayout(self.layout_state_indicator)
 
         self.centralwidget = QtWidgets.QWidget(self.window)
-        self.layout = QtWidgets.QGridLayout(self.centralwidget)
+        self.layout_ = QtWidgets.QGridLayout(self.centralwidget)
+        self.layout_.addWidget(self.frame_usage, 0, 0, 1, 1)
+        self.layout_.addWidget(self.frame_state_indicator, 1, 0, 1, 1)
+
         self.window.setCentralWidget(self.centralwidget)
-
-        self.layout.addWidget(self.frame_usage, 0, 0, 1, 1)
-        self.layout.addWidget(self.frame_state_indicator, 1, 0, 1, 1)
-
         self.window.setWindowTitle("Help")

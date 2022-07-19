@@ -5,7 +5,7 @@ Handles the creation of the settings window and the interactions with the user.
 
 from PySide6 import QtCore, QtWidgets
 
-from src.tools import Color_, Settings
+from src.tools import Settings
 
 from typing import TYPE_CHECKING
 
@@ -57,11 +57,10 @@ class WindowSettings(QtWidgets.QWidget):
         self.box_files.setLayout(self.grid_files)
 
         self.centralwidget = QtWidgets.QWidget(self.window)
-        self.layout = QtWidgets.QGridLayout(self.centralwidget)
+        self.layout_ = QtWidgets.QGridLayout(self.centralwidget)
+        self.layout_.addWidget(self.box_files, 0, 0, 1, 1)
+
         self.window.setCentralWidget(self.centralwidget)
-
-        self.layout.addWidget(self.box_files, 0, 0, 1, 1)
-
         self.window.setWindowTitle("Settings")
 
         self.checkbox_recursive.stateChanged.connect(self.toggle_recursive_search)

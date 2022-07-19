@@ -26,7 +26,7 @@ class Track(QtCore.QObject):
         eyed3_tags (Tag): Tags read and managed by `eyed3`.
         genius_tags: Tags found by `genius`.
         duration (float): Duration of the track in seconds.
-        covers (dict[(Theme, Mode), QtGui.QPixmap]): Covers of the track (in dark and light theme and in normal and compact mode).
+        covers (dict[tuple[Theme, Mode], QtGui.QPixmap]): Covers of the track (in dark and light theme and in normal and compact mode).
         title (str): Title of the track.
         artists (list[str]): Artists of the track.
         main_artist (str): Main artist of the track.
@@ -38,7 +38,7 @@ class Track(QtCore.QObject):
 
     signal_lyrics_changed = QtCore.Signal()
 
-    def __init__(self, filepath: str) -> None:
+    def __init__(self, filepath: Path) -> None:
         super().__init__()
 
         self.filepath: Path = filepath
@@ -46,13 +46,13 @@ class Track(QtCore.QObject):
         self.eyed3_infos: AudioInfo = None
         self.eyed3_tags: Tag = None
         self.genius_tags = None
-        self.duration: float = None
-        self.covers: dict[(Theme, Mode), QtGui.QPixmap] = {Theme.DARK: None, Theme.LIGHT: None}
-        self.title: str = None
+        self.duration: float = 0.0
+        self.covers: dict[tuple[Theme, Mode], QtGui.QPixmap] = {}
+        self.title: str = ""
         self.artists: list[str] = []
-        self.main_artist: str = None
-        self.album: str = None
-        self.lyrics_new: str = None
+        self.main_artist: str = ""
+        self.album: str = ""
+        self.lyrics_new: str = ""
 
     def read_tags(self) -> bool:
         """Uses eyed3 to read the tags from the file and sets them.
@@ -141,11 +141,8 @@ class Track(QtCore.QObject):
         Returns:
             str: Formatted duration of the track
         """
-        if self.duration is None:
-            return "??:??"
-        else:
-            duration = time.gmtime(round(self.duration))
-            return time.strftime("%M:%S", duration)
+        duration = time.gmtime(round(self.duration))
+        return time.strftime("%M:%S", duration)
 
     def get_title(self) -> str:
         """Returns the title of the track, or "No title" if the artist is not set.
@@ -153,7 +150,7 @@ class Track(QtCore.QObject):
         Returns:
             str: Title of the track.
         """
-        if self.title is None or self.title == "":
+        if self.title == "":
             return "No title"
         else:
             return self.title
@@ -175,7 +172,7 @@ class Track(QtCore.QObject):
         Returns:
             str: Main artist of the track.
         """
-        if self.main_artist is None or self.main_artist == "":
+        if self.main_artist == "":
             return "No artist"
         else:
             return self.main_artist
@@ -186,7 +183,7 @@ class Track(QtCore.QObject):
         Returns:
             str: Album of the track.
         """
-        if self.album is None or self.album == "":
+        if self.album == "":
             return "No album"
         else:
             return self.album
@@ -215,8 +212,8 @@ class Track(QtCore.QObject):
             return "No lyrics"
 
         if lines is not None:
-            lyrics = lyrics.split("\n")
-            return "\n".join(lyrics[:lines])
+            lyrics_split = lyrics.split("\n")
+            return "\n".join(lyrics_split[:lines])
         elif length is not None:
             return lyrics[:length]
         else:
@@ -234,7 +231,7 @@ class Track(QtCore.QObject):
         else:
             return "No lyrics"
 
-    def set_lyrics(self, lyrics: str | None):
+    def set_lyrics(self, lyrics: str):
         """Sets the lyrics of the track to `lyrics`.
 
         Also emits a signal indicating that the lyrics have changed.

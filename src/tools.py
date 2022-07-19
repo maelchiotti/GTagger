@@ -96,9 +96,9 @@ class CustomIcon(QtGui.QIcon):
         Returns:
             str: Path to the ressource.
         """
-        try:
+        if hasattr(sys, "_MEIPASS"):
             base_path = sys._MEIPASS
-        except Exception:
+        else:
             base_path = os.path.abspath(".")
         return os.path.join(base_path, ressource)
 
@@ -111,7 +111,7 @@ class TrackLayout(QtWidgets.QGridLayout):
 
     Attributes:
         selected (bool): `True` if the track is currently selected.
-        covers (dict[Theme, QtGui.QPixmap]): Covers of the track (in dark and light theme).
+        covers (dict[tuple[Theme, Mode], QtGui.QPixmap]): Covers of the track (in dark and light theme).
 
     Displays:
     - Filename (and filepath as a tooltip)
@@ -142,7 +142,7 @@ class TrackLayout(QtWidgets.QGridLayout):
         self.gtagger: GTagger = gtagger
 
         self.selected: bool = False
-        self.covers: dict[Theme, QtGui.QPixmap] = track.covers
+        self.covers: dict[tuple[Theme, Mode], QtGui.QPixmap] = track.covers
 
         if self.gtagger.mode == Mode.NORMAL:
             self.setup_normal_mode(track)
@@ -264,7 +264,9 @@ class TrackLayout(QtWidgets.QGridLayout):
             self.label_cover.setPixmap(self.covers[(Theme.LIGHT, self.gtagger.mode)])
         else:
             stylesheet = ""
-            self.label_cover.setPixmap(self.covers[(self.gtagger.theme, self.gtagger.mode)])
+            self.label_cover.setPixmap(
+                self.covers[(self.gtagger.theme, self.gtagger.mode)]
+            )
         self.frame.setStyleSheet(stylesheet)
 
         self.signal_mouse_event.emit()
@@ -275,11 +277,12 @@ class TrackLayout(QtWidgets.QGridLayout):
         Args:
             newSize (QtGui.QResizeEvent): Resize event.
         """
-        self.label_artists.setFixedWidth(0.33 * newSize.size().width())
+        self.label_artists.setFixedWidth(round(0.33 * newSize.size().width()))
 
 
 class StateIndicator(QtWidgets.QWidget):
     """Filled and colored circle indicating the state of a track."""
+
     def __init__(
         self, state: State, x: int = 2, y: int = 2, w: int = 15, h: int = 15
     ) -> None:
@@ -353,6 +356,7 @@ class Color_(Enum):
     yellow_genius = "#FFFF64"
     black = "#000000"
 
+    @staticmethod
     def get_themed_color(theme: Theme, color: Color_) -> ColorDark | ColorLight:
         """Returns the dark of light color corresponding to `color` and depending on `theme`.
 
@@ -370,6 +374,8 @@ class Color_(Enum):
             return ColorLight.get_color(color.name)
         elif theme == Theme.LIGHT:
             return ColorDark.get_color(color.name)
+        else:
+            return ColorDark.black
 
 
 class ColorDark(Enum):
@@ -384,6 +390,7 @@ class ColorDark(Enum):
 
     black = "#000000"
 
+    @staticmethod
     def get_color(name: str) -> ColorDark:
         """Returns the color corresponding to `name`.
 
@@ -408,6 +415,7 @@ class ColorLight(Enum):
 
     black = "#000000"
 
+    @staticmethod
     def get_color(name: str) -> ColorLight:
         """Returns the color corresponding to `name`.
 
@@ -442,6 +450,7 @@ class Theme(Enum):
     DARK = "dark"
     LIGHT = "light"
 
+    @staticmethod
     def get_theme(value: str) -> Theme:
         """Returns the `Theme` corresponding to `value`.
 
@@ -479,6 +488,7 @@ class Mode(Enum):
     NORMAL = "normal"
     COMPACT = "compact"
 
+    @staticmethod
     def get_mode(value: str) -> Mode:
         """Returns the `Mode` corresponding to `value`.
 

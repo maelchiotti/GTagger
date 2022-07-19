@@ -23,6 +23,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from main import GTagger
 
+
 class TrackSearch(QtCore.QObject):
     """Allows to search a track on Genius.
 
@@ -32,14 +33,15 @@ class TrackSearch(QtCore.QObject):
     """
 
     def __init__(self, token: str) -> None:
+        self.token: str = ""
+        self.genius: genius.Genius = None
+
         search = re.search("[^a-zA-Z0-9_-]", token)
         if search is not None:
             log.error("Incorrect access token: %s", search)
-            self.token: str = None
-            self.genius: genius.Genius = None
         else:
-            self.token: str = token
-            self.genius: genius.Genius = genius.Genius(access_token=self.token)
+            self.token = token
+            self.genius = genius.Genius(access_token=self.token)
 
     def search_track(self, track: Track) -> bool:
         """Searches for a track on Genius using the `track.title` and the `track.artist`.
@@ -161,7 +163,7 @@ class ThreadLyricsSearch(QtCore.QThread):
         token: str,
         track_layouts: dict[Track, TrackLayout],
         overwrite_lyrics: bool,
-        gtagger: GTagger
+        gtagger: GTagger,
     ) -> None:
         super().__init__()
 

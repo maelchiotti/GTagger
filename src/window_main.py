@@ -5,8 +5,7 @@ Handles the creation of the main window and the interactions with the user.
 
 from __future__ import annotations
 
-import pathlib
-import qdarktheme
+from pathlib import Path
 from PySide6 import QtCore, QtWidgets, QtGui
 from src.window_help import WindowHelp
 from src.window_informations import WindowInformations
@@ -74,7 +73,7 @@ class WindowMain(QtWidgets.QWidget):
         self.window_help: QtWidgets.QMainWindow = QtWidgets.QMainWindow(self)
         self.help: WindowHelp = WindowHelp(self, self.window_help)
 
-        self.thread_search_lyrics: QtCore.QThread = None
+        self.thread_search_lyrics: QtCore.QThread = QtCore.QThread()
 
         self.setup_ui()
 
@@ -176,12 +175,13 @@ class WindowMain(QtWidgets.QWidget):
         self.status_bar.addPermanentWidget(self.button_mode)
         self.status_bar.addPermanentWidget(self.button_theme)
 
-        self.layout = QtWidgets.QGridLayout(self)
-        self.layout.setMenuBar(self.tool_bar)
-        self.layout.addLayout(self.layout_main, 0, 0, 1, 1)
-        self.layout.addWidget(self.status_bar, 1, 0, 1, 1)
-        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.layout_ = QtWidgets.QGridLayout(self)
+        self.layout_.setMenuBar(self.tool_bar)
+        self.layout_.addLayout(self.layout_main, 0, 0, 1, 1)
+        self.layout_.addWidget(self.status_bar, 1, 0, 1, 1)
+        self.layout_.setContentsMargins(0, 0, 0, 0)
 
+        self.setLayout(self.layout_)
         self.setWindowTitle(f"GTagger ({VERSION})")
 
         # Setup the windows icons
@@ -283,7 +283,7 @@ class WindowMain(QtWidgets.QWidget):
         link_color = Color_.get_themed_color(theme, Color_.yellow).value
         self.informations.set_texts(link_color)
 
-    def select_directories(self) -> str:
+    def select_directories(self) -> str | None:
         """Asks user to select a directory.
 
         Returns:
@@ -295,7 +295,7 @@ class WindowMain(QtWidgets.QWidget):
             return None
         return directory
 
-    def select_files(self) -> list[str]:
+    def select_files(self) -> list[Path]:
         """Asks user to select one or multiple MP3 files.
 
         Returns:
@@ -303,11 +303,11 @@ class WindowMain(QtWidgets.QWidget):
         """
         file_dialog = QtWidgets.QFileDialog()
         files = file_dialog.getOpenFileNames(
-            caption="Select files", filter="MP3 files (*.mp3)"
+            self, caption="Select files", filter="MP3 files (*.mp3)"
         )
         if len(files[0]) == 0:
-            return None
-        return files[0]
+            return []
+        return [Path(file) for file in files[0]]
 
     def is_token_valid(self) -> bool:
         """Checks to see if the token is in a valid format.
@@ -324,7 +324,7 @@ class WindowMain(QtWidgets.QWidget):
         """Increments the progression bar by 1."""
         self.progression_bar.setValue(self.progression_bar.value() + 1)
 
-    def set_maximum_progression_bar(self, list: list) -> None:
+    def set_maximum_progression_bar(self, list: list | dict) -> None:
         """Set the maximum of the progression bar.
 
         Args:
@@ -407,17 +407,18 @@ class WindowMain(QtWidgets.QWidget):
             select_directory (bool): `True` if the user selected a directory.
         """
         # Construct the list of files
+        files: list[Path] | None = []
         if select_directory:
             directory = self.select_directories()
             if directory is None:
                 return
             if self.settings.checkbox_recursive.isChecked():
-                files = list(pathlib.Path(directory).rglob("*.mp3"))
+                files = list(Path(directory).rglob("*.mp3"))
             else:
-                files = list(pathlib.Path(directory).glob("*.mp3"))
+                files = list(Path(directory).glob("*.mp3"))
         else:
             files = self.select_files()
-            if files is None:
+            if len(files) == 0:
                 return
 
         self.progression_bar.reset()
@@ -450,7 +451,10 @@ class WindowMain(QtWidgets.QWidget):
         """Searches for the lyrics of the files."""
         token = self.input_token.text()
         self.thread_search_lyrics = ThreadLyricsSearch(
-            token, self.track_layouts, self.settings.checkbox_overwrite.isChecked()
+            token,
+            self.track_layouts,
+            self.settings.checkbox_overwrite.isChecked(),
+            self.gtagger,
         )
         self.thread_search_lyrics.signal_lyrics_searched.connect(self.lyrics_searched)
         self.progression_bar.reset()
@@ -499,7 +503,7 @@ class WindowMain(QtWidgets.QWidget):
                 track_layout.state_indicator.set_state(State.LYRICS_NOT_SAVED)
                 track_layout.state_indicator.setToolTip(State.LYRICS_NOT_SAVED.value)
             track.read_tags()
-            track.set_lyrics(None)
+            track.set_lyrics("")
             track_layout.label_lyrics.setText(
                 track.get_lyrics(lines=LYRICS_LINES[self.gtagger.mode])
             )
@@ -537,7 +541,7 @@ class WindowMain(QtWidgets.QWidget):
         """Removes the added lyrics from the files."""
         for track, track_layout in self.track_layouts.items():
             if track_layout.selected:
-                track.set_lyrics(None)
+                track.set_lyrics("")
                 track_layout.label_lyrics.setText(
                     track.get_lyrics(lines=LYRICS_LINES[self.gtagger.mode])
                 )

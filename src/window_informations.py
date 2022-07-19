@@ -72,15 +72,14 @@ class WindowInformations(QtWidgets.QWidget):
         self.set_texts(link_color)
 
         self.centralwidget = QtWidgets.QWidget(self.window)
-        self.layout = QtWidgets.QGridLayout(self.centralwidget)
+        self.layout_ = QtWidgets.QGridLayout(self.centralwidget)
+        self.layout_.addWidget(self.label_gtagger, 0, 0, 1, 1, QtCore.Qt.AlignCenter)
+        self.layout_.addWidget(self.label_developper, 1, 0, 1, 1, QtCore.Qt.AlignCenter)
+        self.layout_.addWidget(self.label_version, 2, 0, 1, 1, QtCore.Qt.AlignCenter)
+        self.layout_.addWidget(self.label_informations, 3, 0, 1, 1, QtCore.Qt.AlignCenter)
+        self.layout_.addWidget(self.label_credits, 4, 0, 1, 1)
+
         self.window.setCentralWidget(self.centralwidget)
-
-        self.layout.addWidget(self.label_gtagger, 0, 0, 1, 1, QtCore.Qt.AlignCenter)
-        self.layout.addWidget(self.label_developper, 1, 0, 1, 1, QtCore.Qt.AlignCenter)
-        self.layout.addWidget(self.label_version, 2, 0, 1, 1, QtCore.Qt.AlignCenter)
-        self.layout.addWidget(self.label_informations, 3, 0, 1, 1, QtCore.Qt.AlignCenter)
-        self.layout.addWidget(self.label_credits, 4, 0, 1, 1)
-
         self.window.setWindowTitle("Informations")
 
     def set_texts(self, link_color: str) -> None:

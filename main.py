@@ -90,7 +90,7 @@ class SettingsManager(QtCore.QObject):
 
     def get_setting(
         self, setting: str, default: Any = None, type: object = None
-    ) -> object:
+    ) -> Any:
         """Returns the value of the setting `setting`.
 
         The setting is defaulted to `default` if it does not exist,
@@ -105,7 +105,7 @@ class SettingsManager(QtCore.QObject):
             type (object, optional): Type of the setting. Defaults to `None`.
 
         Returns:
-            object: Value of the setting.
+            Any: Value of the setting.
         """
         if type is None:
             return self.settings.value(setting, defaultValue=default)
