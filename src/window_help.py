@@ -43,12 +43,12 @@ class WindowHelp(QtWidgets.QWidget):
             - Add individual files or an entire folder (a recursive search can be enabled in the settings).<br/>
             - Add your Genius client access token.<br/>
             - Use the <i>Search</i> button to search for the lyrics.<br/>
-            - Use the <i>Cancel</i> button to discard the added lyrics if they are wrong,<br/>
-            or the <i>Remove</i> button to discard the file entirely.
-            - Use the <i>Save</i> button to save the lyrics to the files.<br/>
+            - Use the <i>Cancel</i> button to discard the added lyrics if they are wrong, or the <i>Remove</i> button to discard the file entirely.<br/>
+            - Use the <i>Save</i> button to save the lyrics to the files.
             """
         )
         self.label_usage.setTextFormat(QtCore.Qt.RichText)
+        self.label_usage.setWordWrap(True)
 
         self.layout_usage = QtWidgets.QGridLayout()
         self.layout_usage.addWidget(self.label_usage, 0, 0, 1, 1)
@@ -79,6 +79,7 @@ class WindowHelp(QtWidgets.QWidget):
             """
         )
         self.label_state_indicator_title.setTextFormat(QtCore.Qt.RichText)
+        self.label_state_indicator_title.setWordWrap(True)
         self.label_state_indicator_read = QtWidgets.QLabel(
             """
             The tags of the track were read successfully.
