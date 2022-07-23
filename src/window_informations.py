@@ -76,7 +76,9 @@ class WindowInformations(QtWidgets.QWidget):
         self.layout_.addWidget(self.label_gtagger, 0, 0, 1, 1, QtCore.Qt.AlignCenter)
         self.layout_.addWidget(self.label_developper, 1, 0, 1, 1, QtCore.Qt.AlignCenter)
         self.layout_.addWidget(self.label_version, 2, 0, 1, 1, QtCore.Qt.AlignCenter)
-        self.layout_.addWidget(self.label_informations, 3, 0, 1, 1, QtCore.Qt.AlignCenter)
+        self.layout_.addWidget(
+            self.label_informations, 3, 0, 1, 1, QtCore.Qt.AlignCenter
+        )
         self.layout_.addWidget(self.label_credits, 4, 0, 1, 1)
 
         self.window.setCentralWidget(self.centralwidget)

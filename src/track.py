@@ -7,6 +7,7 @@ import logging as log
 import time
 import eyed3
 from eyed3.id3.frames import ImageFrame
+import genius
 from PySide6 import QtCore, QtGui
 
 from src.tools import COVER_SIZE, CustomIcon, Color_, IconTheme, Mode, Theme
@@ -28,7 +29,7 @@ class Track(QtCore.QObject):
         main_artist (str): Main artist of the track.
         album (str): Album of the track.
         lyrics_new (str): New lyrics of the track.
-        
+
         eyed3_infos (eyed3.core.AudioInfo | None): Informations read by `eyed3`.
         eyed3_tags (eyed3.core.Tag | None): Tags read and managed by `eyed3`.
         genius_tags (genius.api.Song | None): Tags found by `genius`.

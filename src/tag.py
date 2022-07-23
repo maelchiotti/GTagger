@@ -34,14 +34,14 @@ class TrackSearch(QtCore.QObject):
 
     def __init__(self, token: str) -> None:
         self.token: str = ""
-        self.genius: genius.Genius = None
+        self.genius: genius.Genius = genius.Genius("")
 
         search = re.search("[^a-zA-Z0-9_-]", token)
         if search is not None:
             log.error("Incorrect access token: %s", search)
         else:
             self.token = token
-            self.genius = genius.Genius(access_token=self.token)
+            self.genius = genius.Genius(self.token)
 
     def search_track(self, track: Track) -> bool:
         """Searches for a track on Genius using the `track.title` and the `track.artist`.
@@ -101,7 +101,7 @@ class LyricsSearch(QtCore.QObject):
         if track.genius_tags is None:
             return False
 
-        searched_track: types.Song = None
+        searched_track: types.Song | None = None
         while True:
             try:
                 searched_track = self.lyrics_genius.search_song(
@@ -109,7 +109,6 @@ class LyricsSearch(QtCore.QObject):
                 )
                 break
             except Exception as exception:
-                self.signal_lyrics_searched.emit()
                 log.error("Unexpected exception: %s", exception)
                 return False
 
