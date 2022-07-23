@@ -66,10 +66,7 @@ class WindowInformations(QtWidgets.QWidget):
         self.label_credits.setTextInteractionFlags(QtCore.Qt.TextBrowserInteraction)
         self.label_credits.setOpenExternalLinks(True)
 
-        link_color = Color_.get_themed_color(
-            self.main.gtagger.theme, Color_.yellow
-        ).value
-        self.set_texts(link_color)
+        self.set_texts(Color_.yellow)
 
         self.centralwidget = QtWidgets.QWidget(self.window)
         self.layout_ = QtWidgets.QGridLayout(self.centralwidget)
@@ -84,12 +81,14 @@ class WindowInformations(QtWidgets.QWidget):
         self.window.setCentralWidget(self.centralwidget)
         self.window.setWindowTitle("Informations")
 
-    def set_texts(self, link_color: str) -> None:
+    def set_texts(self, link_color: Color_) -> None:
         """Sets the texts of the labels.
 
         Args:
-            link_color (str): Color of the links.
+            link_color (Color_): Color of the links.
         """
+        color = link_color.value
+        
         self.label_developper.setText(
             f"""
             <a href="{QtCore.QCoreApplication.organizationDomain()}" style="color: {link_color}">{QtCore.QCoreApplication.organizationName()}</a>

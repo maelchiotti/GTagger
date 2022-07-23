@@ -17,14 +17,13 @@ from src.tools import (
     TOKEN_URL,
     VERSION,
     LYRICS_LINES,
-    ColorDark,
+    ColorLight,
     CustomIcon,
     Mode,
     Settings,
     TrackLayout,
     Color_,
     State,
-    Theme,
     IconTheme,
 )
 
@@ -135,9 +134,6 @@ class WindowMain(QtWidgets.QWidget):
         self.input_token = QtWidgets.QLineEdit()
         self.input_token.setPlaceholderText("Enter your Genius client access token")
         self.input_token.setToolTip("Enter token")
-        self.input_token.setStyleSheet(
-            f"border: 2px solid {Color_.get_themed_color(self.gtagger.theme, Color_.red).value}"
-        )
         regex_epx = QtCore.QRegularExpression("[a-zA-Z0-9_-]{64}")
         self.validator = QtGui.QRegularExpressionValidator(regex_epx, self)
         self.input_token.setValidator(self.validator)
@@ -168,12 +164,10 @@ class WindowMain(QtWidgets.QWidget):
         self.progression_bar.setFixedHeight(25)
 
         self.button_mode = QtWidgets.QPushButton()
-        self.button_theme = QtWidgets.QPushButton()
 
         self.status_bar = QtWidgets.QStatusBar()
         self.status_bar.addPermanentWidget(self.progression_bar)
         self.status_bar.addPermanentWidget(self.button_mode)
-        self.status_bar.addPermanentWidget(self.button_theme)
 
         self.layout_ = QtWidgets.QGridLayout(self)
         self.layout_.setMenuBar(self.tool_bar)
@@ -185,20 +179,16 @@ class WindowMain(QtWidgets.QWidget):
         self.setWindowTitle(f"GTagger ({VERSION})")
 
         # Setup the windows icons
-        icon_window_main = CustomIcon(
-            IconTheme.SHARP, "pricetag", Color_.black, Theme.LIGHT
-        )
+        icon_window_main = CustomIcon(IconTheme.SHARP, "pricetag", Color_.black)
         self.setWindowIcon(icon_window_main)
-        icon_window_settings = CustomIcon(
-            IconTheme.SHARP, "settings", Color_.black, Theme.LIGHT
-        )
+        icon_window_settings = CustomIcon(IconTheme.SHARP, "settings", Color_.black)
         self.window_settings.setWindowIcon(icon_window_settings)
         icon_window_informations = CustomIcon(
-            IconTheme.SHARP, "information-circle", Color_.black, Theme.LIGHT
+            IconTheme.SHARP, "information-circle", Color_.black
         )
         self.window_informations.setWindowIcon(icon_window_informations)
 
-        self.setup_theme()
+        self.setup_style()
 
         self.action_add_files.triggered.connect(lambda: self.add_files(False))
         self.action_add_folder.triggered.connect(lambda: self.add_files(True))
@@ -212,44 +202,31 @@ class WindowMain(QtWidgets.QWidget):
         self.input_token.textChanged.connect(self.token_changed)
         self.button_token.clicked.connect(self.open_token_page)
         self.button_mode.clicked.connect(self.change_mode)
-        self.button_theme.clicked.connect(self.change_theme)
 
-    def setup_theme(self):
-        """Sets up the colors for diverse elements of the application when the theme is changed."""
-        theme = self.gtagger.theme
+    def setup_style(self):
+        """Sets up the custom colors and icons for diverse elements of the application."""
         mode = self.gtagger.mode
 
         # Change the icons
-        icon_add_files = CustomIcon(IconTheme.OUTLINE, "documents", Color_.green, theme)
-        icon_add_folder = CustomIcon(
-            IconTheme.OUTLINE, "folder-open", Color_.green, theme
-        )
-        icon_search_lyrics = CustomIcon(IconTheme.OUTLINE, "search", Color_.blue, theme)
-        icon_save_lyrics = CustomIcon(IconTheme.OUTLINE, "save", Color_.green, theme)
-        icon_cancel_rows = CustomIcon(
-            IconTheme.OUTLINE, "arrow-undo", Color_.orange, theme
-        )
-        icon_remove_rows = CustomIcon(
-            IconTheme.OUTLINE, "remove-circle", Color_.red, theme
-        )
-        icon_settings = CustomIcon(IconTheme.OUTLINE, "settings", Color_.grey, theme)
+        icon_add_files = CustomIcon(IconTheme.OUTLINE, "documents", Color_.green)
+        icon_add_folder = CustomIcon(IconTheme.OUTLINE, "folder-open", Color_.green)
+        icon_search_lyrics = CustomIcon(IconTheme.OUTLINE, "search", Color_.blue)
+        icon_save_lyrics = CustomIcon(IconTheme.OUTLINE, "save", Color_.green)
+        icon_cancel_rows = CustomIcon(IconTheme.OUTLINE, "arrow-undo", Color_.orange)
+        icon_remove_rows = CustomIcon(IconTheme.OUTLINE, "remove-circle", Color_.red)
+        icon_settings = CustomIcon(IconTheme.OUTLINE, "settings", Color_.grey)
         icon_informations = CustomIcon(
-            IconTheme.OUTLINE, "information-circle", Color_.grey, theme
+            IconTheme.OUTLINE, "information-circle", Color_.grey
         )
-        icon_help = CustomIcon(IconTheme.OUTLINE, "help-circle", Color_.grey, theme)
-        icon_token = CustomIcon(IconTheme.OUTLINE, "open", Color_.yellow, theme)
-        if theme == Theme.DARK:
-            self.button_theme.setToolTip("Switch to light theme")
-            icon_theme = CustomIcon(IconTheme.OUTLINE, "sunny", Color_.grey, theme)
-        elif theme == Theme.LIGHT:
-            self.button_theme.setToolTip("Switch to dark theme")
-            icon_theme = CustomIcon(IconTheme.OUTLINE, "moon", Color_.grey, theme)
+        icon_help = CustomIcon(IconTheme.OUTLINE, "help-circle", Color_.grey)
+        icon_token = CustomIcon(IconTheme.OUTLINE, "open", Color_.yellow)
+
         if mode == Mode.NORMAL:
             self.button_mode.setToolTip("Switch to compact mode")
-            icon_mode = CustomIcon(IconTheme.OUTLINE, "contract", Color_.grey, theme)
+            icon_mode = CustomIcon(IconTheme.OUTLINE, "contract", Color_.grey)
         elif mode == Mode.COMPACT:
             self.button_mode.setToolTip("Switch to normal mode")
-            icon_mode = CustomIcon(IconTheme.OUTLINE, "expand", Color_.grey, theme)
+            icon_mode = CustomIcon(IconTheme.OUTLINE, "expand", Color_.grey)
 
         self.action_add_files.setIcon(icon_add_files)
         self.action_add_folder.setIcon(icon_add_folder)
@@ -262,16 +239,15 @@ class WindowMain(QtWidgets.QWidget):
         self.action_help.setIcon(icon_help)
         self.button_token.setIcon(icon_token)
         self.button_mode.setIcon(icon_mode)
-        self.button_theme.setIcon(icon_theme)
 
         # Change the cover placeholders and if needed,
         # as well as the lyrics color
         for track, track_layout in self.track_layouts.items():
             if not track_layout.selected:
-                track_layout.label_cover.setPixmap(track.covers[(theme, mode)])
+                track_layout.label_cover.setPixmap(track.covers[mode])
                 if track.lyrics_new is not None:
                     track_layout.label_lyrics.setStyleSheet(
-                        f"color: {Color_.get_themed_color(self.gtagger.theme, Color_.green).value}"
+                        f"color: {ColorLight.green.value}"
                     )
                 else:
                     track_layout.label_lyrics.setStyleSheet("")
@@ -280,8 +256,7 @@ class WindowMain(QtWidgets.QWidget):
         self.token_changed()
 
         # Change the color of the links
-        link_color = Color_.get_themed_color(theme, Color_.yellow).value
-        self.informations.set_texts(link_color)
+        self.informations.set_texts(Color_.yellow)
 
     def select_directories(self) -> str | None:
         """Asks user to select a directory.
@@ -356,15 +331,13 @@ class WindowMain(QtWidgets.QWidget):
             self.gtagger.mode = Mode.NORMAL
             self.button_mode.setToolTip("Switch to compact mode")
             self.button_mode.setIcon(
-                CustomIcon(
-                    IconTheme.OUTLINE, "contract", Color_.grey, self.gtagger.theme
-                )
+                CustomIcon(IconTheme.OUTLINE, "contract", Color_.grey)
             )
         elif self.gtagger.mode == Mode.NORMAL:
             self.gtagger.mode = Mode.COMPACT
             self.button_mode.setToolTip("Switch to normal mode")
             self.button_mode.setIcon(
-                CustomIcon(IconTheme.OUTLINE, "expand", Color_.grey, self.gtagger.theme)
+                CustomIcon(IconTheme.OUTLINE, "expand", Color_.grey)
             )
 
         # Update the GUI
@@ -377,26 +350,6 @@ class WindowMain(QtWidgets.QWidget):
         # Update the settings
         self.gtagger.settings_manager.set_setting(
             Settings.MODE.value, self.gtagger.mode.value
-        )
-
-    @QtCore.Slot()
-    def change_theme(self):
-        """Changes the theme of the application."""
-        # Update the button
-        if self.gtagger.theme == Theme.LIGHT:
-            self.gtagger.theme = Theme.DARK
-            self.button_theme.setToolTip("Switch to light theme")
-        elif self.gtagger.theme == Theme.DARK:
-            self.gtagger.theme = Theme.LIGHT
-            self.button_theme.setToolTip("Switch to dark theme")
-
-        # Update the GUI
-        self.gtagger.set_stylesheet()
-        self.setup_theme()
-
-        # Update the settings
-        self.gtagger.settings_manager.set_setting(
-            Settings.THEME.value, self.gtagger.theme.value
         )
 
     @QtCore.Slot()
@@ -468,26 +421,19 @@ class WindowMain(QtWidgets.QWidget):
         Changes the color of the `QLineEdit` according to the new token,
         and toggles the search button accordingly.
         """
-        theme = self.gtagger.theme
         if len(self.input_token.text()) == 0:
             # Input is empty
-            self.input_token.setStyleSheet(
-                f"border: 2px solid {Color_.get_themed_color(theme, Color_.red).value}"
-            )
+            self.input_token.setStyleSheet(f"border: 2px solid {Color_.red.value}")
             self.input_token.setToolTip("Enter token")
             self.action_search_lyrics.setEnabled(False)
         elif not self.is_token_valid():
             # Token is not valid
-            self.input_token.setStyleSheet(
-                f"border: 2px solid {Color_.get_themed_color(theme, Color_.red).value}"
-            )
+            self.input_token.setStyleSheet(f"border: 2px solid {Color_.red.value}")
             self.input_token.setToolTip("Invalid token")
             self.action_search_lyrics.setEnabled(False)
         else:
             # Token is valid
-            self.input_token.setStyleSheet(
-                f"border: 2px solid {Color_.get_themed_color(theme, Color_.green).value}"
-            )
+            self.input_token.setStyleSheet(f"border: 2px solid {Color_.green.value}")
             self.input_token.setToolTip("Valid token")
             self.action_search_lyrics.setEnabled(True)
 
@@ -521,7 +467,7 @@ class WindowMain(QtWidgets.QWidget):
             if track_layout.selected:
                 if track.lyrics_new is not None:
                     track_layout.label_lyrics.setStyleSheet(
-                        f"color: {ColorDark.green.value}"
+                        f"color: {Color_.green.value}"
                     )
                 enable_remove = True
                 if track.lyrics_new is not None:
@@ -529,7 +475,7 @@ class WindowMain(QtWidgets.QWidget):
             else:
                 if track.lyrics_new is not None:
                     track_layout.label_lyrics.setStyleSheet(
-                        f"color: {Color_.get_themed_color(self.gtagger.theme, Color_.green).value}"
+                        f"color: {Color_.green.value}"
                     )
                 else:
                     track_layout.label_lyrics.setStyleSheet("")
@@ -567,11 +513,11 @@ class WindowMain(QtWidgets.QWidget):
                 enable_save = True
                 if track_layout.selected:
                     track_layout.label_lyrics.setStyleSheet(
-                        f"color: {ColorDark.green.value}"
+                        f"color: {Color_.green.value}"
                     )
                 else:
                     track_layout.label_lyrics.setStyleSheet(
-                        f"color: {Color_.get_themed_color(self.gtagger.theme, Color_.green).value}"
+                        f"color: {Color_.green.value}"
                     )
             else:
                 track_layout.label_lyrics.setStyleSheet("")

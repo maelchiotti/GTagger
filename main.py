@@ -6,7 +6,7 @@ import qdarktheme
 from PySide6 import QtCore, QtWidgets
 
 from src.window_main import WindowMain
-from src.tools import Color_, Mode, Settings, Theme
+from src.tools import Color_, Mode, Settings
 
 
 class GTagger(QtWidgets.QApplication):
@@ -14,7 +14,6 @@ class GTagger(QtWidgets.QApplication):
 
     Attributes:
         settings_manager (SettingsManager): Settings manager of the application.
-        theme (Theme): Current theme of the application.
         mode (Mode): Current layout mode of the application.
     """
 
@@ -28,12 +27,7 @@ class GTagger(QtWidgets.QApplication):
         # Create the settings manager
         self.settings_manager: SettingsManager = SettingsManager()
 
-        # Load the theme setting and default it to dark if it is not set
-        self.theme: Theme = Theme.get_theme(
-            self.settings_manager.get_setting(
-                Settings.THEME.value, default=Theme.DARK.value
-            )
-        )
+        # Set the application stylsheet
         self.set_stylesheet()
 
         # Load the mode setting and default it to normal if it is not set
@@ -44,10 +38,10 @@ class GTagger(QtWidgets.QApplication):
     def set_stylesheet(self):
         """Sets the stylesheet of the application.
 
-        Uses the stylesheet of `qdarktheme` and adds some custom styling.
+        Uses the dark stylesheet of `qdarktheme` and adds some custom styling.
         """
         self.setStyleSheet(
-            qdarktheme.load_stylesheet(self.theme.value, "rounded")
+            qdarktheme.load_stylesheet("dark", "rounded")
             + """
             
             QCheckBox:unchecked:hover {

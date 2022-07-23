@@ -37,7 +37,7 @@ class CustomIcon(QtGui.QIcon):
     """
 
     def __init__(
-        self, icon_theme: IconTheme, icon_name: str, icon_color: Color_, theme: Theme
+        self, icon_theme: IconTheme, icon_name: str, icon_color: Color_
     ) -> None:
         super().__init__()
 
@@ -69,14 +69,11 @@ class CustomIcon(QtGui.QIcon):
             return
         image = QtGui.QPixmap(image_path)
 
-        # Consruct the icon color according to the the current theme
-        color = Color_.get_themed_color(theme, icon_color)
-
         # Paint the icon with the constructed color
         painter = QtGui.QPainter(image)
         painter.setCompositionMode(QtGui.QPainter.CompositionMode_SourceIn)
-        painter.setBrush(QtGui.QColor(color.value))
-        painter.setPen(QtGui.QColor(color.value))
+        painter.setBrush(QtGui.QColor(icon_color.value))
+        painter.setPen(QtGui.QColor(icon_color.value))
         painter.drawRect(image.rect())
         painter.end()
 
@@ -142,7 +139,7 @@ class TrackLayout(QtWidgets.QGridLayout):
         self.gtagger: GTagger = gtagger
 
         self.selected: bool = False
-        self.covers: dict[tuple[Theme, Mode], QtGui.QPixmap] = track.covers
+        self.covers: dict[Mode, QtGui.QPixmap] = track.covers
 
         if self.gtagger.mode == Mode.NORMAL:
             self.setup_normal_mode(track)
@@ -160,7 +157,7 @@ class TrackLayout(QtWidgets.QGridLayout):
         self.label_filename = QtWidgets.QLabel(track.filename)
         self.label_filename.setToolTip(track.get_filepath())
         self.label_cover = QtWidgets.QLabel()
-        self.label_cover.setPixmap(self.covers[(self.gtagger.theme, self.gtagger.mode)])
+        self.label_cover.setPixmap(self.covers[self.gtagger.mode])
         self.label_cover.setFixedWidth(COVER_SIZE[self.gtagger.mode])
         self.label_title = QtWidgets.QLabel(track.get_title())
         self.label_title.setStyleSheet("font-size: 15pt; font-weight:800;")
@@ -261,11 +258,11 @@ class TrackLayout(QtWidgets.QGridLayout):
             stylesheet = (
                 f"color: {color.value}; background-color: {background_color.value};"
             )
-            self.label_cover.setPixmap(self.covers[(Theme.LIGHT, self.gtagger.mode)])
+            self.label_cover.setPixmap(self.covers[self.gtagger.mode])
         else:
             stylesheet = ""
             self.label_cover.setPixmap(
-                self.covers[(self.gtagger.theme, self.gtagger.mode)]
+                self.covers[self.gtagger.mode]
             )
         self.frame.setStyleSheet(stylesheet)
 
@@ -294,8 +291,8 @@ class StateIndicator(QtWidgets.QWidget):
         self.w: int = w
         self.h: int = h
         
-        self.setFixedWidth(self.x + self.w)
-        self.setFixedHeight(self.y + self.h)
+        self.setFixedWidth(self.x + self.w + 1)
+        self.setFixedHeight(self.y + self.h + 1)
 
     def paintEvent(self, event: QtGui.QPaintEvent) -> None:
         """Intercepts the paint event of the `QWidget`.
@@ -317,11 +314,16 @@ class StateIndicator(QtWidgets.QWidget):
         brush = QtGui.QBrush()
         brush.setColor(color)
         brush.setStyle(QtCore.Qt.SolidPattern)
+        
+        pen = QtGui.QPen()
+        pen.setColor(Color_.grey.value)
+        pen.setStyle(QtCore.Qt.SolidLine)
+        pen.setWidth(1)
 
         painter = QtGui.QPainter(self)
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
-        painter.setPen(QtCore.Qt.NoPen)
         painter.setBrush(brush)
+        painter.setPen(pen)
         painter.drawEllipse(self.x, self.y, self.w, self.h)
 
     def set_state(self, state: State) -> None:
@@ -352,55 +354,8 @@ class Color_(Enum):
     orange = "#FFA500"
     grey = "#808080"
     yellow = "#FFFF00"
-
     yellow_genius = "#FFFF64"
     black = "#000000"
-
-    @staticmethod
-    def get_themed_color(theme: Theme, color: Color_) -> ColorDark | ColorLight:
-        """Returns the dark of light color corresponding to `color` and depending on `theme`.
-
-        Allows to retrieve the dark or light color corresponding to a regular color,
-        allowing the application to choose the right color depending on its current theme.
-
-        Args:
-            theme (Theme): Current theme of the application.
-            color (Color_): Color to return in dark or light.
-
-        Returns:
-            ColorDark | ColorLight: Dark or light color corresponding to `color` and depending on `theme`.
-        """
-        if theme == Theme.DARK:
-            return ColorLight.get_color(color.name)
-        elif theme == Theme.LIGHT:
-            return ColorDark.get_color(color.name)
-        else:
-            return ColorDark.black
-
-
-class ColorDark(Enum):
-    """Enumerates usefull (name, hex) dark colors."""
-
-    green = "#006400"
-    red = "#8B0000"
-    blue = "#00008B"
-    orange = "#FF8C00"
-    grey = "#696969"
-    yellow = "#DAA520"
-
-    black = "#000000"
-
-    @staticmethod
-    def get_color(name: str) -> ColorDark:
-        """Returns the color corresponding to `name`.
-
-        Args:
-            name (str): Name of the color to return.
-
-        Returns:
-            ColorDark: Dark color named `name`.
-        """
-        return ColorDark.__getitem__(name)
 
 
 class ColorLight(Enum):
@@ -413,20 +368,6 @@ class ColorLight(Enum):
     grey = "#D3D3D3"
     yellow = "#FFFF64"
 
-    black = "#000000"
-
-    @staticmethod
-    def get_color(name: str) -> ColorLight:
-        """Returns the color corresponding to `name`.
-
-        Args:
-            name (str): Name of the color to return.
-
-        Returns:
-            ColorLight: Light color named `name`.
-        """
-        return ColorLight.__getitem__(name)
-
 
 class State(Enum):
     """Enumerates the different states of the application."""
@@ -437,30 +378,6 @@ class State(Enum):
     LYRICS_NOT_FOUND = "Couldn't find lyrics"
     LYRICS_SAVED = "Lyrics saved"
     LYRICS_NOT_SAVED = "Couldn't save the lyrics"
-
-
-class Theme(Enum):
-    """Enumerates the different themes of the application.
-
-    Includes:
-    - Dark
-    - Light
-    """
-
-    DARK = "dark"
-    LIGHT = "light"
-
-    @staticmethod
-    def get_theme(value: str) -> Theme:
-        """Returns the `Theme` corresponding to `value`.
-
-        Args:
-            value (str): Value of the theme.
-
-        Returns:
-            Theme: Theme corresponding to `value`.
-        """
-        return Theme.__getitem__(value.upper())
 
 
 class IconTheme(Enum):
