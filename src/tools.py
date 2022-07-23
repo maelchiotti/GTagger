@@ -206,7 +206,7 @@ class TrackLayout(QtWidgets.QGridLayout):
         self.state_indicator = StateIndicator(self.state, x=4)
         self.state_indicator.setToolTip(self.state.value)
         self.label_cover = QtWidgets.QLabel()
-        self.label_cover.setPixmap(self.covers[(self.gtagger.theme, self.gtagger.mode)])
+        self.label_cover.setPixmap(self.covers[self.gtagger.mode])
         self.label_cover.setFixedWidth(COVER_SIZE[self.gtagger.mode])
         self.label_title = QtWidgets.QLabel(track.get_title())
         self.label_title.setStyleSheet("font-size: 15pt; font-weight:800;")
@@ -261,9 +261,7 @@ class TrackLayout(QtWidgets.QGridLayout):
             self.label_cover.setPixmap(self.covers[self.gtagger.mode])
         else:
             stylesheet = ""
-            self.label_cover.setPixmap(
-                self.covers[self.gtagger.mode]
-            )
+            self.label_cover.setPixmap(self.covers[self.gtagger.mode])
         self.frame.setStyleSheet(stylesheet)
 
         self.signal_mouse_event.emit()
@@ -290,7 +288,7 @@ class StateIndicator(QtWidgets.QWidget):
         self.y: int = y
         self.w: int = w
         self.h: int = h
-        
+
         self.setFixedWidth(self.x + self.w + 1)
         self.setFixedHeight(self.y + self.h + 1)
 
@@ -314,7 +312,7 @@ class StateIndicator(QtWidgets.QWidget):
         brush = QtGui.QBrush()
         brush.setColor(color)
         brush.setStyle(QtCore.Qt.SolidPattern)
-        
+
         pen = QtGui.QPen()
         pen.setColor(Color_.grey.value)
         pen.setStyle(QtCore.Qt.SolidLine)

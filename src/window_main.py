@@ -178,16 +178,6 @@ class WindowMain(QtWidgets.QWidget):
         self.setLayout(self.layout_)
         self.setWindowTitle(f"GTagger ({VERSION})")
 
-        # Setup the windows icons
-        icon_window_main = CustomIcon(IconTheme.SHARP, "pricetag", Color_.black)
-        self.setWindowIcon(icon_window_main)
-        icon_window_settings = CustomIcon(IconTheme.SHARP, "settings", Color_.black)
-        self.window_settings.setWindowIcon(icon_window_settings)
-        icon_window_informations = CustomIcon(
-            IconTheme.SHARP, "information-circle", Color_.black
-        )
-        self.window_informations.setWindowIcon(icon_window_informations)
-
         self.setup_style()
 
         self.action_add_files.triggered.connect(lambda: self.add_files(False))
@@ -207,26 +197,40 @@ class WindowMain(QtWidgets.QWidget):
         """Sets up the custom colors and icons for diverse elements of the application."""
         mode = self.gtagger.mode
 
-        # Change the icons
-        icon_add_files = CustomIcon(IconTheme.OUTLINE, "documents", Color_.green)
-        icon_add_folder = CustomIcon(IconTheme.OUTLINE, "folder-open", Color_.green)
-        icon_search_lyrics = CustomIcon(IconTheme.OUTLINE, "search", Color_.blue)
-        icon_save_lyrics = CustomIcon(IconTheme.OUTLINE, "save", Color_.green)
-        icon_cancel_rows = CustomIcon(IconTheme.OUTLINE, "arrow-undo", Color_.orange)
-        icon_remove_rows = CustomIcon(IconTheme.OUTLINE, "remove-circle", Color_.red)
-        icon_settings = CustomIcon(IconTheme.OUTLINE, "settings", Color_.grey)
-        icon_informations = CustomIcon(
-            IconTheme.OUTLINE, "information-circle", Color_.grey
+        # Setup the windows icons
+        icon_window_main = CustomIcon(IconTheme.SHARP, "pricetag", Color_.black)
+        self.setWindowIcon(icon_window_main)
+        icon_window_settings = CustomIcon(IconTheme.SHARP, "settings", Color_.black)
+        self.window_settings.setWindowIcon(icon_window_settings)
+        icon_window_informations = CustomIcon(
+            IconTheme.SHARP, "information-circle", Color_.black
         )
-        icon_help = CustomIcon(IconTheme.OUTLINE, "help-circle", Color_.grey)
-        icon_token = CustomIcon(IconTheme.OUTLINE, "open", Color_.yellow)
+        self.window_informations.setWindowIcon(icon_window_informations)
+
+        # Change the icons
+        icon_add_files = CustomIcon(IconTheme.OUTLINE, "documents", ColorLight.green)
+        icon_add_folder = CustomIcon(IconTheme.OUTLINE, "folder-open", ColorLight.green)
+        icon_search_lyrics = CustomIcon(IconTheme.OUTLINE, "search", ColorLight.blue)
+        icon_save_lyrics = CustomIcon(IconTheme.OUTLINE, "save", ColorLight.green)
+        icon_cancel_rows = CustomIcon(
+            IconTheme.OUTLINE, "arrow-undo", ColorLight.orange
+        )
+        icon_remove_rows = CustomIcon(
+            IconTheme.OUTLINE, "remove-circle", ColorLight.red
+        )
+        icon_settings = CustomIcon(IconTheme.OUTLINE, "settings", ColorLight.grey)
+        icon_informations = CustomIcon(
+            IconTheme.OUTLINE, "information-circle", ColorLight.grey
+        )
+        icon_help = CustomIcon(IconTheme.OUTLINE, "help-circle", ColorLight.grey)
+        icon_token = CustomIcon(IconTheme.OUTLINE, "open", Color_.yellow_genius)
 
         if mode == Mode.NORMAL:
             self.button_mode.setToolTip("Switch to compact mode")
-            icon_mode = CustomIcon(IconTheme.OUTLINE, "contract", Color_.grey)
+            icon_mode = CustomIcon(IconTheme.OUTLINE, "contract", ColorLight.grey)
         elif mode == Mode.COMPACT:
             self.button_mode.setToolTip("Switch to normal mode")
-            icon_mode = CustomIcon(IconTheme.OUTLINE, "expand", Color_.grey)
+            icon_mode = CustomIcon(IconTheme.OUTLINE, "expand", ColorLight.grey)
 
         self.action_add_files.setIcon(icon_add_files)
         self.action_add_folder.setIcon(icon_add_folder)
@@ -245,7 +249,7 @@ class WindowMain(QtWidgets.QWidget):
         for track, track_layout in self.track_layouts.items():
             if not track_layout.selected:
                 track_layout.label_cover.setPixmap(track.covers[mode])
-                if track.lyrics_new is not None:
+                if track.lyrics_new != "":
                     track_layout.label_lyrics.setStyleSheet(
                         f"color: {ColorLight.green.value}"
                     )
@@ -256,7 +260,7 @@ class WindowMain(QtWidgets.QWidget):
         self.token_changed()
 
         # Change the color of the links
-        self.informations.set_texts(Color_.yellow)
+        self.informations.set_texts(Color_.yellow_genius)
 
     def select_directories(self) -> str | None:
         """Asks user to select a directory.
@@ -331,13 +335,13 @@ class WindowMain(QtWidgets.QWidget):
             self.gtagger.mode = Mode.NORMAL
             self.button_mode.setToolTip("Switch to compact mode")
             self.button_mode.setIcon(
-                CustomIcon(IconTheme.OUTLINE, "contract", Color_.grey)
+                CustomIcon(IconTheme.OUTLINE, "contract", ColorLight.grey)
             )
         elif self.gtagger.mode == Mode.NORMAL:
             self.gtagger.mode = Mode.COMPACT
             self.button_mode.setToolTip("Switch to normal mode")
             self.button_mode.setIcon(
-                CustomIcon(IconTheme.OUTLINE, "expand", Color_.grey)
+                CustomIcon(IconTheme.OUTLINE, "expand", ColorLight.grey)
             )
 
         # Update the GUI
@@ -423,17 +427,19 @@ class WindowMain(QtWidgets.QWidget):
         """
         if len(self.input_token.text()) == 0:
             # Input is empty
-            self.input_token.setStyleSheet(f"border: 2px solid {Color_.red.value}")
+            self.input_token.setStyleSheet(f"border: 2px solid {ColorLight.red.value}")
             self.input_token.setToolTip("Enter token")
             self.action_search_lyrics.setEnabled(False)
         elif not self.is_token_valid():
             # Token is not valid
-            self.input_token.setStyleSheet(f"border: 2px solid {Color_.red.value}")
+            self.input_token.setStyleSheet(f"border: 2px solid {ColorLight.red.value}")
             self.input_token.setToolTip("Invalid token")
             self.action_search_lyrics.setEnabled(False)
         else:
             # Token is valid
-            self.input_token.setStyleSheet(f"border: 2px solid {Color_.green.value}")
+            self.input_token.setStyleSheet(
+                f"border: 2px solid {ColorLight.green.value}"
+            )
             self.input_token.setToolTip("Valid token")
             self.action_search_lyrics.setEnabled(True)
 
@@ -465,17 +471,17 @@ class WindowMain(QtWidgets.QWidget):
         enable_remove = False
         for track, track_layout in self.track_layouts.items():
             if track_layout.selected:
-                if track.lyrics_new is not None:
+                if track.lyrics_new != "":
                     track_layout.label_lyrics.setStyleSheet(
                         f"color: {Color_.green.value}"
                     )
                 enable_remove = True
-                if track.lyrics_new is not None:
+                if track.lyrics_new != "":
                     enable_cancel = True
             else:
-                if track.lyrics_new is not None:
+                if track.lyrics_new != "":
                     track_layout.label_lyrics.setStyleSheet(
-                        f"color: {Color_.green.value}"
+                        f"color: {ColorLight.green.value}"
                     )
                 else:
                     track_layout.label_lyrics.setStyleSheet("")
@@ -509,7 +515,7 @@ class WindowMain(QtWidgets.QWidget):
         """
         enable_save = False
         for track, track_layout in self.track_layouts.items():
-            if track.lyrics_new is not None:
+            if track.lyrics_new != "":
                 enable_save = True
                 if track_layout.selected:
                     track_layout.label_lyrics.setStyleSheet(
@@ -517,7 +523,7 @@ class WindowMain(QtWidgets.QWidget):
                     )
                 else:
                     track_layout.label_lyrics.setStyleSheet(
-                        f"color: {Color_.green.value}"
+                        f"color: {ColorLight.green.value}"
                     )
             else:
                 track_layout.label_lyrics.setStyleSheet("")

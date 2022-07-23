@@ -88,32 +88,32 @@ class WindowInformations(QtWidgets.QWidget):
             link_color (Color_): Color of the links.
         """
         color = link_color.value
-        
+
         self.label_developper.setText(
             f"""
-            <a href="{QtCore.QCoreApplication.organizationDomain()}" style="color: {link_color}">{QtCore.QCoreApplication.organizationName()}</a>
+            <a href="{QtCore.QCoreApplication.organizationDomain()}" style="color: {color}">{QtCore.QCoreApplication.organizationName()}</a>
             """
         )
 
         self.label_informations.setText(
             f"""
             <br />
-            GTagger is a python tool that adds lyrics from <a href="https://genius.com" style="color: {link_color}">Genius</a> to <i>.mp3</i> files.
+            GTagger is a python tool that adds lyrics from <a href="https://genius.com" style="color: {color}">Genius</a> to <i>.mp3</i> files.
             <br />
-            The code is open-source and hosted on <a href="https://github.com/maelchiotti/GTagger" style="color: {link_color}">GitHub</a>
-            under the <a href="https://github.com/maelchiotti/GTagger/blob/main/LICENSE.txt" style="color: {link_color}">MIT license</a>.
+            The code is open-source and hosted on <a href="https://github.com/maelchiotti/GTagger" style="color: {color}">GitHub</a>
+            under the <a href="https://github.com/maelchiotti/GTagger/blob/main/LICENSE.txt" style="color: {color}">MIT license</a>.
             <br />
             """
         )
         self.label_credits.setText(
             f"""
-            Credits (a more precise list can be found <a href=\"https://github.com/maelchiotti/GTagger/blob/main/CREDITS.md\" style="color: {link_color}">here</a>):
+            Credits (a more precise list can be found <a href=\"https://github.com/maelchiotti/GTagger/blob/main/CREDITS.md\" style="color: {color}">here</a>):
             <br />
-            - <a href=\"https://genius.com\" style="color: {link_color}">Genius</a><br />
-            - <a href=\"https://github.com/fedecalendino/wrap-genius\" style="color: {link_color}">wrap-genius</a><br />
-            - <a href=\"https://github.com/johnwmillr/LyricsGenius\" style="color: {link_color}">LyricsGenius</a><br />
-            - <a href=\"https://github.com/nicfit/eyeD3\" style="color: {link_color}">eyeD3</a><br />
-            - <a href=\"https://github.com/5yutan5/PyQtDarkTheme\" style="color: {link_color}">PyQtDarkTheme</a><br />
-            - <a href=\"https://github.com/ionic-team/ionicons\" style="color: {link_color}">ionicons</a>
+            - <a href=\"https://genius.com\" style="color: {color}">Genius</a><br />
+            - <a href=\"https://github.com/fedecalendino/wrap-genius\" style="color: {color}">wrap-genius</a><br />
+            - <a href=\"https://github.com/johnwmillr/LyricsGenius\" style="color: {color}">LyricsGenius</a><br />
+            - <a href=\"https://github.com/nicfit/eyeD3\" style="color: {color}">eyeD3</a><br />
+            - <a href=\"https://github.com/5yutan5/PyQtDarkTheme\" style="color: {color}">PyQtDarkTheme</a><br />
+            - <a href=\"https://github.com/ionic-team/ionicons\" style="color: {color}">ionicons</a>
             """
         )
