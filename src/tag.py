@@ -34,7 +34,6 @@ class TrackSearch(QtCore.QObject):
 
     def __init__(self, token: str) -> None:
         self.token: str = ""
-        self.genius: genius.Genius = genius.Genius("")
 
         search = re.search("[^a-zA-Z0-9_-]", token)
         if search is not None:

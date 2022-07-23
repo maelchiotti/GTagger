@@ -222,10 +222,10 @@ class Track(QtCore.QObject):
         Returns:
             str: Lyrics of the track (up to `lines`, `length` or full).
         """
-        if self.lyrics_new is not None:
+        if self.lyrics_new != "":
             lyrics = self.lyrics_new
         elif self.has_lyrics_original():
-            lyrics = self.eyed3_tags.lyrics[0].text
+            lyrics = self.get_lyrics_original()
         else:
             return "No lyrics"
 

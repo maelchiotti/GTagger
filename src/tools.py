@@ -206,7 +206,7 @@ class TrackLayout(QtWidgets.QGridLayout):
         Args:
             track (Track): Track containing the informations to display.
         """
-        self.state_indicator = StateIndicator(self.state)
+        self.state_indicator = StateIndicator(self.state, x=4)
         self.state_indicator.setToolTip(self.state.value)
         self.label_cover = QtWidgets.QLabel()
         self.label_cover.setPixmap(self.covers[(self.gtagger.theme, self.gtagger.mode)])
@@ -293,6 +293,9 @@ class StateIndicator(QtWidgets.QWidget):
         self.y: int = y
         self.w: int = w
         self.h: int = h
+        
+        self.setFixedWidth(self.x + self.w)
+        self.setFixedHeight(self.y + self.h)
 
     def paintEvent(self, event: QtGui.QPaintEvent) -> None:
         """Intercepts the paint event of the `QWidget`.
@@ -320,9 +323,6 @@ class StateIndicator(QtWidgets.QWidget):
         painter.setPen(QtCore.Qt.NoPen)
         painter.setBrush(brush)
         painter.drawEllipse(self.x, self.y, self.w, self.h)
-
-        self.setFixedWidth(self.x + self.w)
-        self.setFixedHeight(self.y + self.h)
 
     def set_state(self, state: State) -> None:
         """Sets the state of the indicator to `state` and repaints it.
@@ -501,5 +501,5 @@ class Mode(Enum):
         return Mode.__getitem__(value.upper())
 
 
-COVER_SIZE = {Mode.NORMAL: 128, Mode.COMPACT: 32}
-LYRICS_LINES = {Mode.NORMAL: 8, Mode.COMPACT: 2}
+COVER_SIZE = {Mode.NORMAL: 128, Mode.COMPACT: 64}
+LYRICS_LINES = {Mode.NORMAL: 8, Mode.COMPACT: 4}
