@@ -34,10 +34,11 @@ Download the executable `GTagger.exe` from the [Releases](https://github.com/mae
 
 **v1.2.0:**
 
-- Test compact mode (button icon and indicator)
+- Add filtering options
+- Add search bar
 
 **Future:**
 
 - Improve the settings and informations windows to be `QtCore.Qt.Tool`s so that they keep focus
-
 - Add files in a thread
+- Re-implement the [light theme](https://github.com/maelchiotti/GTagger/tree/light_theme)
