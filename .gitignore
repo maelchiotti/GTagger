@@ -169,3 +169,6 @@ cython_debug/
 
 # HTML doc
 /html
+
+# Stubs
+/stubs
