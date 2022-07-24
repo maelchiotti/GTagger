@@ -235,10 +235,14 @@ class WindowMain(QtWidgets.QWidget):
         icon_stop_search = CustomIcon(IconTheme.OUTLINE, "close", Color_.red)
         if mode == Mode.NORMAL:
             self.button_change_mode.setToolTip("Switch to compact mode")
-            icon_change_mode = CustomIcon(IconTheme.OUTLINE, "contract", Color_.light_grey)
+            icon_change_mode = CustomIcon(
+                IconTheme.OUTLINE, "contract", Color_.light_grey
+            )
         elif mode == Mode.COMPACT:
             self.button_change_mode.setToolTip("Switch to normal mode")
-            icon_change_mode = CustomIcon(IconTheme.OUTLINE, "expand", Color_.light_grey)
+            icon_change_mode = CustomIcon(
+                IconTheme.OUTLINE, "expand", Color_.light_grey
+            )
 
         self.action_add_files.setIcon(icon_add_files)
         self.action_add_folder.setIcon(icon_add_folder)
@@ -555,3 +559,16 @@ class WindowMain(QtWidgets.QWidget):
     def open_help(self) -> None:
         """Opens the help window."""
         self.window_help.show()
+
+    def closeEvent(self, event: QtGui.QCloseEvent) -> None:
+        """Intercepts the close event of the main window.
+
+        If it is running, waits for `ThreadLyricsSearch` to quit before exiting the application.
+
+        Args:
+            event (QtGui.QCloseEvent): Close event.
+        """
+        if self.thread_search_lyrics.isRunning():
+            self.thread_search_lyrics.stop_search = True
+            self.thread_search_lyrics.wait()
+        event.accept()

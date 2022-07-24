@@ -36,9 +36,6 @@ Download the executable `GTagger.exe` from the [Releases](https://github.com/mae
 
 - Add filtering options
 - Add search bar
-- Add a stop searching button in the status bar
-
-- Properly wait for thread closing when exiting main window
 
 **Future:**
 
