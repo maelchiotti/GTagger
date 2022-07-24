@@ -40,8 +40,6 @@ Download the executable `GTagger.exe` from the [Releases](https://github.com/mae
 
 - Fix lyrics tooltip after searching lyrics + after saving
 - Lyrics seem to have a blank space at the beginning? Always strip them in add_lyrics()
-- Fix lyrics staying light green when clicking on them
-- Fix cancel button not activating
 
 **Future:**
 

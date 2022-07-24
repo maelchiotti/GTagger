@@ -262,3 +262,11 @@ class Track(QtCore.QObject):
             bool: `True` if the track has original lyrics.
         """
         return len(self.eyed3_tags.lyrics) > 0
+
+    def has_lyrics_new(self) -> bool:
+        """Returns `True` if the track has new lyrics.
+
+        Returns:
+            bool: `True` if the track has new lyrics.
+        """
+        return self.lyrics_new != ""

@@ -3,9 +3,7 @@
 Includes:
 - CustomIcon: Customized implementation of a `QIcon`.
 - TrackLayout: Customized implementation of a `QGridLayout` containing the informations of a track.
-- Color_: Enumeration of normal colors.
-- ColorDark: Enumeration of light colors for the dark theme.
-- ColorLight: Enumeration of dark colors for the light theme.
+- Color_: Enumeration of colors.
 - State: Enumeration of states.
 - Theme: Enumeration of application themes.
 - IconTheme: Enumeration of icon themes.
@@ -253,11 +251,7 @@ class TrackLayout(QtWidgets.QGridLayout):
 
         self.selected = not self.selected
         if self.selected:
-            color = Color_.black
-            background_color = ColorLight.blue
-            stylesheet = (
-                f"color: {color.value}; background-color: {background_color.value};"
-            )
+            stylesheet = f"background-color: {Color_.dark_blue.value};"
             self.label_cover.setPixmap(self.covers[self.gtagger.mode])
         else:
             stylesheet = ""
@@ -299,15 +293,15 @@ class StateIndicator(QtWidgets.QWidget):
             event (QtGui.QPaintEvent): Paint event.
         """
         if self.state == State.TAGS_READ:
-            color = QtGui.QColor(ColorLight.blue.value)
+            color = QtGui.QColor(Color_.light_blue.value)
         elif self.state == State.LYRICS_FOUND:
-            color = QtGui.QColor(ColorLight.green.value)
+            color = QtGui.QColor(Color_.light_green.value)
         elif self.state == State.LYRICS_NOT_FOUND:
             color = QtGui.QColor(Color_.orange.value)
         elif self.state == State.LYRICS_SAVED:
             color = QtGui.QColor(Color_.yellow_genius.value)
         elif self.state == State.LYRICS_NOT_SAVED:
-            color = QtGui.QColor(ColorLight.red.value)
+            color = QtGui.QColor(Color_.light_red.value)
 
         brush = QtGui.QBrush()
         brush.setColor(color)
@@ -346,25 +340,24 @@ class Settings(Enum):
 class Color_(Enum):
     """Enumerates usefull (name, hex) colors."""
 
+    light_green = "#90EE90"
+    light_red = "#F08080"
+    light_blue = "#ADD8E6"
+    light_orange = "#FFFACD"
+    light_grey = "#D3D3D3"
+    light_yellow = "#FFFF64"
+
     green = "#008000"
     red = "#FF0000"
     blue = "#0000FF"
     orange = "#FFA500"
     grey = "#808080"
     yellow = "#FFFF00"
+
+    dark_blue = "#305A7C"
+
     yellow_genius = "#FFFF64"
     black = "#000000"
-
-
-class ColorLight(Enum):
-    """Enumerates usefull (name, hex) light colors."""
-
-    green = "#90EE90"
-    red = "#F08080"
-    blue = "#ADD8E6"
-    orange = "#FFFACD"
-    grey = "#D3D3D3"
-    yellow = "#FFFF64"
 
 
 class State(Enum):

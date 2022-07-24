@@ -17,7 +17,6 @@ from src.tools import (
     TOKEN_URL,
     VERSION,
     LYRICS_LINES,
-    ColorLight,
     CustomIcon,
     Mode,
     Settings,
@@ -208,29 +207,31 @@ class WindowMain(QtWidgets.QWidget):
         self.window_informations.setWindowIcon(icon_window_informations)
 
         # Change the icons
-        icon_add_files = CustomIcon(IconTheme.OUTLINE, "documents", ColorLight.green)
-        icon_add_folder = CustomIcon(IconTheme.OUTLINE, "folder-open", ColorLight.green)
-        icon_search_lyrics = CustomIcon(IconTheme.OUTLINE, "search", ColorLight.blue)
-        icon_save_lyrics = CustomIcon(IconTheme.OUTLINE, "save", ColorLight.green)
+        icon_add_files = CustomIcon(IconTheme.OUTLINE, "documents", Color_.light_green)
+        icon_add_folder = CustomIcon(
+            IconTheme.OUTLINE, "folder-open", Color_.light_green
+        )
+        icon_search_lyrics = CustomIcon(IconTheme.OUTLINE, "search", Color_.light_blue)
+        icon_save_lyrics = CustomIcon(IconTheme.OUTLINE, "save", Color_.light_green)
         icon_cancel_rows = CustomIcon(
-            IconTheme.OUTLINE, "arrow-undo", ColorLight.orange
+            IconTheme.OUTLINE, "arrow-undo", Color_.light_orange
         )
         icon_remove_rows = CustomIcon(
-            IconTheme.OUTLINE, "remove-circle", ColorLight.red
+            IconTheme.OUTLINE, "remove-circle", Color_.light_red
         )
-        icon_settings = CustomIcon(IconTheme.OUTLINE, "settings", ColorLight.grey)
+        icon_settings = CustomIcon(IconTheme.OUTLINE, "settings", Color_.light_grey)
         icon_informations = CustomIcon(
-            IconTheme.OUTLINE, "information-circle", ColorLight.grey
+            IconTheme.OUTLINE, "information-circle", Color_.light_grey
         )
-        icon_help = CustomIcon(IconTheme.OUTLINE, "help-circle", ColorLight.grey)
+        icon_help = CustomIcon(IconTheme.OUTLINE, "help-circle", Color_.light_grey)
         icon_token = CustomIcon(IconTheme.OUTLINE, "open", Color_.yellow_genius)
 
         if mode == Mode.NORMAL:
             self.button_mode.setToolTip("Switch to compact mode")
-            icon_mode = CustomIcon(IconTheme.OUTLINE, "contract", ColorLight.grey)
+            icon_mode = CustomIcon(IconTheme.OUTLINE, "contract", Color_.light_grey)
         elif mode == Mode.COMPACT:
             self.button_mode.setToolTip("Switch to normal mode")
-            icon_mode = CustomIcon(IconTheme.OUTLINE, "expand", ColorLight.grey)
+            icon_mode = CustomIcon(IconTheme.OUTLINE, "expand", Color_.light_grey)
 
         self.action_add_files.setIcon(icon_add_files)
         self.action_add_folder.setIcon(icon_add_folder)
@@ -251,7 +252,7 @@ class WindowMain(QtWidgets.QWidget):
                 track_layout.label_cover.setPixmap(track.covers[mode])
                 if track.lyrics_new != "":
                     track_layout.label_lyrics.setStyleSheet(
-                        f"color: {ColorLight.green.value}"
+                        f"color: {Color_.light_green.value}"
                     )
                 else:
                     track_layout.label_lyrics.setStyleSheet("")
@@ -335,13 +336,13 @@ class WindowMain(QtWidgets.QWidget):
             self.gtagger.mode = Mode.NORMAL
             self.button_mode.setToolTip("Switch to compact mode")
             self.button_mode.setIcon(
-                CustomIcon(IconTheme.OUTLINE, "contract", ColorLight.grey)
+                CustomIcon(IconTheme.OUTLINE, "contract", Color_.light_grey)
             )
         elif self.gtagger.mode == Mode.NORMAL:
             self.gtagger.mode = Mode.COMPACT
             self.button_mode.setToolTip("Switch to normal mode")
             self.button_mode.setIcon(
-                CustomIcon(IconTheme.OUTLINE, "expand", ColorLight.grey)
+                CustomIcon(IconTheme.OUTLINE, "expand", Color_.light_grey)
             )
 
         # Update the GUI
@@ -427,18 +428,22 @@ class WindowMain(QtWidgets.QWidget):
         """
         if len(self.input_token.text()) == 0:
             # Input is empty
-            self.input_token.setStyleSheet(f"border: 2px solid {ColorLight.red.value}")
+            self.input_token.setStyleSheet(
+                f"border: 2px solid {Color_.light_red.value}"
+            )
             self.input_token.setToolTip("Enter token")
             self.action_search_lyrics.setEnabled(False)
         elif not self.is_token_valid():
             # Token is not valid
-            self.input_token.setStyleSheet(f"border: 2px solid {ColorLight.red.value}")
+            self.input_token.setStyleSheet(
+                f"border: 2px solid {Color_.light_red.value}"
+            )
             self.input_token.setToolTip("Invalid token")
             self.action_search_lyrics.setEnabled(False)
         else:
             # Token is valid
             self.input_token.setStyleSheet(
-                f"border: 2px solid {ColorLight.green.value}"
+                f"border: 2px solid {Color_.light_green.value}"
             )
             self.input_token.setToolTip("Valid token")
             self.action_search_lyrics.setEnabled(True)
@@ -462,33 +467,6 @@ class WindowMain(QtWidgets.QWidget):
             track_layout.label_lyrics.setToolTip("")
 
     @QtCore.Slot()
-    def selection_changed(self) -> None:
-        """The selection of the tracks changed.
-
-        Toggles the cancel and remove buttons, and changes lyrics color.
-        """
-        enable_cancel = False
-        enable_remove = False
-        for track, track_layout in self.track_layouts.items():
-            if track_layout.selected:
-                if track.lyrics_new != "":
-                    track_layout.label_lyrics.setStyleSheet(
-                        f"color: {Color_.green.value}"
-                    )
-                enable_remove = True
-                if track.lyrics_new != "":
-                    enable_cancel = True
-            else:
-                if track.lyrics_new != "":
-                    track_layout.label_lyrics.setStyleSheet(
-                        f"color: {ColorLight.green.value}"
-                    )
-                else:
-                    track_layout.label_lyrics.setStyleSheet("")
-        self.action_cancel_rows.setEnabled(enable_cancel)
-        self.action_remove_rows.setEnabled(enable_remove)
-
-    @QtCore.Slot()
     def cancel_rows(self) -> None:
         """Removes the added lyrics from the files."""
         for track, track_layout in self.track_layouts.items():
@@ -508,26 +486,35 @@ class WindowMain(QtWidgets.QWidget):
         self.selection_changed()
 
     @QtCore.Slot()
-    def lyrics_changed(self) -> None:
-        """The lyrics of a track changed.
+    def selection_changed(self) -> None:
+        """The selection of the tracks changed.
 
-        Changes the color of the lyrics according to the current theme.
+        Toggles the cancel and remove buttons, and changes lyrics color.
         """
+        enable_cancel = False
+        enable_remove = False
+        for track, track_layout in self.track_layouts.items():
+            if track_layout.selected:
+                enable_remove = True
+                if track.has_lyrics_new():
+                    enable_cancel = True
+        self.action_cancel_rows.setEnabled(enable_cancel)
+        self.action_remove_rows.setEnabled(enable_remove)
+
+    @QtCore.Slot()
+    def lyrics_changed(self) -> None:
         enable_save = False
         for track, track_layout in self.track_layouts.items():
-            if track.lyrics_new != "":
+            if track.has_lyrics_new():
+                # Track has new lyrics
                 enable_save = True
-                if track_layout.selected:
-                    track_layout.label_lyrics.setStyleSheet(
-                        f"color: {Color_.green.value}"
-                    )
-                else:
-                    track_layout.label_lyrics.setStyleSheet(
-                        f"color: {ColorLight.green.value}"
-                    )
+                track_layout.label_lyrics.setStyleSheet(
+                    f"color: {Color_.light_green.value}"
+                )
             else:
                 track_layout.label_lyrics.setStyleSheet("")
         self.action_save_lyrics.setEnabled(enable_save)
+        self.selection_changed()  # Update the cancel and remove buttons
 
     @QtCore.Slot()
     def lyrics_searched(self) -> None:
