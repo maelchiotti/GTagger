@@ -5,8 +5,11 @@ from pathlib import Path
 import re
 import logging as log
 import time
+from genius.classes.song import Song
 import eyed3
 from eyed3.id3.frames import ImageFrame
+from eyed3.id3.tag import Tag
+from eyed3.mp3 import Mp3AudioInfo
 from PySide6 import QtCore, QtGui
 
 from src.tools import COVER_SIZE, CustomIcon, Color_, IconTheme, Mode
@@ -29,9 +32,9 @@ class Track(QtCore.QObject):
         album (str): Album of the track.
         lyrics_new (str): New lyrics of the track.
 
-        eyed3_infos (eyed3.core.AudioInfo | None): Informations read by `eyed3`.
-        eyed3_tags (eyed3.core.Tag | None): Tags read and managed by `eyed3`.
-        genius_tags (genius.api.Song | None): Tags found by `genius`.
+        eyed3_infos (Mp3AudioInfo): Informations read by `eyed3`.
+        eyed3_tags (Tag): Tags read and managed by `eyed3`.
+        genius_tags (Song): Tags found by `genius`.
     """
 
     SPLITTERS = " featuring | feat. | feat | ft. | ft | & | / "
@@ -50,6 +53,10 @@ class Track(QtCore.QObject):
         self.main_artist: str = ""
         self.album: str = ""
         self.lyrics_new: str = ""
+
+        self.eyed3_infos: Mp3AudioInfo = None
+        self.eyed3_tags: Tag = None
+        self.genius_tags: Song = None
 
     def read_tags(self) -> bool:
         """Uses eyed3 to read the tags from the file and sets them.
