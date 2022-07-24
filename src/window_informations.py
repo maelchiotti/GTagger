@@ -66,7 +66,7 @@ class WindowInformations(QtWidgets.QWidget):
         self.label_credits.setTextInteractionFlags(QtCore.Qt.TextBrowserInteraction)
         self.label_credits.setOpenExternalLinks(True)
 
-        self.set_texts(Color_.yellow)
+        self.set_texts(Color_.yellow_genius)
 
         self.centralwidget = QtWidgets.QWidget(self.window)
         self.layout_ = QtWidgets.QGridLayout(self.centralwidget)
