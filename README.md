@@ -38,9 +38,6 @@ Download the executable `GTagger.exe` from the [Releases](https://github.com/mae
 - Add search bar
 - Add a stop searching button in the status bar
 
-- Fix lyrics tooltip after searching lyrics + after saving
-- Lyrics seem to have a blank space at the beginning? Always strip them in add_lyrics()
-
 **Future:**
 
 - Improve the settings and informations windows to be `QtCore.Qt.Tool`s so that they keep focus

@@ -466,7 +466,7 @@ class WindowMain(QtWidgets.QWidget):
             track_layout.label_lyrics.setText(
                 track.get_lyrics(lines=LYRICS_LINES[self.gtagger.mode])
             )
-            track_layout.label_lyrics.setToolTip("")
+            track_layout.label_lyrics.setToolTip(track.get_lyrics_original())
 
     @QtCore.Slot()
     def cancel_rows(self) -> None:
@@ -477,7 +477,7 @@ class WindowMain(QtWidgets.QWidget):
                 track_layout.label_lyrics.setText(
                     track.get_lyrics(lines=LYRICS_LINES[self.gtagger.mode])
                 )
-                track_layout.label_lyrics.setToolTip("")
+                track_layout.label_lyrics.setToolTip(track.get_lyrics_original())
 
     @QtCore.Slot()
     def remove_selected_layouts(self) -> None:

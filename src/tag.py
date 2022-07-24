@@ -183,7 +183,7 @@ class ThreadLyricsSearch(QtCore.QThread):
             if found_lyrics:
                 lyrics = track.get_lyrics(lines=LYRICS_LINES[self.gtagger.mode])
                 track_layout.label_lyrics.setText(lyrics)
-                track_layout.label_lyrics.setToolTip(track.get_lyrics_original())
+                track_layout.label_lyrics.setToolTip(track.get_lyrics())
                 track_layout.state_indicator.set_state(State.LYRICS_FOUND)
                 track_layout.state_indicator.setToolTip(State.LYRICS_FOUND.value)
             else:
