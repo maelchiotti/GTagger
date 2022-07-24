@@ -48,7 +48,7 @@ class WindowMain(QtWidgets.QWidget):
         informations (InformationsWindow): Informations.
         window_help (QtWidgets.QMainWindow) : Help window.
         help (WindowHelp) : Help.
-        thread_search_lyrics: (QtCore.QThread): Thread to search for the lyrics.
+        thread_search_lyrics: (ThreadLyricsSearch): Thread to search for the lyrics.
     """
 
     def __init__(self, gtagger: GTagger) -> None:
@@ -71,7 +71,7 @@ class WindowMain(QtWidgets.QWidget):
         self.window_help: QtWidgets.QMainWindow = QtWidgets.QMainWindow(self)
         self.help: WindowHelp = WindowHelp(self, self.window_help)
 
-        self.thread_search_lyrics: QtCore.QThread = QtCore.QThread()
+        self.thread_search_lyrics: ThreadLyricsSearch = None
 
         self.setup_ui()
 
@@ -138,7 +138,7 @@ class WindowMain(QtWidgets.QWidget):
         self.input_token.setValidator(self.validator)
 
         self.button_token = QtWidgets.QPushButton()
-        self.button_token.setToolTip("Get the token\non Genius website")
+        self.button_token.setToolTip("Get the token on Genius website")
 
         # Setup the main layout of the files
         self.layout_files = QtWidgets.QVBoxLayout()
@@ -162,11 +162,15 @@ class WindowMain(QtWidgets.QWidget):
         self.progression_bar.setMaximumWidth(300)
         self.progression_bar.setFixedHeight(25)
 
-        self.button_mode = QtWidgets.QPushButton()
+        self.button_stop_search = QtWidgets.QPushButton()
+        self.button_stop_search.setEnabled(False)
+        self.button_stop_search.setToolTip("Stop searching")
+        self.button_change_mode = QtWidgets.QPushButton()
 
         self.status_bar = QtWidgets.QStatusBar()
         self.status_bar.addPermanentWidget(self.progression_bar)
-        self.status_bar.addPermanentWidget(self.button_mode)
+        self.status_bar.addPermanentWidget(self.button_stop_search)
+        self.status_bar.addPermanentWidget(self.button_change_mode)
 
         self.layout_ = QtWidgets.QGridLayout(self)
         self.layout_.setMenuBar(self.tool_bar)
@@ -190,7 +194,8 @@ class WindowMain(QtWidgets.QWidget):
         self.action_help.triggered.connect(self.open_help)
         self.input_token.textChanged.connect(self.token_changed)
         self.button_token.clicked.connect(self.open_token_page)
-        self.button_mode.clicked.connect(self.change_mode)
+        self.button_stop_search.clicked.connect(self.stop_search)
+        self.button_change_mode.clicked.connect(self.change_mode)
 
     def setup_style(self):
         """Sets up the custom colors and icons for diverse elements of the application."""
@@ -227,13 +232,13 @@ class WindowMain(QtWidgets.QWidget):
         )
         icon_help = CustomIcon(IconTheme.OUTLINE, "help-circle", Color_.light_grey)
         icon_token = CustomIcon(IconTheme.OUTLINE, "open", Color_.yellow_genius)
-
+        icon_stop_search = CustomIcon(IconTheme.OUTLINE, "close", Color_.red)
         if mode == Mode.NORMAL:
-            self.button_mode.setToolTip("Switch to compact mode")
-            icon_mode = CustomIcon(IconTheme.OUTLINE, "contract", Color_.light_grey)
+            self.button_change_mode.setToolTip("Switch to compact mode")
+            icon_change_mode = CustomIcon(IconTheme.OUTLINE, "contract", Color_.light_grey)
         elif mode == Mode.COMPACT:
-            self.button_mode.setToolTip("Switch to normal mode")
-            icon_mode = CustomIcon(IconTheme.OUTLINE, "expand", Color_.light_grey)
+            self.button_change_mode.setToolTip("Switch to normal mode")
+            icon_change_mode = CustomIcon(IconTheme.OUTLINE, "expand", Color_.light_grey)
 
         self.action_add_files.setIcon(icon_add_files)
         self.action_add_folder.setIcon(icon_add_folder)
@@ -245,7 +250,8 @@ class WindowMain(QtWidgets.QWidget):
         self.action_informations.setIcon(icon_informations)
         self.action_help.setIcon(icon_help)
         self.button_token.setIcon(icon_token)
-        self.button_mode.setIcon(icon_mode)
+        self.button_stop_search.setIcon(icon_stop_search)
+        self.button_change_mode.setIcon(icon_change_mode)
 
         # Change the cover placeholders and if needed,
         # as well as the lyrics color
@@ -336,14 +342,14 @@ class WindowMain(QtWidgets.QWidget):
         # Update the button
         if self.gtagger.mode == Mode.COMPACT:
             self.gtagger.mode = Mode.NORMAL
-            self.button_mode.setToolTip("Switch to compact mode")
-            self.button_mode.setIcon(
+            self.button_change_mode.setToolTip("Switch to compact mode")
+            self.button_change_mode.setIcon(
                 CustomIcon(IconTheme.OUTLINE, "contract", Color_.light_grey)
             )
         elif self.gtagger.mode == Mode.NORMAL:
             self.gtagger.mode = Mode.COMPACT
-            self.button_mode.setToolTip("Switch to normal mode")
-            self.button_mode.setIcon(
+            self.button_change_mode.setToolTip("Switch to normal mode")
+            self.button_change_mode.setIcon(
                 CustomIcon(IconTheme.OUTLINE, "expand", Color_.light_grey)
             )
 
@@ -420,6 +426,7 @@ class WindowMain(QtWidgets.QWidget):
         self.progression_bar.reset()
         self.set_maximum_progression_bar(self.track_layouts)
         self.thread_search_lyrics.start()
+        self.button_stop_search.setEnabled(True)
 
     @QtCore.Slot()
     def token_changed(self) -> None:
@@ -517,6 +524,12 @@ class WindowMain(QtWidgets.QWidget):
                 track_layout.label_lyrics.setStyleSheet("")
         self.action_save_lyrics.setEnabled(enable_save)
         self.selection_changed()  # Update the cancel and remove buttons
+
+    @QtCore.Slot()
+    def stop_search(self) -> None:
+        if self.thread_search_lyrics.isRunning():
+            self.thread_search_lyrics.stop_search = True
+            self.button_stop_search.setEnabled(False)
 
     @QtCore.Slot()
     def lyrics_searched(self) -> None:

@@ -38,6 +38,8 @@ Download the executable `GTagger.exe` from the [Releases](https://github.com/mae
 - Add search bar
 - Add a stop searching button in the status bar
 
+- Properly wait for thread closing when exiting main window
+
 **Future:**
 
 - Improve the settings and informations windows to be `QtCore.Qt.Tool`s so that they keep focus

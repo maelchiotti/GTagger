@@ -347,6 +347,7 @@ class Color_(Enum):
     light_orange = "#FFFACD"
     light_grey = "#D3D3D3"
 
+    red = "#FF0000"
     orange = "#FFA500"
     grey = "#808080"
 

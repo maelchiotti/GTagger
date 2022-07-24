@@ -165,6 +165,8 @@ class ThreadLyricsSearch(QtCore.QThread):
     ) -> None:
         super().__init__()
 
+        self.stop_search = False
+
         self.token: str = token
         self.track_layouts: dict[Track, TrackLayout] = track_layouts
         self.overwrite_lyrics: bool = overwrite_lyrics
@@ -173,7 +175,7 @@ class ThreadLyricsSearch(QtCore.QThread):
     def run(self):
         lyrics_search = LyricsSearch(self.token)
         for track, track_layout in self.track_layouts.copy().items():
-            if not self.overwrite_lyrics and track.has_lyrics_original():
+            if (not self.overwrite_lyrics and track.has_lyrics_original()) or track.has_lyrics_new() or self.stop_search:
                 self.signal_lyrics_searched.emit()
                 continue
 
