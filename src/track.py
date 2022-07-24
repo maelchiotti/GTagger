@@ -233,6 +233,7 @@ class Track(QtCore.QObject):
         Args:
             lyrics (str): New lyrics of the track.
         """
+        lyrics = lyrics.strip("\n")
         self.lyrics_new = lyrics
         self.signal_lyrics_changed.emit()
 

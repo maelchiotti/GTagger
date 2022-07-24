@@ -179,13 +179,13 @@ class TrackLayout(QtWidgets.QGridLayout):
         self.layout_title.addStretch()
 
         self.grid_layout = QtWidgets.QGridLayout()
-        self.grid_layout.addLayout(self.layout_title, 0, 0, 1, 3)
+        self.grid_layout.addLayout(self.layout_title, 0, 0, 1, 2)
         self.grid_layout.addWidget(self.label_cover, 1, 0, 4, 1)
         self.grid_layout.addWidget(self.label_title, 1, 1, 1, 1)
         self.grid_layout.addWidget(self.label_artists, 2, 1, 1, 1)
         self.grid_layout.addWidget(self.label_album, 3, 1, 1, 1)
         self.grid_layout.addWidget(self.label_duration, 4, 1, 1, 1)
-        self.grid_layout.addWidget(self.label_lyrics, 1, 2, 4, 1)
+        self.grid_layout.addWidget(self.label_lyrics, 0, 2, 5, 1)
 
         self.frame = QtWidgets.QFrame()
         self.frame.setFrameStyle(QtWidgets.QFrame.StyledPanel | QtWidgets.QFrame.Plain)
@@ -207,6 +207,7 @@ class TrackLayout(QtWidgets.QGridLayout):
         self.label_cover.setPixmap(self.covers[self.gtagger.mode])
         self.label_cover.setFixedWidth(COVER_SIZE[self.gtagger.mode])
         self.label_title = QtWidgets.QLabel(track.get_title())
+        self.label_title.setToolTip(track.filename)
         self.label_title.setStyleSheet("font-size: 15pt; font-weight:800;")
         self.label_artists = QtWidgets.QLabel(track.get_artists())
         self.label_artists.setStyleSheet("font-size: 12pt; font-weight:600;")
@@ -405,4 +406,4 @@ class Mode(Enum):
 
 
 COVER_SIZE = {Mode.NORMAL: 128, Mode.COMPACT: 64}
-LYRICS_LINES = {Mode.NORMAL: 8, Mode.COMPACT: 4}
+LYRICS_LINES = {Mode.NORMAL: 10, Mode.COMPACT: 4}
