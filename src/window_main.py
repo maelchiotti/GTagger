@@ -198,13 +198,15 @@ class WindowMain(QtWidgets.QWidget):
 
         # Setup the windows icons
         icon_window_main = CustomIcon(IconTheme.SHARP, "pricetag", Color_.black)
-        self.setWindowIcon(icon_window_main)
         icon_window_settings = CustomIcon(IconTheme.SHARP, "settings", Color_.black)
-        self.window_settings.setWindowIcon(icon_window_settings)
         icon_window_informations = CustomIcon(
             IconTheme.SHARP, "information-circle", Color_.black
         )
+        icon_window_help = CustomIcon(IconTheme.SHARP, "help-circle", Color_.black)
+        self.setWindowIcon(icon_window_main)
+        self.window_settings.setWindowIcon(icon_window_settings)
         self.window_informations.setWindowIcon(icon_window_informations)
+        self.window_help.setWindowIcon(icon_window_help)
 
         # Change the icons
         icon_add_files = CustomIcon(IconTheme.OUTLINE, "documents", Color_.light_green)
