@@ -77,7 +77,7 @@ class WindowMain(QtWidgets.QWidget):
 
     def setup_ui(self) -> None:
         """Sets up the UI of the window."""
-        # Setup the toolbar
+        # Toolbar
         self.action_add_files = QtGui.QAction("Select files")
         self.action_add_files.setToolTip("Select files")
 
@@ -129,18 +129,36 @@ class WindowMain(QtWidgets.QWidget):
         self.tool_bar.addAction(self.action_informations)
         self.tool_bar.addAction(self.action_help)
 
-        # Setup the input token
+        # Token input
         self.input_token = QtWidgets.QLineEdit()
         self.input_token.setPlaceholderText("Enter your Genius client access token")
         self.input_token.setToolTip("Enter token")
-        regex_epx = QtCore.QRegularExpression("[a-zA-Z0-9_-]{64}")
-        self.validator = QtGui.QRegularExpressionValidator(regex_epx, self)
+        regex = QtCore.QRegularExpression("[a-zA-Z0-9_-]{64}")
+        self.validator = QtGui.QRegularExpressionValidator(regex, self)
         self.input_token.setValidator(self.validator)
 
+        # Button to open the Genius website
         self.button_token = QtWidgets.QPushButton()
         self.button_token.setToolTip("Get the token on Genius website")
 
-        # Setup the main layout of the files
+        # Separator
+        self.frame_separator = QtWidgets.QFrame()
+        self.frame_separator.setFrameStyle(
+            QtWidgets.QFrame.HLine | QtWidgets.QFrame.Plain
+        )
+
+        # Text filter input
+        self.input_filter_text = QtWidgets.QLineEdit()
+        self.input_filter_text.setPlaceholderText("Filter by title or artist")
+        self.input_filter_text.setToolTip("Enter text")
+
+        # Has lyrics filter
+        self.button_filter_lyrics = QtWidgets.QPushButton()
+        self.button_filter_lyrics.setToolTip("Hide files with lyrics")
+        self.button_filter_lyrics.setCheckable(True)
+        self.button_filter_lyrics.setChecked(True)
+
+        # Main layout of the files
         self.layout_files = QtWidgets.QVBoxLayout()
         self.layout_files.setAlignment(QtCore.Qt.AlignTop)
 
@@ -154,10 +172,13 @@ class WindowMain(QtWidgets.QWidget):
         self.layout_main = QtWidgets.QGridLayout()
         self.layout_main.addWidget(self.input_token, 0, 0, 1, 1)
         self.layout_main.addWidget(self.button_token, 0, 1, 1, 1)
-        self.layout_main.addWidget(self.scroll_area, 1, 0, 1, 2)
+        self.layout_main.addWidget(self.frame_separator, 1, 0, 1, 2)
+        self.layout_main.addWidget(self.input_filter_text, 2, 0, 1, 1)
+        self.layout_main.addWidget(self.button_filter_lyrics, 2, 1, 1, 1)
+        self.layout_main.addWidget(self.scroll_area, 3, 0, 1, 2)
         self.layout_main.setContentsMargins(5, 5, 5, 0)
 
-        # Setup the status bar
+        # Status bar
         self.progression_bar = QtWidgets.QProgressBar()
         self.progression_bar.setMaximumWidth(300)
         self.progression_bar.setFixedHeight(25)
@@ -172,11 +193,12 @@ class WindowMain(QtWidgets.QWidget):
         self.status_bar.addPermanentWidget(self.button_stop_search)
         self.status_bar.addPermanentWidget(self.button_change_mode)
 
+        # Main window
         self.layout_ = QtWidgets.QGridLayout(self)
+        self.layout_.setContentsMargins(0, 0, 0, 0)
         self.layout_.setMenuBar(self.tool_bar)
         self.layout_.addLayout(self.layout_main, 0, 0, 1, 1)
         self.layout_.addWidget(self.status_bar, 1, 0, 1, 1)
-        self.layout_.setContentsMargins(0, 0, 0, 0)
 
         self.setLayout(self.layout_)
         self.setWindowTitle(f"GTagger ({VERSION})")
@@ -194,6 +216,8 @@ class WindowMain(QtWidgets.QWidget):
         self.action_help.triggered.connect(self.open_help)
         self.input_token.textChanged.connect(self.token_changed)
         self.button_token.clicked.connect(self.open_token_page)
+        self.input_filter_text.returnPressed.connect(self.filter_text)
+        self.button_filter_lyrics.clicked.connect(self.filter_lyrics)
         self.button_stop_search.clicked.connect(self.stop_search)
         self.button_change_mode.clicked.connect(self.change_mode)
 
@@ -232,6 +256,7 @@ class WindowMain(QtWidgets.QWidget):
         )
         icon_help = CustomIcon(IconTheme.OUTLINE, "help-circle", Color_.light_grey)
         icon_token = CustomIcon(IconTheme.OUTLINE, "open", Color_.yellow_genius)
+        icon_filter_lyrics = CustomIcon(IconTheme.OUTLINE, "text", Color_.light_grey)
         icon_stop_search = CustomIcon(IconTheme.OUTLINE, "close", Color_.red)
         if mode == Mode.NORMAL:
             self.button_change_mode.setToolTip("Switch to compact mode")
@@ -254,6 +279,7 @@ class WindowMain(QtWidgets.QWidget):
         self.action_informations.setIcon(icon_informations)
         self.action_help.setIcon(icon_help)
         self.button_token.setIcon(icon_token)
+        self.button_filter_lyrics.setIcon(icon_filter_lyrics)
         self.button_stop_search.setIcon(icon_stop_search)
         self.button_change_mode.setIcon(icon_change_mode)
 
@@ -337,7 +363,7 @@ class WindowMain(QtWidgets.QWidget):
             track_layout (TrackLayout): Track layout to remove.
         """
         track_layout.frame.hide()
-        self.layout_files.removeItem(track_layout)
+        self.layout_files.removeWidget(track_layout)
         self.track_layouts.pop(track)
 
     @QtCore.Slot()
@@ -362,7 +388,11 @@ class WindowMain(QtWidgets.QWidget):
             track_layout_new = TrackLayout(track, track_layout_old.state, self.gtagger)
             self.remove_layout(track, track_layout_old)
             self.track_layouts[track] = track_layout_new
-            self.layout_files.addLayout(track_layout_new)
+            self.layout_files.addWidget(track_layout_new)
+
+        # Apply all the filters
+        self.filter_text()
+        self.filter_lyrics()
 
         # Update the settings
         self.gtagger.settings_manager.set_setting(
@@ -412,7 +442,7 @@ class WindowMain(QtWidgets.QWidget):
             )
             track_layout.signal_mouse_event.connect(self.selection_changed)
             self.track_layouts[track] = track_layout
-            self.layout_files.addLayout(track_layout)
+            self.layout_files.addWidget(track_layout)
 
             self.increment_progression_bar()
 
@@ -530,6 +560,34 @@ class WindowMain(QtWidgets.QWidget):
         self.selection_changed()  # Update the cancel and remove buttons
 
     @QtCore.Slot()
+    def filter_text(self) -> None:
+        filter = self.input_filter_text.text()
+        
+        # Apply the filter
+        for track, track_layout in self.track_layouts.items():
+            if filter in track.get_title() or filter in track.get_artists():
+                track_layout.setVisible(True)
+            else:
+                track_layout.setVisible(False)
+
+    @QtCore.Slot()
+    def filter_lyrics(self) -> None:
+        show_lyrics = self.button_filter_lyrics.isChecked()
+        
+        # Apply the filter
+        for track, track_layout in self.track_layouts.items():
+            if show_lyrics:
+                track_layout.setVisible(True)
+            elif track.has_lyrics_original():
+                track_layout.setVisible(False)
+                
+        # Update the button
+        if show_lyrics:
+            self.button_filter_lyrics.setToolTip("Hide files with lyrics")
+        else:
+            self.button_filter_lyrics.setToolTip("Show files with lyrics")
+
+    @QtCore.Slot()
     def stop_search(self) -> None:
         if self.thread_search_lyrics.isRunning():
             self.thread_search_lyrics.stop_search = True
@@ -568,7 +626,10 @@ class WindowMain(QtWidgets.QWidget):
         Args:
             event (QtGui.QCloseEvent): Close event.
         """
-        if self.thread_search_lyrics.isRunning():
+        if (
+            self.thread_search_lyrics is not None
+            and self.thread_search_lyrics.isRunning()
+        ):
             self.thread_search_lyrics.stop_search = True
             self.thread_search_lyrics.wait()
         event.accept()

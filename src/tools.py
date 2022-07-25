@@ -98,8 +98,8 @@ class CustomIcon(QtGui.QIcon):
         return os.path.join(base_path, ressource)
 
 
-class TrackLayout(QtWidgets.QGridLayout):
-    """Customized implementation of a `QGridLayout` containing the informations of a track.
+class TrackLayout(QtWidgets.QWidget):
+    """Customized implementation of a `QWidget` containing the informations of a track.
 
     Signals:
         signal_mouse_event (QtCore.Signal): Emitted when a mouse event is intercepted.
@@ -191,9 +191,13 @@ class TrackLayout(QtWidgets.QGridLayout):
         self.frame.setFrameStyle(QtWidgets.QFrame.StyledPanel | QtWidgets.QFrame.Plain)
         self.frame.setLayout(self.grid_layout)
         self.frame.mouseReleaseEvent = self.mouseReleaseEvent
-        self.frame.resizeEvent = self.resizeEvent
+        self.frame.resizeEvent = self.resizeFrame
 
-        self.addWidget(self.frame, 0, 0, 1, 1)
+        self.layout_ = QtWidgets.QGridLayout()
+        self.layout_.setContentsMargins(0, 0, 0, 0)
+        self.layout_.addWidget(self.frame, 0, 0, 1, 1)
+
+        self.setLayout(self.layout_)
 
     def setup_compact_mode(self, track: Track):
         """Sets up the layout as compact mode.
@@ -234,9 +238,13 @@ class TrackLayout(QtWidgets.QGridLayout):
         self.frame.setFrameStyle(QtWidgets.QFrame.StyledPanel | QtWidgets.QFrame.Plain)
         self.frame.setLayout(self.grid_layout)
         self.frame.mouseReleaseEvent = self.mouseReleaseEvent
-        self.frame.resizeEvent = self.resizeEvent
+        self.frame.resizeEvent = self.resizeFrame
 
-        self.addWidget(self.frame, 0, 0, 1, 1)
+        self.layout_ = QtWidgets.QGridLayout()
+        self.layout_.setContentsMargins(0, 0, 0, 0)
+        self.layout_.addWidget(self.frame, 0, 0, 1, 1)
+
+        self.setLayout(self.layout_)
 
     def mouseReleaseEvent(self, event: QtGui.QMouseEvent):
         """Intercepts the mouse release event on the `QFrame`.
@@ -261,7 +269,7 @@ class TrackLayout(QtWidgets.QGridLayout):
 
         self.signal_mouse_event.emit()
 
-    def resizeEvent(self, newSize: QtGui.QResizeEvent):
+    def resizeFrame(self, newSize: QtGui.QResizeEvent):
         """Intercepts the resize event on the `QFrame`.
 
         Args:
@@ -351,7 +359,7 @@ class Color_(Enum):
     orange = "#FFA500"
     grey = "#808080"
 
-    dark_blue = "#305A7C"
+    dark_blue = "#2B3C4F"
 
     yellow_genius = "#FFFF64"
     black = "#000000"
@@ -407,4 +415,4 @@ class Mode(Enum):
 
 
 COVER_SIZE = {Mode.NORMAL: 128, Mode.COMPACT: 64}
-LYRICS_LINES = {Mode.NORMAL: 10, Mode.COMPACT: 4}
+LYRICS_LINES = {Mode.NORMAL: 9, Mode.COMPACT: 4}
