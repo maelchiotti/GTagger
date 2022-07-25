@@ -545,6 +545,7 @@ class WindowMain(QtWidgets.QWidget):
 
     @QtCore.Slot()
     def lyrics_changed(self) -> None:
+        """The lyrics of a track changed."""
         enable_save = False
         for track, track_layout in self.track_layouts.items():
             if track.has_lyrics_new():
@@ -560,9 +561,11 @@ class WindowMain(QtWidgets.QWidget):
 
     @QtCore.Slot()
     def filter(self) -> None:
+        """Applies the filters to the track layouts."""
         show_lyrics = self.button_filter_lyrics.isChecked()
         text = self.input_filter_text.text()
 
+        # Apply the filters
         for track, track_layout in self.track_layouts.items():
             visible = False
             if show_lyrics:
@@ -571,7 +574,6 @@ class WindowMain(QtWidgets.QWidget):
             elif not track.has_lyrics_original():
                 if text in track.get_title() or text in track.get_artists():
                     visible = True
-            print(visible)
             track_layout.setVisible(visible)
 
         # Update the lyrics filter button
@@ -582,6 +584,7 @@ class WindowMain(QtWidgets.QWidget):
 
     @QtCore.Slot()
     def stop_search(self) -> None:
+        """Stop searching for the lyrics."""
         if self.thread_search_lyrics.isRunning():
             self.thread_search_lyrics.stop_search = True
             self.button_stop_search.setEnabled(False)
