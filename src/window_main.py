@@ -216,8 +216,8 @@ class WindowMain(QtWidgets.QWidget):
         self.action_help.triggered.connect(self.open_help)
         self.input_token.textChanged.connect(self.token_changed)
         self.button_token.clicked.connect(self.open_token_page)
-        self.input_filter_text.returnPressed.connect(self.filter_text)
-        self.button_filter_lyrics.clicked.connect(self.filter_lyrics)
+        self.input_filter_text.returnPressed.connect(self.filter)
+        self.button_filter_lyrics.clicked.connect(self.filter)
         self.button_stop_search.clicked.connect(self.stop_search)
         self.button_change_mode.clicked.connect(self.change_mode)
 
@@ -391,8 +391,7 @@ class WindowMain(QtWidgets.QWidget):
             self.layout_files.addWidget(track_layout_new)
 
         # Apply all the filters
-        self.filter_text()
-        self.filter_lyrics()
+        self.filter()
 
         # Update the settings
         self.gtagger.settings_manager.set_setting(
@@ -418,8 +417,8 @@ class WindowMain(QtWidgets.QWidget):
                 files = list(Path(directory).glob("*.mp3"))
         else:
             files = self.select_files()
-            if len(files) == 0:
-                return
+        if len(files) <= 0:
+            return
 
         self.progression_bar.reset()
         self.set_maximum_progression_bar(files)
@@ -560,28 +559,22 @@ class WindowMain(QtWidgets.QWidget):
         self.selection_changed()  # Update the cancel and remove buttons
 
     @QtCore.Slot()
-    def filter_text(self) -> None:
-        filter = self.input_filter_text.text()
-        
-        # Apply the filter
-        for track, track_layout in self.track_layouts.items():
-            if filter in track.get_title() or filter in track.get_artists():
-                track_layout.setVisible(True)
-            else:
-                track_layout.setVisible(False)
-
-    @QtCore.Slot()
-    def filter_lyrics(self) -> None:
+    def filter(self) -> None:
         show_lyrics = self.button_filter_lyrics.isChecked()
-        
-        # Apply the filter
+        text = self.input_filter_text.text()
+
         for track, track_layout in self.track_layouts.items():
+            visible = False
             if show_lyrics:
-                track_layout.setVisible(True)
-            elif track.has_lyrics_original():
-                track_layout.setVisible(False)
-                
-        # Update the button
+                if text in track.get_title() or text in track.get_artists():
+                    visible = True
+            elif not track.has_lyrics_original():
+                if text in track.get_title() or text in track.get_artists():
+                    visible = True
+            print(visible)
+            track_layout.setVisible(visible)
+
+        # Update the lyrics filter button
         if show_lyrics:
             self.button_filter_lyrics.setToolTip("Hide files with lyrics")
         else:
