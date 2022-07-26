@@ -1,6 +1,7 @@
 """Tools helpful for the GUI.
 
 Includes:
+- SettingsManager: Handles the settings.
 - CustomIcon: Customized implementation of a `QIcon`.
 - Settings: Enumeration of settings.
 - Color_: Enumeration of colors.
@@ -13,12 +14,60 @@ from __future__ import annotations
 import os
 import logging as log
 import sys
+from typing import Any
 from PySide6 import QtCore, QtGui
 from enum import Enum
 
 VERSION = "v1.2.0"
 ICONS_PATH = "src/assets/img/icons"
 TOKEN_URL = QtCore.QUrl("https://genius.com/api-clients")
+
+
+class SettingsManager(QtCore.QObject):
+    """Settings manager that handles of the settings of the application.
+
+    Attributes:
+        settings (QtCore.QSettings): Settings of the application.
+    """
+
+    def __init__(self) -> None:
+        super().__init__()
+
+        QtCore.QSettings.setDefaultFormat(QtCore.QSettings.IniFormat)
+        self.settings = QtCore.QSettings()
+
+    def get_setting(
+        self, setting: str, default: Any = None, type: object = None
+    ) -> Any:
+        """Returns the value of the setting `setting`.
+
+        The setting is defaulted to `default` if it does not exist,
+        which defaults to `None`.
+
+        `type` specifies the type of the data to return,
+        it has to be a native data type.
+
+        Args:
+            setting (str): Name of the setting.
+            default (Any, optional): Default value for the setting. Defaults to `None`.
+            type (object, optional): Type of the setting. Defaults to `None`.
+
+        Returns:
+            Any: Value of the setting.
+        """
+        if type is None:
+            return self.settings.value(setting, defaultValue=default)
+        else:
+            return self.settings.value(setting, defaultValue=default, type=type)
+
+    def set_setting(self, setting: str, value: object) -> None:
+        """Sets the value of `setting` to `value`.
+
+        Args:
+            setting (str): Name of the setting.
+            value (object): Value of the setting.
+        """
+        self.settings.setValue(setting, value)
 
 
 class CustomIcon(QtGui.QIcon):

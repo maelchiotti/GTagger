@@ -38,7 +38,7 @@ Download the executable `GTagger.exe` from the [Releases](https://github.com/mae
 
 **Future:**
 
-- Improve the settings and informations windows to be `QtCore.Qt.Tool`s so that they keep focus
+- Improve the settings, informations and help windows to be `QtCore.Qt.Tool`s so that they keep focus
 - Add files in a thread
 - Re-implement the [light theme](https://github.com/maelchiotti/GTagger/tree/light_theme)
 - Fix the width issue when lyrics contain a very, very long line (which should be very unusual though)
