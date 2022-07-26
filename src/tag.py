@@ -8,17 +8,18 @@ Includes:
 
 from __future__ import annotations
 
-import re
 import logging as log
+import re
+from typing import TYPE_CHECKING
+
+import genius
 import lyricsgenius
 from lyricsgenius import types
-import genius
 from PySide6 import QtCore
 
-from src.tools import LYRICS_LINES, State, TrackLayout
+from src.tools import LYRICS_LINES, State
 from src.track import Track
-
-from typing import TYPE_CHECKING
+from src.track_layout import TrackLayout
 
 if TYPE_CHECKING:
     from main import GTagger
@@ -53,13 +54,17 @@ class TrackSearch(QtCore.QObject):
         Returns:
             bool: `True` is the track was found.
         """
-        if track.title is None or track.main_artist is None:
+        if track.title == "" or track.main_artist == "":
             return False
         search = f"{track.title} {track.main_artist}"
         try:
             searched_tracks = self.genius.search(search)
         except Exception as exception:
-            log.error("Unexpected exception: %s", exception)
+            log.error(
+                "Unexpected exception while searching for the track '%s': %s",
+                track.title,
+                exception,
+            )
             return False
         try:
             searched_track = next(searched_tracks)
@@ -175,7 +180,11 @@ class ThreadLyricsSearch(QtCore.QThread):
     def run(self):
         lyrics_search = LyricsSearch(self.token)
         for track, track_layout in self.track_layouts.copy().items():
-            if (not self.overwrite_lyrics and track.has_lyrics_original()) or track.has_lyrics_new() or self.stop_search:
+            if (
+                (not self.overwrite_lyrics and track.has_lyrics_original())
+                or track.has_lyrics_new()
+                or self.stop_search
+            ):
                 self.signal_lyrics_searched.emit()
                 continue
 

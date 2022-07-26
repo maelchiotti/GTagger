@@ -1,18 +1,19 @@
 """Handles a music track."""
 
-import os
-from pathlib import Path
-import re
 import logging as log
+import os
+import re
 import time
-from genius.classes.song import Song
+from pathlib import Path
+
 import eyed3
 from eyed3.id3.frames import ImageFrame
 from eyed3.id3.tag import Tag
 from eyed3.mp3 import Mp3AudioInfo
+from genius.classes.song import Song
 from PySide6 import QtCore, QtGui
 
-from src.tools import COVER_SIZE, CustomIcon, Color_, IconTheme, Mode
+from src.tools import COVER_SIZE, Color_, CustomIcon, IconTheme, Mode
 
 
 class Track(QtCore.QObject):
@@ -65,12 +66,18 @@ class Track(QtCore.QObject):
             bool: `True` if the tags were successfully read.
         """
         try:
+            # Infos and tags
             eyed3_load = eyed3.load(self.filepath)
             self.eyed3_infos = eyed3_load.info
             if eyed3_load.info is None:
                 return False
             self.eyed3_tags = eyed3_load.tag
-            self.duration = self.eyed3_infos.time_secs
+
+            # Duration
+            if self.eyed3_infos.time_secs is not None:
+                self.duration = self.eyed3_infos.time_secs
+
+            # Covers
             if len(self.eyed3_tags.images) > 0:
                 image: ImageFrame = self.eyed3_tags.images[0]
                 cover = QtGui.QPixmap()
@@ -109,11 +116,19 @@ class Track(QtCore.QObject):
                 )
                 self.covers[Mode.NORMAL] = cover_normal
                 self.covers[Mode.COMPACT] = cover_compact
-            self.title = self.eyed3_tags.title
+
+            # Title
+            if self.eyed3_tags.title is not None:
+                self.title = self.eyed3_tags.title
+
+            # Artists
             if self.eyed3_tags.artist is not None:
                 self.artists = re.split(self.SPLITTERS, self.eyed3_tags.artist)
                 self.main_artist = self.artists[0]
-            self.album = self.eyed3_tags.album
+
+            # Album
+            if self.eyed3_tags.album is not None:
+                self.album = self.eyed3_tags.album
         except Exception as exception:
             log.error(
                 "Error while reading the tags of file '%s' : %s",
