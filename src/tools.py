@@ -16,8 +16,6 @@ import sys
 from PySide6 import QtCore, QtGui
 from enum import Enum
 
-from track_layout import Mode
-
 VERSION = "v1.2.0"
 ICONS_PATH = "src/assets/img/icons"
 TOKEN_URL = QtCore.QUrl("https://genius.com/api-clients")
@@ -143,6 +141,30 @@ class IconTheme(Enum):
     NORMAL = "normal"
     OUTLINE = "outline"
     SHARP = "sharp"
+
+
+class Mode(Enum):
+    """Enumerates the different layout modes of a track layout.
+
+    Includes:
+    - Normal: normal layout with all informations
+    - Compact: compact layout with only important informations
+    """
+
+    NORMAL = "normal"
+    COMPACT = "compact"
+
+    @staticmethod
+    def get_mode(value: str) -> Mode:
+        """Returns the `Mode` corresponding to `value`.
+
+        Args:
+            value (str): Value of the mode.
+
+        Returns:
+            Mode: Mode corresponding to `value`.
+        """
+        return Mode.__getitem__(value.upper())
 
 
 # Sizes of the covers depending on the mode

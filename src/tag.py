@@ -15,8 +15,9 @@ from lyricsgenius import types
 import genius
 from PySide6 import QtCore
 
-from src.tools import LYRICS_LINES, State, TrackLayout
+from src.tools import LYRICS_LINES, State
 from src.track import Track
+from src.track_layout import TrackLayout
 
 from typing import TYPE_CHECKING
 

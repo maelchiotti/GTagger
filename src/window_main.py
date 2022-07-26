@@ -7,13 +7,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from PySide6 import QtCore, QtWidgets, QtGui
-from src.window_help import WindowHelp
-from src.window_informations import WindowInformations
 
-from src.window_settings import WindowSettings
-from src.track import Track
-from src.tag import ThreadLyricsSearch
-from src.track_layout import TrackLayout
 from src.tools import (
     TOKEN_URL,
     VERSION,
@@ -25,6 +19,13 @@ from src.tools import (
     State,
     IconTheme,
 )
+from src.window_help import WindowHelp
+from src.window_informations import WindowInformations
+from src.window_settings import WindowSettings
+from src.track import Track
+from src.tag import ThreadLyricsSearch
+from src.track_layout import TrackLayout
+
 
 from typing import TYPE_CHECKING
 

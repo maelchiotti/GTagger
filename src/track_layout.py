@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from enum import Enum
 from PySide6 import QtCore, QtGui, QtWidgets
 
-from tools import State, Color_, LYRICS_LINES, COVER_SIZE
+from src.tools import State, Color_, Mode, LYRICS_LINES, COVER_SIZE
 
 from typing import TYPE_CHECKING
 
@@ -260,27 +259,3 @@ class StateIndicator(QtWidgets.QWidget):
         """
         self.state = state
         self.update()
-
-
-class Mode(Enum):
-    """Enumerates the different layout modes of a track layout.
-
-    Includes:
-    - Normal: normal layout with all informations
-    - Compact: compact layout with only important informations
-    """
-
-    NORMAL = "normal"
-    COMPACT = "compact"
-
-    @staticmethod
-    def get_mode(value: str) -> Mode:
-        """Returns the `Mode` corresponding to `value`.
-
-        Args:
-            value (str): Value of the mode.
-
-        Returns:
-            Mode: Mode corresponding to `value`.
-        """
-        return Mode.__getitem__(value.upper())
