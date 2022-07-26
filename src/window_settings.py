@@ -13,23 +13,20 @@ if TYPE_CHECKING:
     from main import GTagger
 
 
-class WindowSettings(QtWidgets.QWidget):
+class WindowSettings(QtWidgets.QDialog):
     """Settings window of the GUI.
 
     Args:
         gtagger (GTagger): GTagger application.
-        window (QtWidgets.QMainWindow): Window UI.
 
     Attributes:
         gtagger (GTagger): GTagger application.
-        window (QtWidgets.QMainWindow): Window UI.
     """
 
-    def __init__(self, parent, gtagger, ui_window: QtWidgets.QMainWindow):
+    def __init__(self, parent, gtagger):
         super().__init__(parent)
 
         self.gtagger: GTagger = gtagger
-        self.window: QtWidgets.QMainWindow = ui_window
 
         self.setup_ui()
 
@@ -56,12 +53,13 @@ class WindowSettings(QtWidgets.QWidget):
         self.box_files = QtWidgets.QGroupBox("Files")
         self.box_files.setLayout(self.grid_files)
 
-        self.centralwidget = QtWidgets.QWidget(self.window)
-        self.layout_ = QtWidgets.QGridLayout(self.centralwidget)
+        self.layout_ = QtWidgets.QGridLayout()
         self.layout_.addWidget(self.box_files, 0, 0, 1, 1)
 
-        self.window.setCentralWidget(self.centralwidget)
-        self.window.setWindowTitle("Settings")
+        self.setLayout(self.layout_)
+        self.setWindowTitle("Settings")
+        self.setWindowModality(QtCore.Qt.ApplicationModal)
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
         self.checkbox_recursive.stateChanged.connect(self.toggle_recursive_search)
         self.checkbox_overwrite.stateChanged.connect(self.toggle_overwrite_lyrics)

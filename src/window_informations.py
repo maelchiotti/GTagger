@@ -7,29 +7,12 @@ from PySide6 import QtCore, QtWidgets
 
 from src.tools import VERSION, Color_
 
-from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from src.window_main import WindowMain
+class WindowInformations(QtWidgets.QDialog):
+    """Informations window of the GUI."""
 
-
-class WindowInformations(QtWidgets.QWidget):
-    """Informations window of the GUI.
-
-    Args:
-        gtagger (GTagger): GTagger application.
-        window (QtWidgets.QMainWindow): Window UI.
-
-    Attributes:
-        gtagger (GTagger): GTagger application.
-        window (QtWidgets.QMainWindow): Window UI.
-    """
-
-    def __init__(self, parent, ui_window: QtWidgets.QMainWindow):
+    def __init__(self, parent):
         super().__init__(parent)
-
-        self.main: WindowMain = parent
-        self.window: QtWidgets.QMainWindow = ui_window
 
         self.setup_ui()
 
@@ -68,8 +51,7 @@ class WindowInformations(QtWidgets.QWidget):
 
         self.set_texts(Color_.yellow_genius)
 
-        self.centralwidget = QtWidgets.QWidget(self.window)
-        self.layout_ = QtWidgets.QGridLayout(self.centralwidget)
+        self.layout_ = QtWidgets.QGridLayout()
         self.layout_.addWidget(self.label_gtagger, 0, 0, 1, 1, QtCore.Qt.AlignCenter)
         self.layout_.addWidget(self.label_developper, 1, 0, 1, 1, QtCore.Qt.AlignCenter)
         self.layout_.addWidget(self.label_version, 2, 0, 1, 1, QtCore.Qt.AlignCenter)
@@ -78,8 +60,10 @@ class WindowInformations(QtWidgets.QWidget):
         )
         self.layout_.addWidget(self.label_credits, 4, 0, 1, 1)
 
-        self.window.setCentralWidget(self.centralwidget)
-        self.window.setWindowTitle("Informations")
+        self.setLayout(self.layout_)
+        self.setWindowTitle("Informations")
+        self.setWindowModality(QtCore.Qt.ApplicationModal)
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
     def set_texts(self, link_color: Color_) -> None:
         """Sets the texts of the labels.

@@ -55,22 +55,10 @@ class WindowMain(QtWidgets.QWidget):
         super().__init__()
 
         self.gtagger: GTagger = gtagger
-
         self.track_layouts: dict[Track, TrackLayout] = {}
-
-        self.window_settings: QtWidgets.QMainWindow = QtWidgets.QMainWindow(self)
-        self.settings: WindowSettings = WindowSettings(
-            self, self.gtagger, self.window_settings
-        )
-
-        self.window_informations: QtWidgets.QMainWindow = QtWidgets.QMainWindow(self)
-        self.informations: WindowInformations = WindowInformations(
-            self, self.window_informations
-        )
-
-        self.window_help: QtWidgets.QMainWindow = QtWidgets.QMainWindow(self)
-        self.help: WindowHelp = WindowHelp(self, self.window_help)
-
+        self.window_settings: WindowSettings = WindowSettings(self, self.gtagger)
+        self.window_informations: WindowInformations = WindowInformations(self)
+        self.window_help: WindowHelp = WindowHelp(self)
         self.thread_search_lyrics: ThreadLyricsSearch = None
 
         self.setup_ui()
@@ -299,7 +287,7 @@ class WindowMain(QtWidgets.QWidget):
         self.token_changed()
 
         # Change the color of the links
-        self.informations.set_texts(Color_.yellow_genius)
+        self.window_informations.set_texts(Color_.yellow_genius)
 
     def select_directories(self) -> str | None:
         """Asks user to select a directory.
@@ -411,7 +399,7 @@ class WindowMain(QtWidgets.QWidget):
             directory = self.select_directories()
             if directory is None:
                 return
-            if self.settings.checkbox_recursive.isChecked():
+            if self.window_settings.checkbox_recursive.isChecked():
                 files = list(Path(directory).rglob("*.mp3"))
             else:
                 files = list(Path(directory).glob("*.mp3"))
@@ -452,7 +440,7 @@ class WindowMain(QtWidgets.QWidget):
         self.thread_search_lyrics = ThreadLyricsSearch(
             token,
             self.track_layouts,
-            self.settings.checkbox_overwrite.isChecked(),
+            self.window_settings.checkbox_overwrite.isChecked(),
             self.gtagger,
         )
         self.thread_search_lyrics.signal_lyrics_searched.connect(self.lyrics_searched)

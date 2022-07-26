@@ -7,29 +7,12 @@ from PySide6 import QtCore, QtWidgets
 
 from src.tools import State, StateIndicator
 
-from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from src.window_main import WindowMain
+class WindowHelp(QtWidgets.QDialog):
+    """Help window of the GUI."""
 
-
-class WindowHelp(QtWidgets.QWidget):
-    """Help window of the GUI.
-
-    Args:
-        gtagger (GTagger): GTagger application.
-        window (QtWidgets.QMainWindow): Window UI.
-
-    Attributes:
-        gtagger (GTagger): GTagger application.
-        window (QtWidgets.QMainWindow): Window UI.
-    """
-
-    def __init__(self, parent, ui_window: QtWidgets.QMainWindow):
+    def __init__(self, parent):
         super().__init__(parent)
-
-        self.main: WindowMain = parent
-        self.window: QtWidgets.QMainWindow = ui_window
 
         self.setup_ui()
 
@@ -137,10 +120,11 @@ class WindowHelp(QtWidgets.QWidget):
         )
         self.frame_state_indicator.setLayout(self.layout_state_indicator)
 
-        self.centralwidget = QtWidgets.QWidget(self.window)
-        self.layout_ = QtWidgets.QGridLayout(self.centralwidget)
+        self.layout_ = QtWidgets.QGridLayout()
         self.layout_.addWidget(self.frame_usage, 0, 0, 1, 1)
         self.layout_.addWidget(self.frame_state_indicator, 1, 0, 1, 1)
 
-        self.window.setCentralWidget(self.centralwidget)
-        self.window.setWindowTitle("Help")
+        self.setLayout(self.layout_)
+        self.setWindowTitle("Help")
+        self.setWindowModality(QtCore.Qt.ApplicationModal)
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
