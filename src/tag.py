@@ -8,18 +8,18 @@ Includes:
 
 from __future__ import annotations
 
-import re
 import logging as log
+import re
+from typing import TYPE_CHECKING
+
+import genius
 import lyricsgenius
 from lyricsgenius import types
-import genius
 from PySide6 import QtCore
 
 from src.tools import LYRICS_LINES, State
 from src.track import Track
 from src.track_layout import TrackLayout
-
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from main import GTagger

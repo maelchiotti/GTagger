@@ -3,11 +3,11 @@
 Handles the creation of the informations window.
 """
 
+from typing import TYPE_CHECKING
+
 from PySide6 import QtCore, QtWidgets
 
 from src.tools import VERSION, Color_
-
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from src.window_main import WindowMain

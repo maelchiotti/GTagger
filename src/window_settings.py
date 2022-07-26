@@ -3,11 +3,11 @@
 Handles the creation of the settings window and the interactions with the user.
 """
 
+from typing import TYPE_CHECKING
+
 from PySide6 import QtCore, QtWidgets
 
 from src.tools import Settings
-
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from main import GTagger

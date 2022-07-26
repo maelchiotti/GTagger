@@ -11,12 +11,13 @@ Includes:
 
 from __future__ import annotations
 
-import os
 import logging as log
+import os
 import sys
-from typing import Any
-from PySide6 import QtCore, QtGui
 from enum import Enum
+from typing import Any
+
+from PySide6 import QtCore, QtGui
 
 VERSION = "v1.2.0"
 ICONS_PATH = "src/assets/img/icons"

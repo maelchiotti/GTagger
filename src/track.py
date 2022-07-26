@@ -1,18 +1,19 @@
 """Handles a music track."""
 
-import os
-from pathlib import Path
-import re
 import logging as log
+import os
+import re
 import time
-from genius.classes.song import Song
+from pathlib import Path
+
 import eyed3
 from eyed3.id3.frames import ImageFrame
 from eyed3.id3.tag import Tag
 from eyed3.mp3 import Mp3AudioInfo
+from genius.classes.song import Song
 from PySide6 import QtCore, QtGui
 
-from src.tools import COVER_SIZE, CustomIcon, Color_, IconTheme, Mode
+from src.tools import COVER_SIZE, Color_, CustomIcon, IconTheme, Mode
 
 
 class Track(QtCore.QObject):
