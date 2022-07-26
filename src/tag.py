@@ -54,13 +54,17 @@ class TrackSearch(QtCore.QObject):
         Returns:
             bool: `True` is the track was found.
         """
-        if track.title is None or track.main_artist is None:
+        if track.title == "" or track.main_artist == "":
             return False
         search = f"{track.title} {track.main_artist}"
         try:
             searched_tracks = self.genius.search(search)
         except Exception as exception:
-            log.error("Unexpected exception: %s", exception)
+            log.error(
+                "Unexpected exception while searching for the track '%s': %s",
+                track.title,
+                exception,
+            )
             return False
         try:
             searched_track = next(searched_tracks)
