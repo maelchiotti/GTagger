@@ -314,7 +314,7 @@ class WindowMain(QtWidgets.QWidget):
         Returns:
             bool: `True` if the token is valid.
         """
-        validator_state = self.validator.validate(self.input_token.text(), 0)[0]
+        validator_state: QtGui.QValidator.State = self.validator.validate(self.input_token.text(), 0)[0]
         return validator_state == QtGui.QValidator.State.Acceptable
 
     def increment_progression_bar(self) -> None:
