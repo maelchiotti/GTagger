@@ -268,7 +268,7 @@ class Track(QtCore.QObject):
         if self.lyrics_new is not None:
             try:
                 self.eyed3_tags.lyrics.set(self.lyrics_new)
-                self.eyed3_tags.save(version=eyed3.id3.ID3_V2_3, encoding="utf-8")
+                self.eyed3_tags.save(version=eyed3.id3.ID3_V2_4, encoding="utf-8")
             except Exception as exception:
                 log.error(
                     "Error while saving the lyrics of file '%s' : %s",
