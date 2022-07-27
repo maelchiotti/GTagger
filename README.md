@@ -34,10 +34,11 @@ Download the executable `GTagger.exe` from the [Releases](https://github.com/mae
 
 **v1.2.0:**
 
-- Support more file types (AAC and FLAC especially)
+- ?
 
 **Future:**
 
 - Add files in a thread
+- Support more file types (AAC and FLAC especially)
 - Re-implement the [light theme](https://github.com/maelchiotti/GTagger/tree/light_theme)
 - Fix the width issue when lyrics contain a very, very long line (which should be very unusual though)
