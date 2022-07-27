@@ -5,7 +5,7 @@ import sys
 import qdarktheme
 from PySide6 import QtCore, QtWidgets
 
-from src.tools import Color_, Mode, Settings, SettingsManager
+from src.utils import Color_, Mode, Settings, SettingsManager
 from src.window_main import WindowMain
 
 

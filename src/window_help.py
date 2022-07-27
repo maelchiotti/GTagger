@@ -5,7 +5,7 @@ Handles the creation of the informations window.
 
 from PySide6 import QtCore, QtWidgets
 
-from src.tools import State
+from src.utils import State
 from src.track_layout import StateIndicator
 
 

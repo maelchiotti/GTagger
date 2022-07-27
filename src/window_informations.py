@@ -5,7 +5,7 @@ Handles the creation of the informations window.
 
 from PySide6 import QtCore, QtWidgets
 
-from src.tools import VERSION, Color_
+from src.utils import VERSION, Color_
 
 
 class WindowInformations(QtWidgets.QDialog):

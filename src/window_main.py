@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING
 from PySide6 import QtCore, QtGui, QtWidgets
 
 from src.tag import ThreadLyricsSearch
-from src.tools import (LYRICS_LINES, TOKEN_URL, VERSION, Color_, CustomIcon,
+from src.utils import (LYRICS_LINES, TOKEN_URL, VERSION, Color_, CustomIcon,
                        IconTheme, Mode, Settings, State)
 from src.track import Track
 from src.track_layout import TrackLayout

@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 from PySide6 import QtCore, QtWidgets
 
-from src.tools import Settings
+from src.utils import Settings
 
 if TYPE_CHECKING:
     from main import GTagger

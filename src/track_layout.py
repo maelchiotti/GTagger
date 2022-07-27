@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from PySide6 import QtCore, QtGui, QtWidgets
 
-from src.tools import COVER_SIZE, LYRICS_LINES, Color_, Mode, State
+from src.utils import COVER_SIZE, LYRICS_LINES, Color_, Mode, State
 
 if TYPE_CHECKING:
     from main import GTagger
