@@ -141,13 +141,10 @@ class Track(QtCore.QObject):
     def get_filepath(self) -> str:
         """Returns the path to the file.
 
-        Converting to a string is needed because the type of `filepath`
-        changes according to the OS.
-
         Returns:
             str: Path to the file.
         """
-        return str(self.filepath)
+        return self.filepath.as_posix()
 
     def get_duration(self) -> str:
         """Returns the formatted duration of the track.
