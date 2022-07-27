@@ -280,7 +280,8 @@ class WindowMain(QtWidgets.QWidget):
         # Change the color of the links
         self.window_informations.set_texts(Color_.yellow_genius)
 
-    def select_directories(self) -> str | None:
+    @staticmethod
+    def select_directories() -> str | None:
         """Asks user to select a directory.
 
         Returns:
@@ -321,13 +322,13 @@ class WindowMain(QtWidgets.QWidget):
         """Increments the progression bar by 1."""
         self.progression_bar.setValue(self.progression_bar.value() + 1)
 
-    def set_maximum_progression_bar(self, list: list | dict) -> None:
+    def set_maximum_progression_bar(self, list_: list | dict) -> None:
         """Set the maximum of the progression bar.
 
         Args:
             list (list): List of elements.
         """
-        maximum = len(list) - 1
+        maximum = len(list_) - 1
         # The maximum must be at least 1 (occurs when the list has only one element)
         if maximum == 0:
             maximum = 1
@@ -573,8 +574,9 @@ class WindowMain(QtWidgets.QWidget):
         """The lyrics of a track have been searched."""
         self.increment_progression_bar()
 
+    @staticmethod
     @QtCore.Slot()
-    def open_token_page(self) -> None:
+    def open_token_page() -> None:
         """Opens the Genius website to fetch the client access token."""
         QtGui.QDesktopServices.openUrl(TOKEN_URL)
 

@@ -34,7 +34,7 @@ class WindowSettings(QtWidgets.QDialog):
         """Sets up the UI of the window."""
         self.checkbox_recursive = QtWidgets.QCheckBox("Recursively search for files")
         recursive_search = self.gtagger.settings_manager.get_setting(
-            Settings.RECUSRIVE_SEARCH.value, default=True, type=bool
+            Settings.RECUSRIVE_SEARCH.value, default=True, type_=bool
         )
         self.checkbox_recursive.setChecked(recursive_search)
 
@@ -42,7 +42,7 @@ class WindowSettings(QtWidgets.QDialog):
             "Overwrite already existing lyrics"
         )
         overwrite_lyrics = self.gtagger.settings_manager.get_setting(
-            Settings.OVERWRITE_LYRICS.value, default=True, type=bool
+            Settings.OVERWRITE_LYRICS.value, default=True, type_=bool
         )
         self.checkbox_overwrite.setChecked(overwrite_lyrics)
 

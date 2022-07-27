@@ -38,7 +38,7 @@ class SettingsManager(QtCore.QObject):
         self.settings = QtCore.QSettings()
 
     def get_setting(
-        self, setting: str, default: Any = None, type: object = None
+        self, setting: str, default: Any = None, type_: object = None
     ) -> Any:
         """Returns the value of the setting `setting`.
 
@@ -51,15 +51,15 @@ class SettingsManager(QtCore.QObject):
         Args:
             setting (str): Name of the setting.
             default (Any, optional): Default value for the setting. Defaults to `None`.
-            type (object, optional): Type of the setting. Defaults to `None`.
+            type_ (object, optional): Type of the setting. Defaults to `None`.
 
         Returns:
             Any: Value of the setting.
         """
-        if type is None:
+        if type_ is None:
             return self.settings.value(setting, defaultValue=default)
         else:
-            return self.settings.value(setting, defaultValue=default, type=type)
+            return self.settings.value(setting, defaultValue=default, type=type_)
 
     def set_setting(self, setting: str, value: object) -> None:
         """Sets the value of `setting` to `value`.
