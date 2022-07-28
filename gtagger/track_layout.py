@@ -95,6 +95,7 @@ class TrackLayout(QtWidgets.QWidget):
             QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred
         )
         self.label_lyrics.setToolTip(track.get_lyrics())
+        self.label_lyrics.setWordWrap(True)
 
         self.layout_title = QtWidgets.QHBoxLayout()
         self.layout_title.addWidget(self.state_indicator)
@@ -145,6 +146,7 @@ class TrackLayout(QtWidgets.QWidget):
             QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred
         )
         self.label_lyrics.setToolTip(track.get_lyrics())
+        self.label_lyrics.setWordWrap(True)
 
         self.layout_title = QtWidgets.QHBoxLayout()
         self.layout_title.addWidget(self.state_indicator)
