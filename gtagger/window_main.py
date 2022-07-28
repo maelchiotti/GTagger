@@ -10,14 +10,14 @@ from typing import TYPE_CHECKING
 
 from PySide6 import QtCore, QtGui, QtWidgets
 
-from src.tag import ThreadLyricsSearch
-from src.utils import (LYRICS_LINES, TOKEN_URL, VERSION, Color_, CustomIcon,
+from gtagger.tag import ThreadLyricsSearch
+from gtagger.utils import (LYRICS_LINES, TOKEN_URL, VERSION, Color_, CustomIcon,
                        IconTheme, Mode, Settings, State)
-from src.track import Track
-from src.track_layout import TrackLayout
-from src.window_help import WindowHelp
-from src.window_informations import WindowInformations
-from src.window_settings import WindowSettings
+from gtagger.track import Track
+from gtagger.track_layout import TrackLayout
+from gtagger.window_help import WindowHelp
+from gtagger.window_informations import WindowInformations
+from gtagger.window_settings import WindowSettings
 
 if TYPE_CHECKING:
     from main import GTagger

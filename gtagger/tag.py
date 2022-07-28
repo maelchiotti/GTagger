@@ -17,9 +17,9 @@ import lyricsgenius
 from lyricsgenius import types
 from PySide6 import QtCore
 
-from src.utils import LYRICS_LINES, State
-from src.track import Track
-from src.track_layout import TrackLayout
+from gtagger.utils import LYRICS_LINES, State
+from gtagger.track import Track
+from gtagger.track_layout import TrackLayout
 
 if TYPE_CHECKING:
     from main import GTagger
