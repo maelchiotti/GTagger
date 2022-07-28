@@ -33,12 +33,9 @@ class WindowMain(QtWidgets.QWidget):
     Attributes:
         gtagger (GTagger): GTagger application.
         track_layouts (dict[Track, TrackLayout]): Layouts containing the informations of each tracks added by the user.
-        window_settings (QtWidgets.QMainWindow): Settings window.
-        settings (SettingsWindow): Settings.
-        window_informations (QtWidgets.QMainWindow): Informations window.
-        informations (InformationsWindow): Informations.
-        window_help (QtWidgets.QMainWindow) : Help window.
-        help (WindowHelp) : Help.
+        window_settings (WindowSettings): Settings window.
+        window_informations (WindowInformations): Informations window.
+        window_help (WindowHelp) : Help window.
         thread_search_lyrics: (ThreadLyricsSearch): Thread to search for the lyrics.
     """
 
