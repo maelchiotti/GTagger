@@ -1,3 +1,5 @@
+"""Layout containing the informations of a track."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -10,10 +12,6 @@ if TYPE_CHECKING:
     from main import GTagger
 
     from src.track import Track
-
-VERSION = "v1.2.0"
-ICONS_PATH = "src/assets/img/icons"
-TOKEN_URL = QtCore.QUrl("https://genius.com/api-clients")
 
 
 class TrackLayout(QtWidgets.QWidget):
