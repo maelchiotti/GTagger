@@ -10,6 +10,7 @@
   - Added a colored state indicator to replace the text one.
   - Added a progression bar that shows the progression of the lyrics search.
   - Added a button to stop the search of the lyrics.
+  - Tracks are now added in a thread to avoid locking the GUI.
 
 - Settings:
   - Added a setting to not overwrite already existing lyrics.
@@ -22,7 +23,6 @@
 
 - Miscellaneous:
   - Removed the light theme because it was hard to maintain with the new functionnalities.
-  - Tracks are now added in a thread to avoid locking the GUI.
 
 ## v1.1.0
 
