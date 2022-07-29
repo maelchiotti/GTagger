@@ -1,6 +1,7 @@
 """Manages the tags of a track.
 
 Includes:
+- ThreadTrackRead: Reads the tags of a track.
 - TrackSearch: Searches a track on Genuis.
 - LyricsSearch: Searches the lyrics of a track on Genius.
 - ThreadLyricsSearch: Runs the lyrics search.
@@ -26,13 +27,13 @@ if TYPE_CHECKING:
     from gtagger import GTagger
 
 
-class AddFilesThread(QtCore.QThread):
-    addFile = QtCore.Signal(object)
+class ThreadTrackRead(QtCore.QThread):
+    add_track = QtCore.Signal(object)
 
-    def __init__(self, files, gtagger) -> None:
+    def __init__(self, files: list[Path], gtagger: GTagger) -> None:
         super().__init__()
         self.files: list[Path] = files
-        self.gtagger = gtagger
+        self.gtagger: GTagger = gtagger
 
     def run(self):
         for file in self.files:
@@ -40,13 +41,13 @@ class AddFilesThread(QtCore.QThread):
             track = Track(file)
             tags_read = track.read_tags()
 
-            # Skip the file if the tags could not be read
+            # Signal to WindowMain to skip the track
             if not tags_read:
-                self.addFile.emit(None)
+                self.add_track.emit(None)
                 continue
 
-            # Add the layouts with the files' informations
-            self.addFile.emit(track)
+            # Signal to WindowMain to add the track
+            self.add_track.emit(track)
 
 
 class TrackSearch(QtCore.QObject):

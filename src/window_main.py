@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING
 
 from PySide6 import QtCore, QtGui, QtWidgets
 
-from src.tag import AddFilesThread, ThreadLyricsSearch
+from src.tag import ThreadTrackRead, ThreadLyricsSearch
 from src.utils import (
     LYRICS_LINES,
     TOKEN_URL,
@@ -59,8 +59,8 @@ class WindowMain(QtWidgets.QWidget):
         self.window_settings: WindowSettings = WindowSettings(self, self.gtagger)
         self.window_informations: WindowInformations = WindowInformations(self)
         self.window_help: WindowHelp = WindowHelp(self)
+        self.thread_add_files: ThreadTrackRead = None
         self.thread_search_lyrics: ThreadLyricsSearch = None
-        self.thread_add_files: AddFilesThread = None
 
         self.setup_ui()
 
@@ -150,7 +150,7 @@ class WindowMain(QtWidgets.QWidget):
         # Main layout of the files
         self.layout_files = QtWidgets.QVBoxLayout()
         self.layout_files.setAlignment(QtCore.Qt.AlignTop)
-        self.layout_files.setContentsMargins(0, 0, 0, 0)
+        self.layout_files.setContentsMargins(0, 0, 5, 0)
         self.layout_files.setSpacing(5)
 
         self.widget_files = QtWidgets.QWidget()
@@ -197,8 +197,8 @@ class WindowMain(QtWidgets.QWidget):
 
         self.setup_style()
 
-        self.action_add_files.triggered.connect(lambda: self.add_files(False))
-        self.action_add_folder.triggered.connect(lambda: self.add_files(True))
+        self.action_add_files.triggered.connect(lambda: self.add_tracks(False))
+        self.action_add_folder.triggered.connect(lambda: self.add_tracks(True))
         self.action_search_lyrics.triggered.connect(self.search_lyrics)
         self.action_save_lyrics.triggered.connect(self.save_lyrics)
         self.action_cancel_rows.triggered.connect(self.cancel_rows)
@@ -394,8 +394,8 @@ class WindowMain(QtWidgets.QWidget):
         )
 
     @QtCore.Slot()
-    def add_files(self, select_directory: bool) -> None:
-        """Adds the selected files to the table.
+    def add_tracks(self, select_directory: bool) -> None:
+        """Adds the selected tracks to the scroll area.
 
         Args:
             select_directory (bool): `True` if the user selected a directory.
@@ -418,20 +418,33 @@ class WindowMain(QtWidgets.QWidget):
         self.progression_bar.reset()
         self.set_maximum_progression_bar(files)
 
-        self.thread_add_files = AddFilesThread(files, self.gtagger)
-        self.thread_add_files.addFile.connect(self.addFile)
+        self.thread_add_files = ThreadTrackRead(files, self.gtagger)
+        self.thread_add_files.add_track.connect(self.add_track)
         self.thread_add_files.start()
 
-    def addFile(self, track):
-        track_layout = TrackLayout(
-            track,
-            State.TAGS_READ,
-            self.gtagger,
-        )
-        track.signal_lyrics_changed.connect(self.lyrics_changed)
-        track_layout.signal_mouse_event.connect(self.selection_changed)
-        self.track_layouts[track] = track_layout
+    @QtCore.Slot()
+    def add_track(self, track: Track):
+        """Adds the track `track` to the scroll area.
+
+        Args:
+            track (Track): Track to add.
+        """
+        # Handle only one track at a time
         with WindowMain.lock:
+            # Skip the file if the tags could not be read
+            if track is None:
+                self.increment_progression_bar()
+                return
+
+            # Create the track layout and add it
+            track_layout = TrackLayout(
+                track,
+                State.TAGS_READ,
+                self.gtagger,
+            )
+            track.signal_lyrics_changed.connect(self.lyrics_changed)
+            track_layout.signal_mouse_event.connect(self.selection_changed)
+            self.track_layouts[track] = track_layout
             self.layout_files.addWidget(track_layout)
             self.increment_progression_bar()
 
