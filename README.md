@@ -27,7 +27,7 @@ Download the executable `GTagger.exe` from the [Releases](https://github.com/mae
 - Launch GTagger with the following command:
 
   ```shell
-  py main.py
+  py gtagger.py
   ```
 
 ## TODO
