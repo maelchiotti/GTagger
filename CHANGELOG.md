@@ -22,6 +22,7 @@
 
 - Miscellaneous:
   - Removed the light theme because it was hard to maintain with the new functionnalities.
+  - Tracks are now added in a thread to avoid locking the GUI.
 
 ## v1.1.0
 
