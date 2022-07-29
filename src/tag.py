@@ -10,8 +10,8 @@ Includes:
 from __future__ import annotations
 
 import logging as log
-from pathlib import Path
 import re
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import genius
@@ -19,15 +19,25 @@ import lyricsgenius
 from lyricsgenius import types
 from PySide6 import QtCore
 
-from src.utils import LYRICS_LINES, State
 from src.track import Track
 from src.track_layout import TrackLayout
+from src.utils import LYRICS_LINES, State
 
 if TYPE_CHECKING:
     from gtagger import GTagger
 
 
 class ThreadTrackRead(QtCore.QThread):
+    """Reads the tags of a tracks.
+
+    Signals:
+        add_track (QtCore.Signal(object)): Emitted when the tags of a track have been read and it can be added.
+
+    Attributes:
+        files (list[Path]): List of files to read.
+        gtagger (GTagger): GTagger application.
+    """
+
     add_track = QtCore.Signal(object)
 
     def __init__(self, files: list[Path], gtagger: GTagger) -> None:

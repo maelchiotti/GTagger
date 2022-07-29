@@ -6,11 +6,11 @@ from typing import TYPE_CHECKING
 
 from PySide6 import QtCore, QtGui, QtWidgets
 
+from src.track import Track
 from src.utils import COVER_SIZE, LYRICS_LINES, Color_, Mode, State
 
 if TYPE_CHECKING:
     from gtagger import GTagger
-    from src.track import Track
 
 
 class TrackLayout(QtWidgets.QWidget):

@@ -5,26 +5,17 @@ Handles the creation of the main window and the interactions with the user.
 
 from __future__ import annotations
 
-from pathlib import Path
 import threading
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from PySide6 import QtCore, QtGui, QtWidgets
 
-from src.tag import ThreadTrackRead, ThreadLyricsSearch
-from src.utils import (
-    LYRICS_LINES,
-    TOKEN_URL,
-    VERSION,
-    Color_,
-    CustomIcon,
-    IconTheme,
-    Mode,
-    Settings,
-    State,
-)
+from src.tag import ThreadLyricsSearch, ThreadTrackRead
 from src.track import Track
 from src.track_layout import TrackLayout
+from src.utils import (LYRICS_LINES, TOKEN_URL, VERSION, Color_, CustomIcon,
+                       IconTheme, Mode, Settings, State)
 from src.window_help import WindowHelp
 from src.window_informations import WindowInformations
 from src.window_settings import WindowSettings
