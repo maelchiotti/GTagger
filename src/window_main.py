@@ -286,7 +286,7 @@ class WindowMain(QtWidgets.QWidget):
 
     @staticmethod
     def select_directories() -> str | None:
-        """Asks user to select a directory.
+        """Asks the user to select a directory.
 
         Returns:
             str: Path of the directory.
@@ -298,7 +298,7 @@ class WindowMain(QtWidgets.QWidget):
         return directory
 
     def select_files(self) -> list[Path]:
-        """Asks user to select one or multiple MP3 files.
+        """Asks the user to select one or multiple MP3 files.
 
         Returns:
             list[str]: Paths of the files.
