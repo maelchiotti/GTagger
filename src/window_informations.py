@@ -63,7 +63,6 @@ class WindowInformations(QtWidgets.QDialog):
         self.setLayout(self.layout_)
         self.setWindowTitle("Informations")
         self.setWindowModality(QtCore.Qt.ApplicationModal)
-        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
     def set_texts(self, link_color: Color_) -> None:
         """Sets the texts of the labels.

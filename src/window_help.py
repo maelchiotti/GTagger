@@ -128,4 +128,3 @@ class WindowHelp(QtWidgets.QDialog):
         self.setLayout(self.layout_)
         self.setWindowTitle("Help")
         self.setWindowModality(QtCore.Qt.ApplicationModal)
-        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)

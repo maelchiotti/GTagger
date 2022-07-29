@@ -35,10 +35,7 @@ class AddFilesThread(QtCore.QThread):
         self.gtagger = gtagger
 
     def run(self):
-        print("joj")
         for file in self.files:
-            print(file)
-
             # Create the track and read its tags
             track = Track(file)
             tags_read = track.read_tags()
@@ -49,7 +46,6 @@ class AddFilesThread(QtCore.QThread):
                 continue
 
             # Add the layouts with the files' informations
-            print("emit")
             self.addFile.emit(track)
 
 

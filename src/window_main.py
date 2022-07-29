@@ -423,16 +423,15 @@ class WindowMain(QtWidgets.QWidget):
         self.thread_add_files.start()
 
     def addFile(self, track):
-        print("jaj")
+        track_layout = TrackLayout(
+            track,
+            State.TAGS_READ,
+            self.gtagger,
+        )
+        track.signal_lyrics_changed.connect(self.lyrics_changed)
+        track_layout.signal_mouse_event.connect(self.selection_changed)
+        self.track_layouts[track] = track_layout
         with WindowMain.lock:
-            track_layout = TrackLayout(
-                track,
-                State.TAGS_READ,
-                self.gtagger,
-            )
-            track.signal_lyrics_changed.connect(self.lyrics_changed)
-            track_layout.signal_mouse_event.connect(self.selection_changed)
-            self.track_layouts[track] = track_layout
             self.layout_files.addWidget(track_layout)
             self.increment_progression_bar()
 
