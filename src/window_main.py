@@ -188,8 +188,8 @@ class WindowMain(QtWidgets.QWidget):
 
         self.setup_style()
 
-        self.action_add_files.triggered.connect(lambda: self.add_tracks(False))
-        self.action_add_folder.triggered.connect(lambda: self.add_tracks(True))
+        self.action_add_files.triggered.connect(lambda: self.add_files(False))
+        self.action_add_folder.triggered.connect(lambda: self.add_files(True))
         self.action_search_lyrics.triggered.connect(self.search_lyrics)
         self.action_save_lyrics.triggered.connect(self.save_lyrics)
         self.action_cancel_rows.triggered.connect(self.cancel_rows)
@@ -385,7 +385,7 @@ class WindowMain(QtWidgets.QWidget):
         )
 
     @QtCore.Slot()
-    def add_tracks(self, select_directory: bool) -> None:
+    def add_files(self, select_directory: bool) -> None:
         """Adds the selected tracks to the scroll area.
 
         Args:

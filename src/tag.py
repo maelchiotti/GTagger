@@ -28,10 +28,10 @@ if TYPE_CHECKING:
 
 
 class ThreadTrackRead(QtCore.QThread):
-    """Reads the tags of a tracks.
+    """Reads the tags of the files.
 
     Signals:
-        add_track (QtCore.Signal(object)): Emitted when the tags of a track have been read and it can be added.
+        add_track (QtCore.Signal(object)): Emitted when the tags of a file have been read and a track can be added.
 
     Attributes:
         files (list[Path]): List of files to read.
