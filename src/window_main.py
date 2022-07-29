@@ -6,21 +6,31 @@ Handles the creation of the main window and the interactions with the user.
 from __future__ import annotations
 
 from pathlib import Path
+import threading
 from typing import TYPE_CHECKING
 
 from PySide6 import QtCore, QtGui, QtWidgets
 
-from gtagger.tag import ThreadLyricsSearch
-from gtagger.utils import (LYRICS_LINES, TOKEN_URL, VERSION, Color_, CustomIcon,
-                       IconTheme, Mode, Settings, State)
-from gtagger.track import Track
-from gtagger.track_layout import TrackLayout
-from gtagger.window_help import WindowHelp
-from gtagger.window_informations import WindowInformations
-from gtagger.window_settings import WindowSettings
+from src.tag import AddFilesThread, ThreadLyricsSearch
+from src.utils import (
+    LYRICS_LINES,
+    TOKEN_URL,
+    VERSION,
+    Color_,
+    CustomIcon,
+    IconTheme,
+    Mode,
+    Settings,
+    State,
+)
+from src.track import Track
+from src.track_layout import TrackLayout
+from src.window_help import WindowHelp
+from src.window_informations import WindowInformations
+from src.window_settings import WindowSettings
 
 if TYPE_CHECKING:
-    from main import GTagger
+    from gtagger import GTagger
 
 
 class WindowMain(QtWidgets.QWidget):
@@ -39,6 +49,8 @@ class WindowMain(QtWidgets.QWidget):
         thread_search_lyrics: (ThreadLyricsSearch): Thread to search for the lyrics.
     """
 
+    lock = threading.Lock()
+
     def __init__(self, gtagger: GTagger) -> None:
         super().__init__()
 
@@ -48,6 +60,7 @@ class WindowMain(QtWidgets.QWidget):
         self.window_informations: WindowInformations = WindowInformations(self)
         self.window_help: WindowHelp = WindowHelp(self)
         self.thread_search_lyrics: ThreadLyricsSearch = None
+        self.thread_add_files: AddFilesThread = None
 
         self.setup_ui()
 
@@ -137,6 +150,8 @@ class WindowMain(QtWidgets.QWidget):
         # Main layout of the files
         self.layout_files = QtWidgets.QVBoxLayout()
         self.layout_files.setAlignment(QtCore.Qt.AlignTop)
+        self.layout_files.setContentsMargins(0, 0, 0, 0)
+        self.layout_files.setSpacing(5)
 
         self.widget_files = QtWidgets.QWidget()
         self.widget_files.setLayout(self.layout_files)
@@ -144,13 +159,14 @@ class WindowMain(QtWidgets.QWidget):
         self.scroll_area = QtWidgets.QScrollArea()
         self.scroll_area.setWidget(self.widget_files)
         self.scroll_area.setWidgetResizable(True)
+        self.scroll_area.setFrameShape(QtWidgets.QFrame.NoFrame)
 
         self.layout_main = QtWidgets.QGridLayout()
         self.layout_main.addWidget(self.input_token, 0, 0, 1, 1)
         self.layout_main.addWidget(self.button_token, 0, 1, 1, 1)
-        self.layout_main.addWidget(self.frame_separator, 1, 0, 1, 2)
-        self.layout_main.addWidget(self.input_filter_text, 2, 0, 1, 1)
-        self.layout_main.addWidget(self.button_filter_lyrics, 2, 1, 1, 1)
+        self.layout_main.addWidget(self.input_filter_text, 1, 0, 1, 1)
+        self.layout_main.addWidget(self.button_filter_lyrics, 1, 1, 1, 1)
+        self.layout_main.addWidget(self.frame_separator, 2, 0, 1, 2)
         self.layout_main.addWidget(self.scroll_area, 3, 0, 1, 2)
         self.layout_main.setContentsMargins(5, 5, 5, 0)
 
@@ -312,7 +328,9 @@ class WindowMain(QtWidgets.QWidget):
         Returns:
             bool: `True` if the token is valid.
         """
-        validator_state: QtGui.QValidator.State = self.validator.validate(self.input_token.text(), 0)[0]
+        validator_state: QtGui.QValidator.State = self.validator.validate(
+            self.input_token.text(), 0
+        )[0]
         return validator_state == QtGui.QValidator.State.Acceptable
 
     def increment_progression_bar(self) -> None:
@@ -399,27 +417,23 @@ class WindowMain(QtWidgets.QWidget):
 
         self.progression_bar.reset()
         self.set_maximum_progression_bar(files)
-        for file in files:
-            # Create the track and read its tags
-            track = Track(file)
-            track.signal_lyrics_changed.connect(self.lyrics_changed)
-            tags_read = track.read_tags()
 
-            # Skip the file if the tags could not be read
-            if not tags_read:
-                self.increment_progression_bar()
-                continue
+        self.thread_add_files = AddFilesThread(files, self.gtagger)
+        self.thread_add_files.addFile.connect(self.addFile)
+        self.thread_add_files.start()
 
-            # Add the layouts with the files' informations
+    def addFile(self, track):
+        print("jaj")
+        with WindowMain.lock:
             track_layout = TrackLayout(
                 track,
                 State.TAGS_READ,
                 self.gtagger,
             )
+            track.signal_lyrics_changed.connect(self.lyrics_changed)
             track_layout.signal_mouse_event.connect(self.selection_changed)
             self.track_layouts[track] = track_layout
             self.layout_files.addWidget(track_layout)
-
             self.increment_progression_bar()
 
     @QtCore.Slot()

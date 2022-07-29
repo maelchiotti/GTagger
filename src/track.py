@@ -13,7 +13,7 @@ from eyed3.mp3 import Mp3AudioInfo
 from genius.classes.song import Song
 from PySide6 import QtCore, QtGui
 
-from gtagger.utils import COVER_SIZE, Color_, CustomIcon, IconTheme, Mode
+from src.utils import COVER_SIZE, Color_, CustomIcon, IconTheme, Mode
 
 
 class Track(QtCore.QObject):

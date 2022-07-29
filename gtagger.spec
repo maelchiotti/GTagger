@@ -23,57 +23,57 @@ a = Analysis(
 a.datas += [
     (
         "outline/documents-outline.svg",
-        "gtagger/assets/img/icons/outline/documents-outline.svg",
+        "src/assets/img/icons/outline/documents-outline.svg",
         "DATA",
     ),
     (
         "outline/folder-open-outline.svg",
-        "gtagger/assets/img/icons/outline/folder-open-outline.svg",
+        "src/assets/img/icons/outline/folder-open-outline.svg",
         "DATA",
     ),
     (
         "outline/search-outline.svg",
-        "gtagger/assets/img/icons/outline/search-outline.svg",
+        "src/assets/img/icons/outline/search-outline.svg",
         "DATA",
     ),
     (
         "outline/save-outline.svg",
-        "gtagger/assets/img/icons/outline/save-outline.svg",
+        "src/assets/img/icons/outline/save-outline.svg",
         "DATA",
     ),
     (
         "outline/arrow-undo-outline.svg",
-        "gtagger/assets/img/icons/outline/arrow-undo-outline.svg",
+        "src/assets/img/icons/outline/arrow-undo-outline.svg",
         "DATA",
     ),
     (
         "outline/remove-circle-outline.svg",
-        "gtagger/assets/img/icons/outline/remove-circle-outline.svg",
+        "src/assets/img/icons/outline/remove-circle-outline.svg",
         "DATA",
     ),
     (
         "outline/settings-outline.svg",
-        "gtagger/assets/img/icons/outline/settings-outline.svg",
+        "src/assets/img/icons/outline/settings-outline.svg",
         "DATA",
     ),
     (
         "outline/information-circle-outline.svg",
-        "gtagger/assets/img/icons/outline/information-circle-outline.svg",
+        "src/assets/img/icons/outline/information-circle-outline.svg",
         "DATA",
     ),
     (
         "outline/open-outline.svg",
-        "gtagger/assets/img/icons/outline/open-outline.svg",
+        "src/assets/img/icons/outline/open-outline.svg",
         "DATA",
     ),
     (
         "outline/sunny-outline.svg",
-        "gtagger/assets/img/icons/outline/sunny-outline.svg",
+        "src/assets/img/icons/outline/sunny-outline.svg",
         "DATA",
     ),
     (
         "outline/moon-outline.svg",
-        "gtagger/assets/img/icons/outline/moon-outline.svg",
+        "src/assets/img/icons/outline/moon-outline.svg",
         "DATA",
     ),
 ]

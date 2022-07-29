@@ -9,6 +9,7 @@ Includes:
 from __future__ import annotations
 
 import logging as log
+from pathlib import Path
 import re
 from typing import TYPE_CHECKING
 
@@ -17,12 +18,39 @@ import lyricsgenius
 from lyricsgenius import types
 from PySide6 import QtCore
 
-from gtagger.utils import LYRICS_LINES, State
-from gtagger.track import Track
-from gtagger.track_layout import TrackLayout
+from src.utils import LYRICS_LINES, State
+from src.track import Track
+from src.track_layout import TrackLayout
 
 if TYPE_CHECKING:
-    from main import GTagger
+    from gtagger import GTagger
+
+
+class AddFilesThread(QtCore.QThread):
+    addFile = QtCore.Signal(object)
+
+    def __init__(self, files, gtagger) -> None:
+        super().__init__()
+        self.files: list[Path] = files
+        self.gtagger = gtagger
+
+    def run(self):
+        print("joj")
+        for file in self.files:
+            print(file)
+
+            # Create the track and read its tags
+            track = Track(file)
+            tags_read = track.read_tags()
+
+            # Skip the file if the tags could not be read
+            if not tags_read:
+                self.addFile.emit(None)
+                continue
+
+            # Add the layouts with the files' informations
+            print("emit")
+            self.addFile.emit(track)
 
 
 class TrackSearch(QtCore.QObject):

@@ -5,8 +5,8 @@ Handles the creation of the informations window.
 
 from PySide6 import QtCore, QtWidgets
 
-from gtagger.utils import State
-from gtagger.track_layout import StateIndicator
+from src.utils import State
+from src.track_layout import StateIndicator
 
 
 class WindowHelp(QtWidgets.QDialog):
