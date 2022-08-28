@@ -34,7 +34,7 @@ Download the executable `GTagger.exe` from the [Releases](https://github.com/mae
 
 **v1.2.0:**
 
-- ?
+- Replace the lyrics search by LyricsGenius with the one by wrap-genius.
 
 **Future:**
 
