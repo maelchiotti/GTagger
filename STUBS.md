@@ -1,7 +1,5 @@
 # Stubs
 
-## Generation
-
 Stubs should be generated with the following commands:
 
 - PySide6:
