@@ -10,7 +10,6 @@ import eyed3
 from eyed3.id3.frames import ImageFrame
 from eyed3.id3.tag import Tag
 from eyed3.mp3 import Mp3AudioInfo
-from genius.classes.song import Song
 from PySide6 import QtCore, QtGui
 
 from src.utils import COVER_SIZE, Color_, CustomIcon, IconTheme, Mode
@@ -35,7 +34,6 @@ class Track(QtCore.QObject):
 
         eyed3_infos (Mp3AudioInfo): Informations read by `eyed3`.
         eyed3_tags (Tag): Tags read and managed by `eyed3`.
-        genius_tags (Song): Tags found by `genius`.
     """
 
     SPLITTERS = " featuring | feat. | feat | ft. | ft | & | / "
@@ -57,7 +55,6 @@ class Track(QtCore.QObject):
 
         self.eyed3_infos: Mp3AudioInfo = None
         self.eyed3_tags: Tag = None
-        self.genius_tags: Song = None
 
     def read_tags(self) -> bool:
         """Uses eyed3 to read the tags from the file and sets them.

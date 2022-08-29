@@ -11,11 +11,20 @@ from typing import TYPE_CHECKING
 
 from PySide6 import QtCore, QtGui, QtWidgets
 
-from src.tag import ThreadLyricsSearch, ThreadTrackRead
+from src.tag import ThreadSearchLyrics, ThreadTrackRead
 from src.track import Track
 from src.track_layout import TrackLayout
-from src.utils import (LYRICS_LINES, TOKEN_URL, VERSION, Color_, CustomIcon,
-                       IconTheme, Mode, Settings, State)
+from src.utils import (
+    LYRICS_LINES,
+    TOKEN_URL,
+    VERSION,
+    Color_,
+    CustomIcon,
+    IconTheme,
+    Mode,
+    Settings,
+    State,
+)
 from src.window_help import WindowHelp
 from src.window_informations import WindowInformations
 from src.window_settings import WindowSettings
@@ -51,7 +60,7 @@ class WindowMain(QtWidgets.QWidget):
         self.window_informations: WindowInformations = WindowInformations(self)
         self.window_help: WindowHelp = WindowHelp(self)
         self.thread_add_files: ThreadTrackRead = None
-        self.thread_search_lyrics: ThreadLyricsSearch = None
+        self.thread_search_lyrics: ThreadSearchLyrics = None
 
         self.setup_ui()
 
@@ -443,7 +452,7 @@ class WindowMain(QtWidgets.QWidget):
     def search_lyrics(self) -> None:
         """Searches for the lyrics of the files."""
         token = self.input_token.text()
-        self.thread_search_lyrics = ThreadLyricsSearch(
+        self.thread_search_lyrics = ThreadSearchLyrics(
             token,
             self.track_layouts,
             self.window_settings.checkbox_overwrite.isChecked(),

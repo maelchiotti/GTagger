@@ -2,21 +2,17 @@
 
 Includes:
 - ThreadTrackRead: Reads the tags of a track.
-- TrackSearch: Searches a track on Genuis.
-- LyricsSearch: Searches the lyrics of a track on Genius.
+- LyricsSearch: Searches a track ant its lyrics on Genius.
 - ThreadLyricsSearch: Runs the lyrics search.
 """
 
 from __future__ import annotations
 
 import logging as log
-import re
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 import genius
-import lyricsgenius
-from lyricsgenius import types
 from PySide6 import QtCore
 
 from src.track import Track
@@ -60,35 +56,12 @@ class ThreadTrackRead(QtCore.QThread):
             self.add_track.emit(track)
 
 
-class TrackSearch(QtCore.QObject):
-    """Allows to search a track on Genius.
-
-    Attributes:
-        token (str): Genius client access token.
-        genius (genius.Genius): `genius` instance.
-    """
-
+class LyricsSearch(QtCore.QObject):
     def __init__(self, token: str) -> None:
-        self.token: str = ""
+        self.token = token
+        self.genius = genius.Genius(self.token)
 
-        search = re.search("[^a-zA-Z0-9_-]", token)
-        if search is not None:
-            log.error("Incorrect access token: %s", search)
-        else:
-            self.token = token
-            self.genius = genius.Genius(self.token)
-
-    def search_track(self, track: Track) -> bool:
-        """Searches for a track on Genius using the `track.title` and the `track.artist`.
-
-        The tags found are added to the `genius_tags` attribute of `track`.
-
-        Args:
-            track (Track): Track to search.
-
-        Returns:
-            bool: `True` is the track was found.
-        """
+    def search_lyrics(self, track: Track) -> bool:
         if track.title == "" or track.main_artist == "":
             return False
         search = f"{track.title} {track.main_artist}"
@@ -108,83 +81,32 @@ class TrackSearch(QtCore.QObject):
                 "Track '%s' by %s not found on Genius", track.title, track.main_artist
             )
             return False
-        track.genius_tags = searched_track
-        return True
-
-
-class LyricsSearch(QtCore.QObject):
-    """Allows to search a track's lyrics on Genius.
-
-    Attributes:
-        token (str): Genius client access token.
-        lyrics_genius (lyricsgenius.Genius): `lyrics_genius` instance.
-    """
-
-    def __init__(self, token: str) -> None:
-        self.token: str = token
-        self.lyrics_genius: lyricsgenius.Genius = lyricsgenius.Genius(
-            access_token=self.token, verbose=False, remove_section_headers=True
-        )
-
-    def search_lyrics(self, track: Track) -> bool:
-        """Searches for a track's lyrics on Genius.
-
-        The lyrics are added to the `lyrics` attribute.
-
-        Args:
-            track (Track): Track for which the lyrics will be searched.
-
-        Returns:
-            bool: ̀`True` if the lyrics were found.
-        """
-        if track.genius_tags is None:
-            return False
-
-        searched_track: types.Song | None = None
-        while True:
-            try:
-                searched_track = self.lyrics_genius.search_song(
-                    song_id=track.genius_tags.id, get_full_info=False
-                )
-                break
-            except Exception as exception:
-                log.error("Unexpected exception: %s", exception)
-                return False
-
-        if searched_track is None:
-            log.warning(
-                "Track '%s' lyrics by %s not found on Genius",
-                track.title,
-                track.main_artist,
-            )
-            return False
-
         track.set_lyrics(self.format_lyrics(searched_track.lyrics))
         return True
 
     @staticmethod
-    def format_lyrics(unformatted_lyrics: str) -> str:
+    def format_lyrics(unformatted_lyrics: list[str]) -> str:
         """Formats `unformatted_lyrics` by removing unwanted text.
 
         Args:
-            unformatted_lyrics (str): Lyrics to format.
+            unformatted_lyrics (list[str]): Lyrics to format.
 
         Returns:
             str: Formatted lyrics.
         """
-        lines = unformatted_lyrics.split("\n")
-        if len(lines) > 0:
-            lines.pop(0)
-        if len(lines) > 1:
-            lines[len(lines) - 1] = re.sub("[0-9]+Embed", "", lines[len(lines) - 1])
-        return "\n".join(lines)
+        for index, line in enumerate(unformatted_lyrics):
+            if line.startswith("[") and line.endswith("]"):
+                # Remove indications such as [Chorus]
+                unformatted_lyrics[index] = ""
+            else:
+                unformatted_lyrics[index] = line.strip()
+        return "\n".join(unformatted_lyrics)
 
 
-class ThreadLyricsSearch(QtCore.QThread):
+class ThreadSearchLyrics(QtCore.QThread):
     """Runs the thread for `main_window.search_lyrics()`.
 
-    Uses `TrackSearch` to search the tracks on Genius,
-    and `LyricsSearch` to search and set their lyrics.
+    Uses `SearchLyrics` to search the tracks on Genius and set their lyrics.
 
     Signals:
         signal_lyrics_searched (QtCore.Signal): Emmited when the lyrics of a track have been searched.
@@ -192,6 +114,8 @@ class ThreadLyricsSearch(QtCore.QThread):
     Attributes:
         token (str): Token to search the track on Genius.
         track_layouts (dict[Track, TrackLayout]): Layouts of the tracks.
+        overwrite_lyrics (bool): `True` if the lyrics should be overwritten.
+        gtagger (GTagger): GTagger application.
     """
 
     signal_lyrics_searched = QtCore.Signal()
@@ -223,8 +147,6 @@ class ThreadLyricsSearch(QtCore.QThread):
                 self.signal_lyrics_searched.emit()
                 continue
 
-            track_search = TrackSearch(self.token)
-            track_search.search_track(track)
             found_lyrics = lyrics_search.search_lyrics(track)
             if found_lyrics:
                 lyrics = track.get_lyrics(lines=LYRICS_LINES[self.gtagger.mode])
