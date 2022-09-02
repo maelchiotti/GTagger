@@ -100,7 +100,9 @@ class LyricsSearch(QtCore.QObject):
                 unformatted_lyrics[index] = ""
             else:
                 unformatted_lyrics[index] = line.strip()
-        return "\n".join(unformatted_lyrics)
+        lyrics = "\n".join(unformatted_lyrics)
+        lyrics = lyrics.replace("\n\n\n", "\n\n")
+        return lyrics
 
 
 class ThreadSearchLyrics(QtCore.QThread):
