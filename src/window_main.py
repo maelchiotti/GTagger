@@ -521,6 +521,8 @@ class WindowMain(QtWidgets.QWidget):
                     track.get_lyrics(lines=LYRICS_LINES[self.gtagger.mode])
                 )
                 track_layout.label_lyrics.setToolTip(track.get_lyrics_original())
+                track_layout.state_indicator.set_state(State.TAGS_READ)
+                track_layout.state_indicator.setToolTip(State.TAGS_READ.value)
 
     @QtCore.Slot()
     def remove_selected_layouts(self) -> None:
