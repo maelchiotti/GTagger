@@ -11,5 +11,5 @@ pyside6-genpyi all
 - Other packages:
 
 ```shell
-stubgen -p eyed3 -p genius -p lyricsgenius -p qdarktheme -o stubs
+stubgen -p eyed3 -p genius -p qdarktheme -o stubs
 ```
