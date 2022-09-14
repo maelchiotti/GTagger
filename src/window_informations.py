@@ -94,7 +94,6 @@ class WindowInformations(QtWidgets.QDialog):
             <br />
             - <a href=\"https://genius.com\" style="color: {color}">Genius</a><br />
             - <a href=\"https://github.com/fedecalendino/wrap-genius\" style="color: {color}">wrap-genius</a><br />
-            - <a href=\"https://github.com/johnwmillr/LyricsGenius\" style="color: {color}">LyricsGenius</a><br />
             - <a href=\"https://github.com/nicfit/eyeD3\" style="color: {color}">eyeD3</a><br />
             - <a href=\"https://github.com/5yutan5/PyQtDarkTheme\" style="color: {color}">PyQtDarkTheme</a><br />
             - <a href=\"https://github.com/ionic-team/ionicons\" style="color: {color}">ionicons</a>
