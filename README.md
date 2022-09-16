@@ -34,6 +34,8 @@ Download the executable `GTagger.exe` from the [Releases](https://github.com/mae
 
 - Update source paths in .spec
 - Add progression bar for saving
+- Keep status color when changing mode
+- Disable add buttons while adding files
 
 **Future:**
 
