@@ -57,8 +57,18 @@ a.datas += [
         "DATA",
     ),
     (
+        "sharp/settings-sharp.svg",
+        "src/assets/img/icons/sharp/settings-sharp.svg",
+        "DATA",
+    ),
+    (
         "outline/information-circle-outline.svg",
         "src/assets/img/icons/outline/information-circle-outline.svg",
+        "DATA",
+    ),
+    (
+        "sharp/information-circle-sharp.svg",
+        "src/assets/img/icons/sharp/information-circle-sharp.svg",
         "DATA",
     ),
     (
@@ -74,6 +84,41 @@ a.datas += [
     (
         "outline/moon-outline.svg",
         "src/assets/img/icons/outline/moon-outline.svg",
+        "DATA",
+    ),
+    (
+        "sharp/pricetag-sharp.svg",
+        "src/assets/img/icons/sharp/pricetag-sharp.svg",
+        "DATA",
+    ),
+    (
+        "outline/help-circle-outline.svg",
+        "src/assets/img/icons/outline/help-circle-outline.svg",
+        "DATA",
+    ),
+    (
+        "sharp/help-circle-sharp.svg",
+        "src/assets/img/icons/sharp/help-circle-sharp.svg",
+        "DATA",
+    ),
+    (
+        "outline/text-outline.svg",
+        "src/assets/img/icons/outline/text-outline.svg",
+        "DATA",
+    ),
+    (
+        "outline/close-outline.svg",
+        "src/assets/img/icons/outline/close-outline.svg",
+        "DATA",
+    ),
+    (
+        "outline/contract-outline.svg",
+        "src/assets/img/icons/outline/contract-outline.svg",
+        "DATA",
+    ),
+    (
+        "outline/expand-outline.svg",
+        "src/assets/img/icons/outline/expand-outline.svg",
         "DATA",
     ),
 ]
@@ -94,7 +139,7 @@ exe = EXE(
     upx=True,
     upx_exclude=[],
     runtime_tmpdir=None,
-    console=False,
+    console=True,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
