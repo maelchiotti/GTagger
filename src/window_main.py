@@ -14,8 +14,17 @@ from PySide6 import QtCore, QtGui, QtWidgets
 from src.tag import ThreadSearchLyrics, ThreadTrackRead
 from src.track import Track
 from src.track_layout import TrackLayout
-from src.utils import (LYRICS_LINES, TOKEN_URL, VERSION, Color_, CustomIcon,
-                       IconTheme, Mode, Settings, State)
+from src.utils import (
+    LYRICS_LINES,
+    TOKEN_URL,
+    VERSION,
+    Color_,
+    CustomIcon,
+    IconTheme,
+    Mode,
+    Settings,
+    State,
+)
 from src.window_help import WindowHelp
 from src.window_informations import WindowInformations
 from src.window_settings import WindowSettings
@@ -409,7 +418,9 @@ class WindowMain(QtWidgets.QWidget):
         self.progression_bar.reset()
         self.set_maximum_progression_bar(files)
 
-        self.thread_add_files = ThreadTrackRead(files, self.action_add_files, self.action_add_folder, self.gtagger)
+        self.thread_add_files = ThreadTrackRead(
+            files, self.action_add_files, self.action_add_folder, self.gtagger
+        )
         self.thread_add_files.add_track.connect(self.add_track)
         self.thread_add_files.start()
 
@@ -494,6 +505,7 @@ class WindowMain(QtWidgets.QWidget):
             if saved:
                 track_layout.state_indicator.set_state(State.LYRICS_SAVED)
                 track_layout.state_indicator.setToolTip(State.LYRICS_SAVED.value)
+                track_layout.state = State.LYRICS_SAVED
                 track.read_tags()
                 track.set_lyrics_new("")
                 track_layout.label_lyrics.setText(
@@ -503,6 +515,7 @@ class WindowMain(QtWidgets.QWidget):
             else:
                 track_layout.state_indicator.set_state(State.LYRICS_NOT_SAVED)
                 track_layout.state_indicator.setToolTip(State.LYRICS_NOT_SAVED.value)
+                track_layout.state = State.LYRICS_NOT_SAVED
             self.increment_progression_bar()
 
     @QtCore.Slot()
@@ -517,6 +530,7 @@ class WindowMain(QtWidgets.QWidget):
                 track_layout.label_lyrics.setToolTip(track.get_lyrics_original())
                 track_layout.state_indicator.set_state(State.TAGS_READ)
                 track_layout.state_indicator.setToolTip(State.TAGS_READ.value)
+                track_layout.state = State.TAGS_READ
 
     @QtCore.Slot()
     def remove_selected_layouts(self) -> None:

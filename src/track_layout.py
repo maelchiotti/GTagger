@@ -66,6 +66,11 @@ class TrackLayout(QtWidgets.QWidget):
         elif self.gtagger.mode == Mode.COMPACT:
             self.setup_compact_mode(track)
 
+        if self.state == State.LYRICS_FOUND:
+            self.label_lyrics.setStyleSheet(f"color: {Color_.light_green.value}")
+        else:
+            self.label_lyrics.setStyleSheet("")
+
     def setup_normal_mode(self, track: Track):
         """Sets up the layout as normal mode.
 
