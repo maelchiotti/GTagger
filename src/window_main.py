@@ -409,7 +409,7 @@ class WindowMain(QtWidgets.QWidget):
         self.progression_bar.reset()
         self.set_maximum_progression_bar(files)
 
-        self.thread_add_files = ThreadTrackRead(files, self.gtagger)
+        self.thread_add_files = ThreadTrackRead(files, self.action_add_files, self.action_add_folder, self.gtagger)
         self.thread_add_files.add_track.connect(self.add_track)
         self.thread_add_files.start()
 

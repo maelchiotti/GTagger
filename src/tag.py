@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import genius
-from PySide6 import QtCore, QtWidgets
+from PySide6 import QtCore, QtGui, QtWidgets
 
 from src.track import Track
 from src.track_layout import TrackLayout
@@ -31,17 +31,29 @@ class ThreadTrackRead(QtCore.QThread):
 
     Attributes:
         files (list[Path]): List of files to read.
+        action_add_files (QtGui.QAction): Add files action.
+        action_add_folder (QtGui.QAction): Add folder action.
         gtagger (GTagger): GTagger application.
     """
 
     add_track = QtCore.Signal(object)
 
-    def __init__(self, files: list[Path], gtagger: GTagger) -> None:
+    def __init__(
+        self,
+        files: list[Path],
+        action_add_files: QtGui.QAction,
+        action_add_folder: QtGui.QAction,
+        gtagger: GTagger,
+    ) -> None:
         super().__init__()
         self.files: list[Path] = files
+        self.action_add_files = action_add_files
+        self.action_add_folder = action_add_folder
         self.gtagger: GTagger = gtagger
 
     def run(self):
+        self.action_add_files.setEnabled(False)
+        self.action_add_folder.setEnabled(False)
         for file in self.files:
             # Create the track and read its tags
             track = Track(file)
@@ -54,6 +66,8 @@ class ThreadTrackRead(QtCore.QThread):
 
             # Signal to WindowMain to add the track
             self.add_track.emit(track)
+        self.action_add_files.setEnabled(True)
+        self.action_add_folder.setEnabled(True)
 
 
 class LyricsSearch(QtCore.QObject):
