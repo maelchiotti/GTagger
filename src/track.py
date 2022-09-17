@@ -241,7 +241,7 @@ class Track(QtCore.QObject):
         else:
             return "No lyrics"
 
-    def set_lyrics(self, lyrics: str):
+    def set_lyrics_new(self, lyrics: str):
         """Sets the lyrics of the track to `lyrics`.
 
         Also emits a signal indicating that the lyrics have changed.
@@ -259,10 +259,10 @@ class Track(QtCore.QObject):
         Returns:
             bool: `True` if the lyrics were successfully saved.
         """
-        if self.lyrics_new is not None:
+        if self.has_lyrics_new():
             try:
-                self.eyed3_tags.lyrics.set(self.lyrics_new)
-                self.eyed3_tags.save(version=eyed3.id3.ID3_V2_4, encoding="utf-8")
+                self.eyed3_tags.lyrics[0].text = self.lyrics_new
+                self.eyed3_tags.save()
             except Exception as exception:
                 log.error(
                     "Error while saving the lyrics of file '%s' : %s",

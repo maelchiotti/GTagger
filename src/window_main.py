@@ -14,17 +14,8 @@ from PySide6 import QtCore, QtGui, QtWidgets
 from src.tag import ThreadSearchLyrics, ThreadTrackRead
 from src.track import Track
 from src.track_layout import TrackLayout
-from src.utils import (
-    LYRICS_LINES,
-    TOKEN_URL,
-    VERSION,
-    Color_,
-    CustomIcon,
-    IconTheme,
-    Mode,
-    Settings,
-    State,
-)
+from src.utils import (LYRICS_LINES, TOKEN_URL, VERSION, Color_, CustomIcon,
+                       IconTheme, Mode, Settings, State)
 from src.window_help import WindowHelp
 from src.window_informations import WindowInformations
 from src.window_settings import WindowSettings
@@ -456,13 +447,13 @@ class WindowMain(QtWidgets.QWidget):
             token,
             self.track_layouts,
             self.window_settings.checkbox_overwrite.isChecked(),
+            self.button_stop_search,
             self.gtagger,
         )
         self.thread_search_lyrics.signal_lyrics_searched.connect(self.lyrics_searched)
         self.progression_bar.reset()
         self.set_maximum_progression_bar(self.track_layouts)
         self.thread_search_lyrics.start()
-        self.button_stop_search.setEnabled(True)
 
     @QtCore.Slot()
     def token_changed(self) -> None:
@@ -497,26 +488,29 @@ class WindowMain(QtWidgets.QWidget):
     def save_lyrics(self) -> None:
         """Saves the lyrics to the files."""
         for track, track_layout in self.track_layouts.items():
+            self.progression_bar.reset()
+            self.set_maximum_progression_bar(self.track_layouts)
             saved = track.save_lyrics()
             if saved:
                 track_layout.state_indicator.set_state(State.LYRICS_SAVED)
                 track_layout.state_indicator.setToolTip(State.LYRICS_SAVED.value)
+                track.read_tags()
+                track.set_lyrics_new("")
+                track_layout.label_lyrics.setText(
+                    track.get_lyrics(lines=LYRICS_LINES[self.gtagger.mode])
+                )
+                track_layout.label_lyrics.setToolTip(track.get_lyrics_original())
             else:
                 track_layout.state_indicator.set_state(State.LYRICS_NOT_SAVED)
                 track_layout.state_indicator.setToolTip(State.LYRICS_NOT_SAVED.value)
-            track.read_tags()
-            track.set_lyrics("")
-            track_layout.label_lyrics.setText(
-                track.get_lyrics(lines=LYRICS_LINES[self.gtagger.mode])
-            )
-            track_layout.label_lyrics.setToolTip(track.get_lyrics_original())
+            self.increment_progression_bar()
 
     @QtCore.Slot()
     def cancel_rows(self) -> None:
         """Removes the added lyrics from the files."""
         for track, track_layout in self.track_layouts.items():
             if track_layout.selected:
-                track.set_lyrics("")
+                track.set_lyrics_new("")
                 track_layout.label_lyrics.setText(
                     track.get_lyrics(lines=LYRICS_LINES[self.gtagger.mode])
                 )

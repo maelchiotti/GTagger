@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import genius
-from PySide6 import QtCore
+from PySide6 import QtCore, QtWidgets
 
 from src.track import Track
 from src.track_layout import TrackLayout
@@ -81,7 +81,7 @@ class LyricsSearch(QtCore.QObject):
                 "Track '%s' by %s not found on Genius", track.title, track.main_artist
             )
             return False
-        track.set_lyrics(self.format_lyrics(searched_track.lyrics))
+        track.set_lyrics_new(self.format_lyrics(searched_track.lyrics))
         return True
 
     @staticmethod
@@ -102,6 +102,7 @@ class LyricsSearch(QtCore.QObject):
                 unformatted_lyrics[index] = line.strip()
         lyrics = "\n".join(unformatted_lyrics)
         lyrics = lyrics.replace("\n\n\n", "\n\n")
+        lyrics = lyrics.strip()
         return lyrics
 
 
@@ -117,6 +118,7 @@ class ThreadSearchLyrics(QtCore.QThread):
         token (str): Token to search the track on Genius.
         track_layouts (dict[Track, TrackLayout]): Layouts of the tracks.
         overwrite_lyrics (bool): `True` if the lyrics should be overwritten.
+        button_stop_search (QtWidgets.QPushButton): Button to stop the search.
         gtagger (GTagger): GTagger application.
     """
 
@@ -127,6 +129,7 @@ class ThreadSearchLyrics(QtCore.QThread):
         token: str,
         track_layouts: dict[Track, TrackLayout],
         overwrite_lyrics: bool,
+        button_stop_search: QtWidgets.QPushButton,
         gtagger: GTagger,
     ) -> None:
         super().__init__()
@@ -136,9 +139,11 @@ class ThreadSearchLyrics(QtCore.QThread):
         self.token: str = token
         self.track_layouts: dict[Track, TrackLayout] = track_layouts
         self.overwrite_lyrics: bool = overwrite_lyrics
+        self.button_stop_search: QtWidgets.QPushButton = button_stop_search
         self.gtagger: GTagger = gtagger
 
     def run(self):
+        self.button_stop_search.setEnabled(True)
         lyrics_search = LyricsSearch(self.token)
         for track, track_layout in self.track_layouts.copy().items():
             if (
@@ -160,3 +165,4 @@ class ThreadSearchLyrics(QtCore.QThread):
                 track_layout.state_indicator.set_state(State.LYRICS_NOT_FOUND)
                 track_layout.state_indicator.setToolTip(State.LYRICS_NOT_FOUND.value)
             self.signal_lyrics_searched.emit()
+        self.button_stop_search.setEnabled(False)
