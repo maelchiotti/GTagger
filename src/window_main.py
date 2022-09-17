@@ -381,6 +381,7 @@ class WindowMain(QtWidgets.QWidget):
         # Update the GUI
         for track, track_layout_old in self.track_layouts.copy().items():
             track_layout_new = TrackLayout(track, track_layout_old.state, self.gtagger)
+            track_layout_new.signal_mouse_event.connect(self.selection_changed)
             self.remove_layout(track, track_layout_old)
             self.track_layouts[track] = track_layout_new
             self.layout_files.addWidget(track_layout_new)
