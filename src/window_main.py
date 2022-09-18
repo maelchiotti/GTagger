@@ -499,9 +499,9 @@ class WindowMain(QtWidgets.QWidget):
     @QtCore.Slot()
     def save_lyrics(self) -> None:
         """Saves the lyrics to the files."""
+        self.progression_bar.reset()
+        self.set_maximum_progression_bar(self.track_layouts)
         for track, track_layout in self.track_layouts.items():
-            self.progression_bar.reset()
-            self.set_maximum_progression_bar(self.track_layouts)
             saved = track.save_lyrics()
             if saved:
                 track_layout.state_indicator.set_state(State.LYRICS_SAVED)
