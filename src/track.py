@@ -261,7 +261,7 @@ class Track(QtCore.QObject):
         """
         if self.has_lyrics_new():
             try:
-                self.eyed3_tags.lyrics[0].text = self.lyrics_new
+                self.eyed3_tags.lyrics.set(self.lyrics_new)
                 self.eyed3_tags.save()
             except Exception as exception:
                 log.error(
