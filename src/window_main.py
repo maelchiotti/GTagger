@@ -20,6 +20,7 @@ from src.utils import (
     VERSION,
     Color_,
     CustomIcon,
+    FileType,
     IconTheme,
     Mode,
     Settings,
@@ -314,7 +315,7 @@ class WindowMain(QtWidgets.QWidget):
         """
         file_dialog = QtWidgets.QFileDialog()
         files = file_dialog.getOpenFileNames(
-            self, caption="Select files", filter="MP3 files (*.mp3)"
+            self, caption="Select files", filter="Audio files (*.mp3 *.flac)"
         )
         if len(files[0]) == 0:
             return []
@@ -402,15 +403,17 @@ class WindowMain(QtWidgets.QWidget):
             select_directory (bool): `True` if the user selected a directory.
         """
         # Construct the list of files
-        files: list[Path] | None = []
+        files: list[Path] = []
         if select_directory:
             directory = self.select_directories()
             if directory is None:
                 return
             if self.window_settings.checkbox_recursive.isChecked():
-                files = list(Path(directory).rglob("*.mp3"))
+                for file_type in FileType:
+                    files.extend(list(Path(directory).rglob("*." + file_type.value)))
             else:
-                files = list(Path(directory).glob("*.mp3"))
+                for file_type in FileType:
+                    files.extend(list(Path(directory).glob("*." + file_type.value)))
         else:
             files = self.select_files()
         if len(files) <= 0:

@@ -217,6 +217,20 @@ class Mode(Enum):
         return Mode.__getitem__(value.upper())
 
 
+class FileType(Enum):
+    """Enumerates the different file types supported by GTagger.
+
+    Includes:
+        - FLAC
+        - MP3
+        - NOT_SUPPORTED
+    """
+
+    MP3 = "mp3"
+    FLAC = "flac"
+    NOT_SUPPORTED = "not supported"
+
+
 # Sizes of the covers depending on the mode
 COVER_SIZE = {
     Mode.NORMAL: 128,
