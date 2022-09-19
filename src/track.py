@@ -252,8 +252,8 @@ class Track(QtCore.QObject):
         """
         if self.has_lyrics_new():
             try:
-                self.tags.lyrics.set(self.lyrics_new)
-                self.tags.save()
+                self.file.tags["lyrics"] = self.lyrics_new
+                self.file.save()
             except Exception as exception:
                 log.error(
                     "Error while saving the lyrics of file '%s' : %s",

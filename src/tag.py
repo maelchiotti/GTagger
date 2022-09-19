@@ -76,15 +76,15 @@ class LyricsSearch(QtCore.QObject):
         self.genius = genius.Genius(self.token)
 
     def search_lyrics(self, track: Track) -> bool:
-        if track.title == "" or track.main_artist == "":
+        if track.get_title() == "" or track.get_main_artist() == "":
             return False
-        search = f"{track.title} {track.main_artist}"
+        search = f"{track.get_title()} {track.get_main_artist()}"
         try:
             searched_tracks = self.genius.search(search)
         except Exception as exception:
             log.error(
                 "Unexpected exception while searching for the track '%s': %s",
-                track.title,
+                track.get_title(),
                 exception,
             )
             return False
@@ -92,7 +92,9 @@ class LyricsSearch(QtCore.QObject):
             searched_track = next(searched_tracks)
         except StopIteration:
             log.warning(
-                "Track '%s' by %s not found on Genius", track.title, track.main_artist
+                "Track '%s' by %s not found on Genius",
+                track.get_title(),
+                track.get_main_artist(),
             )
             return False
         track.set_lyrics_new(self.format_lyrics(searched_track.lyrics))
