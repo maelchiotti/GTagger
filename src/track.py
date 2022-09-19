@@ -4,15 +4,19 @@ import logging as log
 import os
 import re
 import time
+from cgitb import text
 from pathlib import Path
+from tkinter import E
 
 import mutagen
 from mutagen import StreamInfo
-from mutagen.flac import StreamInfo as FLACInfo, Picture as FLACPicture
+from mutagen.flac import Picture as FLACPicture
+from mutagen.flac import StreamInfo as FLACInfo
+from mutagen.id3 import USLT
 from mutagen.mp3 import MPEGInfo as MP3Info
 from PySide6 import QtCore, QtGui
 
-from src.utils import COVER_SIZE, Color_, CustomIcon, IconTheme, Mode, FileType
+from src.utils import COVER_SIZE, Color_, CustomIcon, FileType, IconTheme, Mode
 
 
 class Track(QtCore.QObject):
@@ -103,9 +107,14 @@ class Track(QtCore.QObject):
             self.covers[Mode.COMPACT] = cover_compact
 
         # Artists
-        if self.file.tags["artist"] is not None:
-            self.artists = re.split(self.SPLITTERS, self.file.tags["artist"][0])
-            self.main_artist = self.artists[0]
+        if self.get_file_type() == FileType.FLAC:
+            if self.file.tags["artist"] is not None:
+                self.artists = re.split(self.SPLITTERS, self.file.tags["artist"][0])
+                self.main_artist = self.artists[0]
+        else:
+            if self.file.tags is not None and self.file.tags["TPE1"] is not None:
+                self.artists = re.split(self.SPLITTERS, self.file.tags["TPE1"].text[0])
+                self.main_artist = self.artists[0]
 
         return True
 
@@ -134,10 +143,16 @@ class Track(QtCore.QObject):
         Returns:
             str: Title of the track.
         """
-        if self.file.tags["title"] is None:
-            return "No title"
-        else:
-            return self.file.tags["title"][0]
+        if self.get_file_type() == FileType.FLAC:
+            if self.file.tags["title"] is None:
+                return "No title"
+            else:
+                return self.file.tags["title"][0]
+        elif self.get_file_type() == FileType.MP3:
+            if self.file.tags is None or "TIT2" not in self.file.tags:
+                return "No title"
+            else:
+                return self.file.tags["TIT2"].text[0]
 
     def get_artists(self) -> str:
         """Returns the artists of the track, or "No artist(s)" if the artists are not set.
@@ -167,19 +182,28 @@ class Track(QtCore.QObject):
         Returns:
             str: Album of the track.
         """
-        if self.file.tags["album"] is None:
-            return "No album"
+        if self.get_file_type() == FileType.FLAC:
+            if self.file.tags["album"] is None:
+                return "No album"
+            else:
+                return self.file.tags["album"][0]
         else:
-            return self.file.tags["album"][0]
+            if self.file.tags is None or "TALB" not in self.file.tags:
+                return "No album"
+            else:
+                return self.file.tags["TALB"].text[0]
 
     def get_picture(self) -> FLACPicture:
         if self.get_file_type() == FileType.FLAC:
             return self.file.pictures[0]
+        else:
+            return self.file.tags["APIC:"]
 
     def has_pictures(self) -> bool:
         if self.get_file_type() == FileType.FLAC:
-            pictures = self.file.pictures
-        return len(pictures) > 0
+            return len(self.file.pictures) > 0
+        else:
+            return self.file.tags is not None and "APIC:" in self.file.tags
 
     def get_file_type(self) -> FileType:
         if isinstance(self.file.info, FLACInfo):
@@ -228,7 +252,11 @@ class Track(QtCore.QObject):
             str: Original lyrics of the track.
         """
         if self.has_lyrics_original():
-            return self.file.tags["lyrics"][0]
+            if self.get_file_type() == FileType.FLAC:
+                return self.file.tags["lyrics"][0]
+            else:
+                if self.get_uslt() is not None:
+                    return self.get_uslt().text
         else:
             return "No lyrics"
 
@@ -252,7 +280,10 @@ class Track(QtCore.QObject):
         """
         if self.has_lyrics_new():
             try:
-                self.file.tags["lyrics"] = self.lyrics_new
+                if self.get_file_type() == FileType.FLAC:
+                    self.file.tags["lyrics"] = self.lyrics_new
+                else:
+                    self.file.tags.add(USLT(text=self.lyrics_new))
                 self.file.save()
             except Exception as exception:
                 log.error(
@@ -269,7 +300,14 @@ class Track(QtCore.QObject):
         Returns:
             bool: `True` if the track has original lyrics.
         """
-        return len(self.file.tags["lyrics"]) > 0
+        if self.get_file_type() == FileType.FLAC:
+            return len(self.file.tags["lyrics"]) > 0
+        else:
+            return (
+                self.file.tags is not None
+                and self.get_uslt() is not None
+                and len(self.get_uslt().text) > 0
+            )
 
     def has_lyrics_new(self) -> bool:
         """Returns `True` if the track has new lyrics.
@@ -278,3 +316,9 @@ class Track(QtCore.QObject):
             bool: `True` if the track has new lyrics.
         """
         return self.lyrics_new != ""
+
+    def get_uslt(self) -> USLT | None:
+        for name, tag in self.file.tags.items():
+            if "USLT" in name:
+                return tag
+        return None
