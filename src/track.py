@@ -108,7 +108,7 @@ class Track(QtCore.QObject):
 
         # Artists
         if self.get_file_type() == FileType.FLAC:
-            if self.file.tags["artist"] is not None:
+            if "artist" in self.file.tags:
                 self.artists = re.split(self.SPLITTERS, self.file.tags["artist"][0])
                 self.main_artist = self.artists[0]
         else:
@@ -144,15 +144,15 @@ class Track(QtCore.QObject):
             str: Title of the track.
         """
         if self.get_file_type() == FileType.FLAC:
-            if self.file.tags["title"] is None:
-                return "No title"
-            else:
+            if "title" in self.file.tags:
                 return self.file.tags["title"][0]
-        elif self.get_file_type() == FileType.MP3:
-            if self.file.tags is None or "TIT2" not in self.file.tags:
-                return "No title"
             else:
+                return "No title"
+        elif self.get_file_type() == FileType.MP3:
+            if self.file.tags is not None and "TIT2" in self.file.tags:
                 return self.file.tags["TIT2"].text[0]
+            else:
+                return "No title"
 
     def get_artists(self) -> str:
         """Returns the artists of the track, or "No artist(s)" if the artists are not set.
@@ -183,15 +183,15 @@ class Track(QtCore.QObject):
             str: Album of the track.
         """
         if self.get_file_type() == FileType.FLAC:
-            if self.file.tags["album"] is None:
-                return "No album"
-            else:
+            if "album" in self.file.tags:
                 return self.file.tags["album"][0]
-        else:
-            if self.file.tags is None or "TALB" not in self.file.tags:
-                return "No album"
             else:
+                return "No album"
+        else:
+            if self.file.tags is not None and "TALB" in self.file.tags:
                 return self.file.tags["TALB"].text[0]
+            else:
+                return "No album"
 
     def get_picture(self) -> FLACPicture:
         if self.get_file_type() == FileType.FLAC:
@@ -255,8 +255,7 @@ class Track(QtCore.QObject):
             if self.get_file_type() == FileType.FLAC:
                 return self.file.tags["lyrics"][0]
             else:
-                if self.get_uslt() is not None:
-                    return self.get_uslt().text
+                return self.get_uslt().text
         else:
             return "No lyrics"
 
@@ -301,7 +300,7 @@ class Track(QtCore.QObject):
             bool: `True` if the track has original lyrics.
         """
         if self.get_file_type() == FileType.FLAC:
-            return len(self.file.tags["lyrics"]) > 0
+            return "lyrics" in self.file.tags and len(self.file.tags["lyrics"]) > 0
         else:
             return (
                 self.file.tags is not None
