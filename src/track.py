@@ -4,12 +4,9 @@ import logging as log
 import os
 import re
 import time
-from cgitb import text
 from pathlib import Path
-from tkinter import E
 
 import mutagen
-from mutagen import StreamInfo
 from mutagen.flac import Picture as FLACPicture
 from mutagen.flac import StreamInfo as FLACInfo
 from mutagen.id3 import USLT
