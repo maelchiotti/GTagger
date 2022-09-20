@@ -5,6 +5,7 @@ import os
 import re
 import time
 from pathlib import Path
+from typing import Union
 
 import mutagen
 from mutagen.flac import Picture as FLACPicture
@@ -13,7 +14,15 @@ from mutagen.id3 import APIC as MP3Picture, USLT
 from mutagen.mp3 import MPEGInfo as MP3Info
 from PySide6 import QtCore, QtGui
 
-from src.utils import COVER_SIZE, Color_, CustomIcon, FileType, IconTheme, Mode
+from src.utils import (
+    COVER_SIZE,
+    SPLITTERS,
+    Color_,
+    CustomIcon,
+    FileType,
+    IconTheme,
+    Mode,
+)
 
 
 class Track(QtCore.QObject):
@@ -103,11 +112,11 @@ class Track(QtCore.QObject):
         # Artists: all and main
         if self.get_file_type() == FileType.FLAC:
             if "artist" in self.file.tags:
-                self.artists = re.split(self.SPLITTERS, self.file.tags["artist"][0])
+                self.artists = re.split(SPLITTERS, self.file.tags["artist"][0])
                 self.main_artist = self.artists[0]
         else:
             if self.file.tags is not None and self.file.tags["TPE1"] is not None:
-                self.artists = re.split(self.SPLITTERS, self.file.tags["TPE1"].text[0])
+                self.artists = re.split(SPLITTERS, self.file.tags["TPE1"].text[0])
                 self.main_artist = self.artists[0]
 
         return True
@@ -142,7 +151,7 @@ class Track(QtCore.QObject):
                 return self.file.tags["title"][0]
             else:
                 return "No title"
-        elif self.get_file_type() == FileType.MP3:
+        else:
             if self.file.tags is not None and "TIT2" in self.file.tags:
                 return self.file.tags["TIT2"].text[0]
             else:
@@ -187,7 +196,7 @@ class Track(QtCore.QObject):
             else:
                 return "No album"
 
-    def get_picture(self) -> FLACPicture | MP3Picture:
+    def get_picture(self) -> Union[FLACPicture, MP3Picture]:
         """Returns the first picture of the track.
 
         Returns:
@@ -325,7 +334,7 @@ class Track(QtCore.QObject):
         """
         return self.lyrics_new != ""
 
-    def get_uslt(self) -> USLT | None:
+    def get_uslt(self) -> Union[USLT, None]:
         """Returns the USLT field of a MP3 file.
 
         In ID3 tags of a MP3 file, lyrics are stored in a field named "USLT::XXX",
