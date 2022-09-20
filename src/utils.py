@@ -22,6 +22,7 @@ from PySide6 import QtCore, QtGui
 VERSION = "v1.2.0"
 ICONS_PATH = "src/assets/img/icons"
 TOKEN_URL = QtCore.QUrl("https://genius.com/api-clients")
+SPLITTERS = " featuring | feat. | feat | ft. | ft | & | / "
 
 
 class SettingsManager(QtCore.QObject):

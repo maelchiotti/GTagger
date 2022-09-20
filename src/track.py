@@ -32,8 +32,6 @@ class Track(QtCore.QObject):
         self.file (mutagen.FileType): File read by `mutagen`, containing tags and metadata.
     """
 
-    SPLITTERS = " featuring | feat. | feat | ft. | ft | & | / "
-
     signal_lyrics_changed = QtCore.Signal()
 
     def __init__(self, filepath: Path) -> None:
