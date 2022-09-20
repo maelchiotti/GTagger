@@ -9,7 +9,7 @@ from pathlib import Path
 import mutagen
 from mutagen.flac import Picture as FLACPicture
 from mutagen.flac import StreamInfo as FLACInfo
-from mutagen.id3 import USLT
+from mutagen.id3 import APIC as MP3Picture, USLT
 from mutagen.mp3 import MPEGInfo as MP3Info
 from PySide6 import QtCore, QtGui
 
@@ -25,7 +25,6 @@ class Track(QtCore.QObject):
     Attributes:
         filepath (Path): Filepath of the track.
         filename (str): Filename of the track.
-        duration (float): Duration of the track in seconds.
         covers (dict[Mode, QtGui.QPixmap]): Covers of the track (in dark and light theme and in normal and compact mode).
         artists (list[str]): Artists of the track.
         main_artist (str): Main artist of the track.
@@ -54,8 +53,8 @@ class Track(QtCore.QObject):
         Returns:
             bool: `True` if the tags were successfully read.
         """
+        # File: tags and infos
         try:
-            # Infos and tags
             self.file = mutagen.File(self.filepath)
         except Exception as exception:
             log.error(
@@ -83,7 +82,7 @@ class Track(QtCore.QObject):
             self.covers[Mode.NORMAL] = cover_normal
             self.covers[Mode.COMPACT] = cover_compact
         else:
-            # If the track doesn't have a cover, build two placeholders
+            # If the track doesn't have a cover, build the placeholders
             icon_dark: CustomIcon = CustomIcon(IconTheme.OUTLINE, "image", Color_.grey)
             cover_dark = icon_dark.pixmap(
                 icon_dark.actualSize(
@@ -103,7 +102,7 @@ class Track(QtCore.QObject):
             self.covers[Mode.NORMAL] = cover_normal
             self.covers[Mode.COMPACT] = cover_compact
 
-        # Artists
+        # Artists: all and main
         if self.get_file_type() == FileType.FLAC:
             if "artist" in self.file.tags:
                 self.artists = re.split(self.SPLITTERS, self.file.tags["artist"][0])
@@ -135,7 +134,7 @@ class Track(QtCore.QObject):
         return time.strftime("%M:%S", duration)
 
     def get_title(self) -> str:
-        """Returns the title of the track, or "No title" if the artist is not set.
+        """Returns the title of the track, or "No title" if the title is not set.
 
         Returns:
             str: Title of the track.
@@ -190,19 +189,34 @@ class Track(QtCore.QObject):
             else:
                 return "No album"
 
-    def get_picture(self) -> FLACPicture:
+    def get_picture(self) -> FLACPicture | MP3Picture:
+        """Returns the first picture of the track.
+
+        Returns:
+            FLACPicture | MP3Picture: Picture of the track.
+        """
         if self.get_file_type() == FileType.FLAC:
             return self.file.pictures[0]
         else:
             return self.file.tags["APIC:"]
 
     def has_pictures(self) -> bool:
+        """Returns `True` if the track has pictures.
+
+        Returns:
+            bool: `True` if the track has pictures.
+        """
         if self.get_file_type() == FileType.FLAC:
             return len(self.file.pictures) > 0
         else:
             return self.file.tags is not None and "APIC:" in self.file.tags
 
     def get_file_type(self) -> FileType:
+        """Returns the type of the file.
+
+        Returns:
+            FileType: Type of the file.
+        """
         if isinstance(self.file.info, FLACInfo):
             return FileType.FLAC
         elif isinstance(self.file.info, MP3Info):
@@ -314,6 +328,17 @@ class Track(QtCore.QObject):
         return self.lyrics_new != ""
 
     def get_uslt(self) -> USLT | None:
+        """Returns the USLT field of a MP3 file.
+
+        In ID3 tags of a MP3 file, lyrics are stored in a field named "USLT::XXX",
+        where "XXX" stands for a code identifing the language of the lyrics
+        (ex: "eng" for english lyrics). This code can also be missing, and then
+        "XXX" is used instead. This function searches for the first tag beginning
+        with "USLT", no matter the language.
+
+        Returns:
+            USLT | None: USLT field of a MP3 file.
+        """
         for name, tag in self.file.tags.items():
             if "USLT" in name:
                 return tag
