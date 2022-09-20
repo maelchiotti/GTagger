@@ -1,6 +1,6 @@
 # GTagger
 
-GTagger is a python tool that adds lyrics from [Genius](https://genius.com/) to `.mp3` files.
+GTagger is a python tool that adds lyrics from [Genius](https://genius.com/) to `.flac` and `.mp3` files.
 
 ![Screenshot of the main window](docs/gtagger.png)
 

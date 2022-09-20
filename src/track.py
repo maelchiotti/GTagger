@@ -216,7 +216,7 @@ class Track(QtCore.QObject):
     def get_lyrics(self, lines: int = None, length: int = None) -> str:
         """Returns the lyrics of the track, or "No lyrics" if the lyrics are not set.
 
-        Returns `new_lyrics` is they are set, otherwise the original ones read by `eyeD3`.
+        Returns `new_lyrics` is they are set, otherwise the original ones read by `mutagen`.
 
         If specified, returns a maximum of `lines` lines.
         Otherwise, if specified, returns a maximum of `length` characters.
@@ -245,7 +245,7 @@ class Track(QtCore.QObject):
             return lyrics
 
     def get_lyrics_original(self) -> str:
-        """Returns the original lyrics of the track read by `eyeD3`,
+        """Returns the original lyrics of the track read by `mutagen`,
         or "No lyrics" if the lyrics are not set.
 
         Returns:
@@ -294,7 +294,7 @@ class Track(QtCore.QObject):
         return True
 
     def has_lyrics_original(self) -> bool:
-        """Returns `True` if the track has original lyrics read by `eyeD3`.
+        """Returns `True` if the track has original lyrics read by `mutagen`.
 
         Returns:
             bool: `True` if the track has original lyrics.
