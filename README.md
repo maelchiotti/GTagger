@@ -36,5 +36,4 @@ Download the executable `GTagger.exe` from the [Releases](https://github.com/mae
 
 **Future:**
 
-- Support more file types (AAC and FLAC especially)
 - Re-implement the [light theme](https://github.com/maelchiotti/GTagger/tree/light_theme)
