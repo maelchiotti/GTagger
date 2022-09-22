@@ -2,7 +2,8 @@
 
 ## v1.2.0
 
-*WIP*
+- Files support:
+  - Added support for `.flac` files.
 
 - Tracks display and managment:
   - Added a filter by text (that hides tracks not containing the text in their title or artists), and a filter to hide tracks already containing lyrics.
