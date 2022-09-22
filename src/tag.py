@@ -27,7 +27,8 @@ class ThreadTrackRead(QtCore.QThread):
     """Reads the tags of the files.
 
     Signals:
-        add_track (QtCore.Signal(object)): Emitted when the tags of a file have been read and a track can be added.
+        add_track (QtCore.Signal(object)): Emitted when the tags of a file
+        have been read and a track can be added.
 
     Attributes:
         files (list[Path]): List of files to read.
@@ -47,8 +48,8 @@ class ThreadTrackRead(QtCore.QThread):
     ) -> None:
         super().__init__()
         self.files: list[Path] = files
-        self.action_add_files = action_add_files
-        self.action_add_folder = action_add_folder
+        self.action_add_files: QtGui.QAction = action_add_files
+        self.action_add_folder: QtGui.QAction = action_add_folder
         self.gtagger: GTagger = gtagger
 
     def run(self):
@@ -71,11 +72,27 @@ class ThreadTrackRead(QtCore.QThread):
 
 
 class LyricsSearch(QtCore.QObject):
+    """Searches for the lyrics of a track.
+
+    Attributes:
+        token (str): Genius client access token.
+        genius (genius.Genius): `wrap-genius` instance.
+    """
+
     def __init__(self, token: str) -> None:
-        self.token = token
-        self.genius = genius.Genius(self.token)
+        self.token: str = token
+        self.genius: genius.Genius = genius.Genius(self.token)
 
     def search_lyrics(self, track: Track) -> bool:
+        """Uses `wrap-genius` to search a track on Genius
+        based on its title and artist, and fetch its lyrics.
+
+        Args:
+            track (Track): Track for which to search the lyrics.
+
+        Returns:
+            bool: `True` if the lyrics of the track were found.
+        """
         if track.get_title() == "" or track.get_main_artist() == "":
             return False
         search = f"{track.get_title()} {track.get_main_artist()}"
@@ -128,7 +145,8 @@ class ThreadSearchLyrics(QtCore.QThread):
     Uses `SearchLyrics` to search the tracks on Genius and set their lyrics.
 
     Signals:
-        signal_lyrics_searched (QtCore.Signal): Emmited when the lyrics of a track have been searched.
+        signal_lyrics_searched (QtCore.Signal): Emmited when the lyrics of a track
+        have been searched.
 
     Attributes:
         token (str): Token to search the track on Genius.

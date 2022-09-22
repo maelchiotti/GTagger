@@ -10,19 +10,13 @@ from typing import Union
 import mutagen
 from mutagen.flac import Picture as FLACPicture
 from mutagen.flac import StreamInfo as FLACInfo
-from mutagen.id3 import APIC as MP3Picture, USLT
+from mutagen.id3 import APIC as MP3Picture
+from mutagen.id3 import USLT
 from mutagen.mp3 import MPEGInfo as MP3Info
 from PySide6 import QtCore, QtGui
 
-from src.utils import (
-    COVER_SIZE,
-    SPLITTERS,
-    Color_,
-    CustomIcon,
-    FileType,
-    IconTheme,
-    Mode,
-)
+from src.utils import (COVER_SIZE, SPLITTERS, Color_, CustomIcon, FileType,
+                       IconTheme, Mode)
 
 
 class Track(QtCore.QObject):
@@ -34,7 +28,8 @@ class Track(QtCore.QObject):
     Attributes:
         filepath (Path): Filepath of the track.
         filename (str): Filename of the track.
-        covers (dict[Mode, QtGui.QPixmap]): Covers of the track (in dark and light theme and in normal and compact mode).
+        covers (dict[Mode, QtGui.QPixmap]): Covers of the track
+        (in dark and light theme and in normal and compact mode).
         artists (list[str]): Artists of the track.
         main_artist (str): Main artist of the track.
         lyrics_new (str): New lyrics of the track.

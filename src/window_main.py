@@ -14,18 +14,8 @@ from PySide6 import QtCore, QtGui, QtWidgets
 from src.tag import ThreadSearchLyrics, ThreadTrackRead
 from src.track import Track
 from src.track_layout import TrackLayout
-from src.utils import (
-    LYRICS_LINES,
-    TOKEN_URL,
-    VERSION,
-    Color_,
-    CustomIcon,
-    FileType,
-    IconTheme,
-    Mode,
-    Settings,
-    State,
-)
+from src.utils import (LYRICS_LINES, TOKEN_URL, VERSION, Color_, CustomIcon,
+                       FileType, IconTheme, Mode, Settings, State)
 from src.window_help import WindowHelp
 from src.window_informations import WindowInformations
 from src.window_settings import WindowSettings
@@ -43,7 +33,8 @@ class WindowMain(QtWidgets.QWidget):
 
     Attributes:
         gtagger (GTagger): GTagger application.
-        track_layouts (dict[Track, TrackLayout]): Layouts containing the informations of each tracks added by the user.
+        track_layouts (dict[Track, TrackLayout]): Layouts containing
+        the informations of each tracks added by the user.
         window_settings (WindowSettings): Settings window.
         window_informations (WindowInformations): Informations window.
         window_help (WindowHelp) : Help window.
@@ -324,7 +315,8 @@ class WindowMain(QtWidgets.QWidget):
     def is_token_valid(self) -> bool:
         """Checks to see if the token is in a valid format.
 
-        Genius client access token have a length of 64 characters, and may include letters, digits, '_' and '-'.
+        Genius client access token have a length of 64 characters,
+        and may include letters, digits, '_' and '-'.
 
         Returns:
             bool: `True` if the token is valid.

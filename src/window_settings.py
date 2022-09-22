@@ -3,6 +3,8 @@
 Handles the creation of the settings window and the interactions with the user.
 """
 
+from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 from PySide6 import QtCore, QtWidgets
@@ -23,7 +25,7 @@ class WindowSettings(QtWidgets.QDialog):
         gtagger (GTagger): GTagger application.
     """
 
-    def __init__(self, parent, gtagger):
+    def __init__(self, parent, gtagger: GTagger):
         super().__init__(parent)
 
         self.gtagger: GTagger = gtagger

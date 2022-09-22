@@ -21,7 +21,8 @@ class TrackLayout(QtWidgets.QWidget):
 
     Attributes:
         selected (bool): `True` if the track is currently selected.
-        covers (dict[tuple[Theme, Mode], QtGui.QPixmap]): Covers of the track (in dark and light theme).
+        covers (dict[tuple[Theme, Mode], QtGui.QPixmap]): Covers of the track
+        (in dark and light theme).
 
     Displays:
     - Filename (and filepath as a tooltip)
