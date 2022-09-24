@@ -74,7 +74,7 @@ class WindowInformations(QtWidgets.QDialog):
 
         self.label_developper.setText(
             f"""
-            <a href="{QtCore.QCoreApplication.organizationDomain()} "style="color: {color}">
+            <a href="{QtCore.QCoreApplication.organizationDomain()}" style="color: {color}">
             {QtCore.QCoreApplication.organizationName()}</a>
             """
         )
