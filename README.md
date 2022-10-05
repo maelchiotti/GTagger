@@ -30,10 +30,6 @@ Download the executable `GTagger.exe` from the [Releases](https://github.com/mae
 
 ## TODO
 
-**v1.2.0:**
-
-- ?
-
 **Future:**
 
 - Re-implement the [light theme](https://github.com/maelchiotti/GTagger/tree/light_theme)
