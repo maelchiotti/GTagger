@@ -527,10 +527,10 @@ class WindowMain(QtWidgets.QWidget):
             self.action_search_lyrics.setEnabled(True)
 
     @QtCore.Slot()
-    def check_lyrics(self) -> None:
+    def check_lyrics(self, lyrics: str) -> None:
         msgBox = QtWidgets.QMessageBox()
         msgBox.setText("Please confirm the new lyrics:")
-        msgBox.setInformativeText("jaj")
+        msgBox.setInformativeText(lyrics)
         msgBox.setStandardButtons(
             QtWidgets.QMessageBox.Save
             | QtWidgets.QMessageBox.Discard
