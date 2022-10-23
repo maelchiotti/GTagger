@@ -1,6 +1,6 @@
-"""Application's informations window.
+"""Application's information window.
 
-Handles the creation of the informations window.
+Handles the creation of the information window.
 """
 
 from PySide6 import QtCore, QtWidgets
@@ -9,7 +9,7 @@ from src.utils import VERSION, Color_
 
 
 class WindowInformations(QtWidgets.QDialog):
-    """Informations window of the GUI."""
+    """Information window of the GUI."""
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -61,7 +61,7 @@ class WindowInformations(QtWidgets.QDialog):
         self.layout_.addWidget(self.label_credits, 4, 0, 1, 1)
 
         self.setLayout(self.layout_)
-        self.setWindowTitle("Informations")
+        self.setWindowTitle("Information")
         self.setWindowModality(QtCore.Qt.ApplicationModal)
 
     def set_texts(self, link_color: Color_) -> None:

@@ -1,6 +1,6 @@
-"""Application's informations window.
+"""Application's help window.
 
-Handles the creation of the informations window.
+Handles the creation of the help window.
 """
 
 from PySide6 import QtCore, QtWidgets

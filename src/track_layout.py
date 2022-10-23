@@ -132,7 +132,7 @@ class TrackLayout(QtWidgets.QWidget):
         """Sets up the layout as compact mode.
 
         Args:
-            track (Track): Track containing the informations to display.
+            track (Track): Track containing the information to display.
         """
         self.state_indicator = StateIndicator(self.state, x=4)
         self.state_indicator.setToolTip(self.state.value)

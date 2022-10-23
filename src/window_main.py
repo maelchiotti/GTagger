@@ -44,7 +44,7 @@ class WindowMain(QtWidgets.QWidget):
     Attributes:
         gtagger (GTagger): GTagger application.
         track_layouts (dict[Track, TrackLayout]): Layouts containing
-        the informations of each tracks added by the user.
+        the information of each track added by the user.
         window_settings (WindowSettings): Settings window.
         window_informations (WindowInformations): Informations window.
         window_help (WindowHelp) : Help window.
@@ -229,16 +229,16 @@ class WindowMain(QtWidgets.QWidget):
         """Sets up the custom colors and icons for diverse elements of the application."""
         mode = self.gtagger.mode
 
-        # Setup the windows icons
+        # Set up the windows icons
         icon_window_main = CustomIcon(IconTheme.SHARP, "pricetag", Color_.black)
         icon_window_settings = CustomIcon(IconTheme.SHARP, "settings", Color_.black)
-        icon_window_informations = CustomIcon(
+        icon_window_information = CustomIcon(
             IconTheme.SHARP, "information-circle", Color_.black
         )
         icon_window_help = CustomIcon(IconTheme.SHARP, "help-circle", Color_.black)
         self.setWindowIcon(icon_window_main)
         self.window_settings.setWindowIcon(icon_window_settings)
-        self.window_informations.setWindowIcon(icon_window_informations)
+        self.window_informations.setWindowIcon(icon_window_information)
         self.window_help.setWindowIcon(icon_window_help)
 
         # Change the icons
@@ -258,7 +258,7 @@ class WindowMain(QtWidgets.QWidget):
             IconTheme.OUTLINE, "remove-circle", Color_.light_red
         )
         icon_settings = CustomIcon(IconTheme.OUTLINE, "settings", Color_.light_grey)
-        icon_informations = CustomIcon(
+        icon_information = CustomIcon(
             IconTheme.OUTLINE, "information-circle", Color_.light_grey
         )
         icon_help = CustomIcon(IconTheme.OUTLINE, "help-circle", Color_.light_grey)
@@ -284,7 +284,7 @@ class WindowMain(QtWidgets.QWidget):
         self.action_cancel_rows.setIcon(icon_cancel_rows)
         self.action_remove_rows.setIcon(icon_remove_rows)
         self.action_settings.setIcon(icon_settings)
-        self.action_informations.setIcon(icon_informations)
+        self.action_informations.setIcon(icon_information)
         self.action_help.setIcon(icon_help)
         self.button_token.setIcon(icon_token)
         self.button_filter_lyrics.setIcon(icon_filter_lyrics)
@@ -358,7 +358,7 @@ class WindowMain(QtWidgets.QWidget):
         """Set the maximum of the progression bar.
 
         Args:
-            list (list): List of elements.
+            list_ (list | dict): List of elements.
         """
         maximum = len(list_) - 1
         # The maximum must be at least 1 (occurs when the list has only one element)
@@ -528,16 +528,16 @@ class WindowMain(QtWidgets.QWidget):
 
     @QtCore.Slot()
     def check_lyrics(self, lyrics: str) -> None:
-        msgBox = QtWidgets.QMessageBox()
-        msgBox.setText("Please confirm the new lyrics:")
-        msgBox.setInformativeText(lyrics)
-        msgBox.setStandardButtons(
+        msg_box = QtWidgets.QMessageBox()
+        msg_box.setText("Please confirm the new lyrics:")
+        msg_box.setInformativeText(lyrics)
+        msg_box.setStandardButtons(
             QtWidgets.QMessageBox.Save
             | QtWidgets.QMessageBox.Discard
             | QtWidgets.QMessageBox.Cancel
         )
-        msgBox.setDefaultButton(QtWidgets.QMessageBox.Save)
-        ret = msgBox.exec()
+        msg_box.setDefaultButton(QtWidgets.QMessageBox.Save)
+        ret = msg_box.exec()
 
     @QtCore.Slot()
     def save_lyrics(self) -> None:

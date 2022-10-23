@@ -80,6 +80,7 @@ class LyricsSearch(QtCore.QObject):
     """
 
     def __init__(self, token: str) -> None:
+        super().__init__()
         self.token: str = token
         self.genius: genius.Genius = genius.Genius(self.token)
 

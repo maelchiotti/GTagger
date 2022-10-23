@@ -128,24 +128,25 @@ class CustomIcon(QtGui.QIcon):
         self.addPixmap(image)
 
     @staticmethod
-    def add_resource_path(ressource: str) -> str:
-        """Returns the final path to the application's ressource `ressource`.
+    def add_resource_path(resource: str) -> str:
+        """Returns the final path to the application's `resource`.
 
-        The ressources are stored in a special folder by the OS
+        The resources are stored in a special folder by the OS
         when extracted from the executable, which path is appended
-        before the relative path to ressource.
+        before the relative path to resource.
 
         Args:
-            relative_path (str): Relative path to the ressource.
+            resource (str): Name of the resource.
+            relative_path (str): Relative path to the resource.
 
         Returns:
-            str: Path to the ressource.
+            str: Path to the resource.
         """
         if hasattr(sys, "_MEIPASS"):
             base_path = sys._MEIPASS
         else:
             base_path = os.path.abspath(".")
-        return os.path.join(base_path, ressource)
+        return os.path.join(base_path, resource)
 
 
 class Settings(Enum):
@@ -157,7 +158,7 @@ class Settings(Enum):
 
 
 class Color_(Enum):
-    """Enumerates usefull (name = #hex) colors."""
+    """Enumerates useful (name = #hex) colors."""
 
     light_green = "#90EE90"
     light_red = "#F08080"
@@ -206,8 +207,8 @@ class Mode(Enum):
     """Enumerates the different layout modes of a track layout.
 
     Includes:
-    - Normal: normal layout with all informations
-    - Compact: compact layout with only important informations
+    - Normal: normal layout with all information
+    - Compact: compact layout with only important information
     """
 
     NORMAL = "normal"

@@ -27,7 +27,7 @@ class GTagger(QtWidgets.QApplication):
         # Create the settings manager
         self.settings_manager: SettingsManager = SettingsManager()
 
-        # Set the application stylsheet
+        # Set the application stylesheet
         self.set_stylesheet()
 
         # Load the mode setting and default it to normal if it is not set

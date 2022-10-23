@@ -333,7 +333,7 @@ class Track(QtCore.QObject):
         """Returns the USLT field of a MP3 file.
 
         In ID3 tags of a MP3 file, lyrics are stored in a field named "USLT::XXX",
-        where "XXX" stands for a code identifing the language of the lyrics
+        where "XXX" stands for a code identifying the language of the lyrics
         (ex: "eng" for english lyrics). This code can also be missing, and then
         "XXX" is used instead. This function searches for the first tag beginning
         with "USLT", no matter the language.
