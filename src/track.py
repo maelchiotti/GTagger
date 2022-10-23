@@ -15,8 +15,15 @@ from mutagen.id3 import USLT
 from mutagen.mp3 import MPEGInfo as MP3Info
 from PySide6 import QtCore, QtGui
 
-from src.utils import (COVER_SIZE, SPLITTERS, Color_, CustomIcon, FileType,
-                       IconTheme, Mode)
+from src.utils import (
+    COVER_SIZE,
+    SPLITTERS,
+    Color_,
+    CustomIcon,
+    FileType,
+    IconTheme,
+    Mode,
+)
 
 
 class Track(QtCore.QObject):
