@@ -79,14 +79,6 @@ class WindowMain(QtWidgets.QWidget):
         self.action_search_lyrics.setToolTip("Search for the lyrics")
         self.action_search_lyrics.setEnabled(False)
 
-        self.action_search_lyrics_check = QtGui.QAction(
-            "Search for the lyrics and check them"
-        )
-        self.action_search_lyrics_check.setToolTip(
-            "Search for the lyrics and check them"
-        )
-        self.action_search_lyrics_check.setEnabled(False)
-
         self.action_save_lyrics = QtGui.QAction("Save the lyrics")
         self.action_save_lyrics.setToolTip("Save the lyrics")
         self.action_save_lyrics.setEnabled(False)
@@ -119,7 +111,6 @@ class WindowMain(QtWidgets.QWidget):
         self.tool_bar.addAction(self.action_add_folder)
         self.tool_bar.addSeparator()
         self.tool_bar.addAction(self.action_search_lyrics)
-        self.tool_bar.addAction(self.action_search_lyrics_check)
         self.tool_bar.addAction(self.action_save_lyrics)
         self.tool_bar.addSeparator()
         self.tool_bar.addAction(self.action_cancel_rows)
@@ -211,7 +202,6 @@ class WindowMain(QtWidgets.QWidget):
         self.action_add_files.triggered.connect(lambda: self.add_files(False))
         self.action_add_folder.triggered.connect(lambda: self.add_files(True))
         self.action_search_lyrics.triggered.connect(self.search_lyrics)
-        self.action_search_lyrics_check.triggered.connect(self.search_lyrics_check)
         self.action_save_lyrics.triggered.connect(self.save_lyrics)
         self.action_cancel_rows.triggered.connect(self.cancel_rows)
         self.action_remove_rows.triggered.connect(self.remove_selected_layouts)
@@ -247,9 +237,6 @@ class WindowMain(QtWidgets.QWidget):
             IconTheme.OUTLINE, "folder-open", Color_.light_green
         )
         icon_search_lyrics = CustomIcon(IconTheme.OUTLINE, "search", Color_.light_blue)
-        icon_search_lyrics_check = CustomIcon(
-            IconTheme.CUSTOM, "search_checkmark", Color_.light_blue
-        )
         icon_save_lyrics = CustomIcon(IconTheme.OUTLINE, "save", Color_.light_green)
         icon_cancel_rows = CustomIcon(
             IconTheme.OUTLINE, "arrow-undo", Color_.light_orange
@@ -279,7 +266,6 @@ class WindowMain(QtWidgets.QWidget):
         self.action_add_files.setIcon(icon_add_files)
         self.action_add_folder.setIcon(icon_add_folder)
         self.action_search_lyrics.setIcon(icon_search_lyrics)
-        self.action_search_lyrics_check.setIcon(icon_search_lyrics_check)
         self.action_save_lyrics.setIcon(icon_save_lyrics)
         self.action_cancel_rows.setIcon(icon_cancel_rows)
         self.action_remove_rows.setIcon(icon_remove_rows)
@@ -471,31 +457,20 @@ class WindowMain(QtWidgets.QWidget):
             self.increment_progression_bar()
 
     @QtCore.Slot()
-    def search_lyrics(self, check: bool = False) -> None:
-        """Searches for the lyrics of the files.
-
-        Args:
-            check (bool): `True` if the user should be asked to confirm the lyrics. Defaults to `False`.
-        """
+    def search_lyrics(self) -> None:
+        """Searches for the lyrics of the files."""
         token = self.input_token.text()
         self.thread_search_lyrics = ThreadSearchLyrics(
             token,
-            check,
             self.track_layouts,
             self.window_settings.checkbox_overwrite.isChecked(),
             self.button_stop_search,
             self.gtagger,
         )
-        self.thread_search_lyrics.signal_check_lyrics.connect(self.check_lyrics)
         self.thread_search_lyrics.signal_lyrics_searched.connect(self.lyrics_searched)
         self.progression_bar.reset()
         self.set_maximum_progression_bar(self.track_layouts)
         self.thread_search_lyrics.start()
-
-    @QtCore.Slot()
-    def search_lyrics_check(self) -> None:
-        """Searches for the lyrics of the files and asks the user to confirm them."""
-        self.search_lyrics(check=True)
 
     @QtCore.Slot()
     def token_changed(self) -> None:
@@ -525,19 +500,6 @@ class WindowMain(QtWidgets.QWidget):
             )
             self.input_token.setToolTip("Valid token")
             self.action_search_lyrics.setEnabled(True)
-
-    @QtCore.Slot()
-    def check_lyrics(self, lyrics: str) -> None:
-        msg_box = QtWidgets.QMessageBox()
-        msg_box.setText("Please confirm the new lyrics:")
-        msg_box.setInformativeText(lyrics)
-        msg_box.setStandardButtons(
-            QtWidgets.QMessageBox.Save
-            | QtWidgets.QMessageBox.Discard
-            | QtWidgets.QMessageBox.Cancel
-        )
-        msg_box.setDefaultButton(QtWidgets.QMessageBox.Save)
-        ret = msg_box.exec()
 
     @QtCore.Slot()
     def save_lyrics(self) -> None:

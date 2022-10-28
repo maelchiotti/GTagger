@@ -105,12 +105,6 @@ class CustomIcon(QtGui.QIcon):
             image_path = self.add_resource_path(image_name)
             if not os.path.exists(image_path):
                 image_path = os.path.join(ICONS_PATH, image_name)
-        elif icon_theme == IconTheme.CUSTOM:
-            icon_name = icon_name + ".svg"
-            image_name = os.path.join(IconTheme.CUSTOM.value, icon_name)
-            image_path = self.add_resource_path(image_name)
-            if not os.path.exists(image_path):
-                image_path = os.path.join(ICONS_PATH, image_name)
 
         if not os.path.exists(image_path):
             log.error("The icon '%s' at '%s' does not exist", icon_name, image_path)
@@ -194,13 +188,11 @@ class IconTheme(Enum):
     - Normal
     - Outline: shape is not filled
     - Sharp: shape's angles are sharper
-    - Custom: custom icons
     """
 
     NORMAL = "normal"
     OUTLINE = "outline"
     SHARP = "sharp"
-    CUSTOM = "custom"
 
 
 class Mode(Enum):

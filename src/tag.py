@@ -151,7 +151,6 @@ class ThreadSearchLyrics(QtCore.QThread):
 
     Attributes:
         token (str): Token to search the track on Genius.
-        check (bool): `True` if the user should be asked to confirm the lyrics.
         track_layouts (dict[Track, TrackLayout]): Layouts of the tracks.
         overwrite_lyrics (bool): `True` if the lyrics should be overwritten.
         button_stop_search (QtWidgets.QPushButton): Button to stop the search.
@@ -159,12 +158,10 @@ class ThreadSearchLyrics(QtCore.QThread):
     """
 
     signal_lyrics_searched = QtCore.Signal()
-    signal_check_lyrics = QtCore.Signal()
 
     def __init__(
         self,
         token: str,
-        check: bool,
         track_layouts: dict[Track, TrackLayout],
         overwrite_lyrics: bool,
         button_stop_search: QtWidgets.QPushButton,
@@ -175,7 +172,6 @@ class ThreadSearchLyrics(QtCore.QThread):
         self.stop_search = False
 
         self.token: str = token
-        self.check: bool = check
         self.track_layouts: dict[Track, TrackLayout] = track_layouts
         self.overwrite_lyrics: bool = overwrite_lyrics
         self.button_stop_search: QtWidgets.QPushButton = button_stop_search
@@ -195,7 +191,6 @@ class ThreadSearchLyrics(QtCore.QThread):
 
             found_lyrics = lyrics_search.search_lyrics(track)
             if found_lyrics:
-                self.signal_check_lyrics.emit()
                 lyrics = track.get_lyrics(lines=LYRICS_LINES[self.gtagger.mode])
                 track_layout.label_lyrics.setText(lyrics)
                 track_layout.label_lyrics.setToolTip(track.get_lyrics())
