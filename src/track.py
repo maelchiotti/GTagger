@@ -15,15 +15,7 @@ from mutagen.id3 import USLT
 from mutagen.mp3 import MPEGInfo as MP3Info
 from PySide6 import QtCore, QtGui
 
-from src.utils import (
-    COVER_SIZE,
-    SPLITTERS,
-    Color_,
-    CustomIcon,
-    FileType,
-    IconTheme,
-    Mode,
-)
+from src.utils import COVER_SIZE, SPLITTERS, Color_, FileType, Mode, get_icon
 
 
 class Track(QtCore.QObject):
@@ -92,7 +84,9 @@ class Track(QtCore.QObject):
             self.covers[Mode.COMPACT] = cover_compact
         else:
             # If the track doesn't have a cover, build the placeholders
-            icon_dark: CustomIcon = CustomIcon(IconTheme.OUTLINE, "image", Color_.grey)
+            icon_dark: QtGui.QIcon = get_icon(
+                "image-off", color=Color_.light_grey.value
+            )
             cover_dark = icon_dark.pixmap(
                 icon_dark.actualSize(
                     QtCore.QSize(COVER_SIZE[Mode.NORMAL], COVER_SIZE[Mode.NORMAL])

@@ -1,23 +1,20 @@
 """Tools helpful for the GUI.
 
 Includes:
-- SettingsManager: Handles the settings.
-- CustomIcon: Customized implementation of a `QIcon`.
-- Settings: Enumeration of settings.
-- Color_: Enumeration of colors.
-- State: Enumeration of states.
-- IconTheme: Enumeration of icon themes.
+- `SettingsManager`: Handles the settings.
+- `Settings`: Enumeration of settings.
+- `Color_`: Enumeration of colors.
+- `State`: Enumeration of states.
+- `get_icon()`: Returns an icon.
 """
 
 from __future__ import annotations
 
-import logging as log
-import os
-import sys
 from enum import Enum
 from typing import Any
 
 from PySide6 import QtCore, QtGui
+from qtawesome import icon
 
 VERSION = "v1.2.0"
 ICONS_PATH = "src/assets/img/icons"
@@ -72,77 +69,6 @@ class SettingsManager(QtCore.QObject):
         self.settings.setValue(setting, value)
 
 
-class CustomIcon(QtGui.QIcon):
-    """Customized implementation of a `QIcon`.
-
-    Allows to use a custom `.svg` icon with a custom color.
-    """
-
-    def __init__(
-        self, icon_theme: IconTheme, icon_name: str, icon_color: Color_
-    ) -> None:
-        super().__init__()
-
-        # Construct the icon file path according to the current theme,
-        # the icon's theme and the icon's name.
-        # The images are retrieved from the ressource folder when using an executable,
-        # or from the assets folder when running from source.
-        if icon_theme == IconTheme.NORMAL:
-            icon_name = icon_name + ".svg"
-            image_name = os.path.join(IconTheme.NORMAL.value, icon_name)
-            image_path = self.add_resource_path(image_name)
-            if not os.path.exists(image_path):
-                image_path = os.path.join(ICONS_PATH, image_name)
-        elif icon_theme == IconTheme.OUTLINE:
-            icon_name = icon_name + "-" + IconTheme.OUTLINE.value + ".svg"
-            image_name = os.path.join(IconTheme.OUTLINE.value, icon_name)
-            image_path = self.add_resource_path(image_name)
-            if not os.path.exists(image_path):
-                image_path = os.path.join(ICONS_PATH, image_name)
-        elif icon_theme == IconTheme.SHARP:
-            icon_name = icon_name + "-" + IconTheme.SHARP.value + ".svg"
-            image_name = os.path.join(IconTheme.SHARP.value, icon_name)
-            image_path = self.add_resource_path(image_name)
-            if not os.path.exists(image_path):
-                image_path = os.path.join(ICONS_PATH, image_name)
-
-        if not os.path.exists(image_path):
-            log.error("The icon '%s' at '%s' does not exist", icon_name, image_path)
-            return
-        image = QtGui.QPixmap(image_path)
-
-        # Paint the icon with the constructed color
-        painter = QtGui.QPainter(image)
-        painter.setCompositionMode(QtGui.QPainter.CompositionMode_SourceIn)
-        painter.setBrush(QtGui.QColor(icon_color.value))
-        painter.setPen(QtGui.QColor(icon_color.value))
-        painter.drawRect(image.rect())
-        painter.end()
-
-        self.addPixmap(image)
-
-    @staticmethod
-    def add_resource_path(resource: str) -> str:
-        """Returns the final path to the application's `resource`.
-
-        The resources are stored in a special folder by the OS
-        when extracted from the executable, which path is appended
-        before the relative path to resource.
-
-        Args:
-            resource (str): Name of the resource.
-            relative_path (str): Relative path to the resource.
-
-        Returns:
-            str: Path to the resource.
-        """
-        if hasattr(sys, "_MEIPASS"):
-            base_path = sys._MEIPASS
-        else:
-            base_path = os.path.abspath(".")
-        return os.path.join(base_path, resource)
-
-
 class Settings(Enum):
     """Enumerates the settings of the application."""
 
@@ -181,20 +107,6 @@ class State(Enum):
     LYRICS_NOT_SAVED = "Couldn't save the lyrics"
 
 
-class IconTheme(Enum):
-    """Enumerates the different themes of the icons.
-
-    Includes:
-    - Normal
-    - Outline: shape is not filled
-    - Sharp: shape's angles are sharper
-    """
-
-    NORMAL = "normal"
-    OUTLINE = "outline"
-    SHARP = "sharp"
-
-
 class Mode(Enum):
     """Enumerates the different layout modes of a track layout.
 
@@ -231,6 +143,26 @@ class FileType(Enum):
     MP3 = "mp3"
     FLAC = "flac"
     NOT_SUPPORTED = "not supported"
+
+
+def get_icon(
+    name: str, active: str = None, color: str = "white", color_active: str = "white"
+) -> QtGui.QIcon:
+    """Returns the MDI6 icon `name` as a `QIcon`.
+
+    Args:
+        name (str): Name of the MDI6 icon.
+        active (str, optional): Name of the MDI6 icon when the button is active. Defaults to None.
+        color (str, optional): Color of the icon. Defaults to "white".
+        color_active (str, optional): Color of the icon when the button is active. Defaults to "white".
+
+    Returns:
+        QtGui.QIcon: MDI6 icon `name` as a `QIcon`.
+    """
+    name = f"mdi6.{name}"
+    if active is None:
+        active = name
+    return icon(name, active=active, color=color, color_active=color_active)
 
 
 # Sizes of the covers depending on the mode

@@ -1,4 +1,5 @@
-mutagen==1.45.1
-PySide6==6.3.1
-wrap-genius==1.7.2
-pyqtdarktheme==1.1.0
+mutagen
+PySide6
+wrap-genius
+pyqtdarktheme
+qtawesome

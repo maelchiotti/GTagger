@@ -1,9 +1,9 @@
 """Manages the tags of a track.
 
 Includes:
-- ThreadTrackRead: Reads the tags of a track.
-- LyricsSearch: Searches a track ant its lyrics on Genius.
-- ThreadLyricsSearch: Runs the lyrics search.
+- `ThreadTrackRead`: Reads the tags of a track.
+- `LyricsSearch`: Searches a track ant its lyrics on Genius.
+- `ThreadLyricsSearch`: Runs the lyrics search.
 """
 
 from __future__ import annotations

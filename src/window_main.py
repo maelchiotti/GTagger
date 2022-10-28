@@ -19,12 +19,11 @@ from src.utils import (
     TOKEN_URL,
     VERSION,
     Color_,
-    CustomIcon,
     FileType,
-    IconTheme,
     Mode,
     Settings,
     State,
+    get_icon,
 )
 from src.window_help import WindowHelp
 from src.window_informations import WindowInformations
@@ -220,48 +219,34 @@ class WindowMain(QtWidgets.QWidget):
         mode = self.gtagger.mode
 
         # Set up the windows icons
-        icon_window_main = CustomIcon(IconTheme.SHARP, "pricetag", Color_.black)
-        icon_window_settings = CustomIcon(IconTheme.SHARP, "settings", Color_.black)
-        icon_window_information = CustomIcon(
-            IconTheme.SHARP, "information-circle", Color_.black
-        )
-        icon_window_help = CustomIcon(IconTheme.SHARP, "help-circle", Color_.black)
+        icon_window_main = get_icon("tag-multiple", color=Color_.yellow_genius.value)
+        icon_window_settings = get_icon("cog", color="black")
+        icon_window_information = get_icon("information", color="black")
+        icon_window_help = get_icon("help-circle", color="black")
         self.setWindowIcon(icon_window_main)
         self.window_settings.setWindowIcon(icon_window_settings)
         self.window_informations.setWindowIcon(icon_window_information)
         self.window_help.setWindowIcon(icon_window_help)
 
         # Change the icons
-        icon_add_files = CustomIcon(IconTheme.OUTLINE, "documents", Color_.light_green)
-        icon_add_folder = CustomIcon(
-            IconTheme.OUTLINE, "folder-open", Color_.light_green
-        )
-        icon_search_lyrics = CustomIcon(IconTheme.OUTLINE, "search", Color_.light_blue)
-        icon_save_lyrics = CustomIcon(IconTheme.OUTLINE, "save", Color_.light_green)
-        icon_cancel_rows = CustomIcon(
-            IconTheme.OUTLINE, "arrow-undo", Color_.light_orange
-        )
-        icon_remove_rows = CustomIcon(
-            IconTheme.OUTLINE, "remove-circle", Color_.light_red
-        )
-        icon_settings = CustomIcon(IconTheme.OUTLINE, "settings", Color_.light_grey)
-        icon_information = CustomIcon(
-            IconTheme.OUTLINE, "information-circle", Color_.light_grey
-        )
-        icon_help = CustomIcon(IconTheme.OUTLINE, "help-circle", Color_.light_grey)
-        icon_token = CustomIcon(IconTheme.OUTLINE, "open", Color_.yellow_genius)
-        icon_filter_lyrics = CustomIcon(IconTheme.OUTLINE, "text", Color_.light_grey)
-        icon_stop_search = CustomIcon(IconTheme.OUTLINE, "close", Color_.red)
+        icon_add_files = get_icon("file-outline")
+        icon_add_folder = get_icon("folder-open")
+        icon_search_lyrics = get_icon("magnify", color=Color_.light_blue.value)
+        icon_save_lyrics = get_icon("content-save", color=Color_.light_green.value)
+        icon_cancel_rows = get_icon("backup-restore", color=Color_.orange.value)
+        icon_remove_rows = get_icon("minus-circle", color=Color_.red.value)
+        icon_settings = get_icon("cog")
+        icon_information = get_icon("information")
+        icon_help = get_icon("help-circle")
+        icon_token = get_icon("launch", color_active=Color_.yellow_genius.value)
+        icon_filter_lyrics = get_icon("format-letter-case")
+        icon_stop_search = get_icon("stop", color=Color_.red.value)
         if mode == Mode.NORMAL:
             self.button_change_mode.setToolTip("Switch to compact mode")
-            icon_change_mode = CustomIcon(
-                IconTheme.OUTLINE, "contract", Color_.light_grey
-            )
+            icon_change_mode = get_icon("arrow-expand")
         elif mode == Mode.COMPACT:
             self.button_change_mode.setToolTip("Switch to normal mode")
-            icon_change_mode = CustomIcon(
-                IconTheme.OUTLINE, "expand", Color_.light_grey
-            )
+            icon_change_mode = get_icon("arrow-collapse")
 
         self.action_add_files.setIcon(icon_add_files)
         self.action_add_folder.setIcon(icon_add_folder)
@@ -371,15 +356,11 @@ class WindowMain(QtWidgets.QWidget):
         if self.gtagger.mode == Mode.COMPACT:
             self.gtagger.mode = Mode.NORMAL
             self.button_change_mode.setToolTip("Switch to compact mode")
-            self.button_change_mode.setIcon(
-                CustomIcon(IconTheme.OUTLINE, "contract", Color_.light_grey)
-            )
+            self.button_change_mode.setIcon(get_icon("arrow-collapse"))
         elif self.gtagger.mode == Mode.NORMAL:
             self.gtagger.mode = Mode.COMPACT
             self.button_change_mode.setToolTip("Switch to normal mode")
-            self.button_change_mode.setIcon(
-                CustomIcon(IconTheme.OUTLINE, "expand", Color_.light_grey)
-            )
+            self.button_change_mode.setIcon(get_icon("arrow-expand"))
 
         # Update the GUI
         for track, track_layout_old in self.track_layouts.copy().items():
@@ -499,7 +480,7 @@ class WindowMain(QtWidgets.QWidget):
                 f"border: 2px solid {Color_.light_green.value}"
             )
             self.input_token.setToolTip("Valid token")
-            self.action_search_lyrics.setEnabled(True)
+            self.action_search_lyrics.setEnabled(len(self.track_layouts) > 0)
 
     @QtCore.Slot()
     def save_lyrics(self) -> None:
