@@ -440,9 +440,8 @@ class WindowMain(QtWidgets.QWidget):
     @QtCore.Slot()
     def search_lyrics(self) -> None:
         """Searches for the lyrics of the files."""
-        token = self.input_token.text()
         self.thread_search_lyrics = ThreadSearchLyrics(
-            token,
+            self.input_token.text(),
             self.track_layouts,
             self.window_settings.checkbox_overwrite.isChecked(),
             self.button_stop_search,
