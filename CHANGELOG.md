@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.2.1
+
+- Miscellaneous:
+  - Changed all icons to use [qtawesome](https://github.com/spyder-ide/qtawesome) MDI6 icons instead of SVG files.
+
 ## v1.2.0
 
 - Files support:
