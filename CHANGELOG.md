@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.2.2
+
+- Tracks display and managment:
+  - All tracks can be selected by hiting `Ctrl+A`, and deselected by hiting `Escape`.
+
 ## v1.2.1
 
 - Miscellaneous:

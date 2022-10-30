@@ -16,7 +16,7 @@ from typing import Any
 from PySide6 import QtCore, QtGui
 from qtawesome import icon
 
-VERSION = "v1.2.1"
+VERSION = "v1.2.2"
 TOKEN_URL = QtCore.QUrl("https://genius.com/api-clients")
 SPLITTERS = " featuring | feat. | feat | ft. | ft | & | / "
 

@@ -179,7 +179,7 @@ class TrackLayout(QtWidgets.QWidget):
     def mouseReleaseEvent(self, event: QtGui.QMouseEvent):
         """Intercepts the mouse release event on the `QFrame`.
 
-        Enables the user to (de)select a track.
+        Enables the user to (de)select a track layout by clicking on it.
 
         Args:
             event (QtGui.QMouseEvent): Mouse release event.
@@ -188,16 +188,29 @@ class TrackLayout(QtWidgets.QWidget):
         if event.button() != QtCore.Qt.LeftButton:
             return
 
-        self.selected = not self.selected
+        self.toogle_selection()
+
+    def toogle_selection(self, force: bool = None) -> None:
+        """Toggles the selection of the track layout.
+
+        Args:
+            force (bool, optional): Force the selection or deselection of the tracks.
+            Has not effect if it is not set. Defaults to None.
+        """
+        if force is not None:
+            self.selected = force
+        else:
+            self.selected = not self.selected
+
         if self.selected:
             stylesheet = f"background-color: {Color_.dark_blue.value};"
-            self.label_cover.setPixmap(self.covers[self.gtagger.mode])
         else:
             stylesheet = ""
-            self.label_cover.setPixmap(self.covers[self.gtagger.mode])
         self.frame.setStyleSheet(stylesheet)
 
-        self.signal_mouse_event.emit()
+        if force is None:
+            # Trigger the signal only on a mouse click event, not on key press events
+            self.signal_mouse_event.emit()
 
     def resizeFrame(self, newSize: QtGui.QResizeEvent):
         """Intercepts the resize event on the `QFrame`.

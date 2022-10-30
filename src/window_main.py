@@ -151,7 +151,7 @@ class WindowMain(QtWidgets.QWidget):
         # Main layout of the files
         self.layout_files = QtWidgets.QVBoxLayout()
         self.layout_files.setAlignment(QtCore.Qt.AlignTop)
-        self.layout_files.setContentsMargins(0, 0, 5, 0)
+        self.layout_files.setContentsMargins(0, 0, 0, 0)
         self.layout_files.setSpacing(5)
 
         self.widget_files = QtWidgets.QWidget()
@@ -169,7 +169,7 @@ class WindowMain(QtWidgets.QWidget):
         self.layout_main.addWidget(self.button_filter_lyrics, 1, 1, 1, 1)
         self.layout_main.addWidget(self.frame_separator, 2, 0, 1, 2)
         self.layout_main.addWidget(self.scroll_area, 3, 0, 1, 2)
-        self.layout_main.setContentsMargins(5, 5, 5, 0)
+        self.layout_main.setContentsMargins(5, 5, 5, 5)
 
         # Status bar
         self.progression_bar = QtWidgets.QProgressBar()
@@ -188,7 +188,7 @@ class WindowMain(QtWidgets.QWidget):
 
         # Main window
         self.layout_ = QtWidgets.QGridLayout(self)
-        self.layout_.setContentsMargins(0, 0, 0, 0)
+        self.layout_.setContentsMargins(5, 5, 5, 5)
         self.layout_.setMenuBar(self.tool_bar)
         self.layout_.addLayout(self.layout_main, 0, 0, 1, 1)
         self.layout_.addWidget(self.status_bar, 1, 0, 1, 1)
@@ -613,6 +613,35 @@ class WindowMain(QtWidgets.QWidget):
     def open_help(self) -> None:
         """Opens the help window."""
         self.window_help.show()
+
+    def keyPressEvent(self, event):
+        """Intercepts the key press event of the main window.
+
+        Detects the following key events:
+        - `Ctrl+A` : Select all tracks.
+        - `Escape` : Deselect all tracks.
+
+        Args:
+            event (_type_): Key press event.
+        """
+        if (
+            event.modifiers() == QtCore.Qt.NoModifier
+            and event.key() == QtCore.Qt.Key_Escape
+        ):
+            # Deselection
+            for track_layout in self.track_layouts.values():
+                track_layout.toogle_selection(force=False)
+            self.action_cancel_rows.setEnabled(False)
+            self.action_remove_rows.setEnabled(False)
+        elif (
+            event.modifiers() == QtCore.Qt.ControlModifier
+            and event.key() == QtCore.Qt.Key_A
+        ):
+            # Selection
+            for track_layout in self.track_layouts.values():
+                track_layout.toogle_selection(force=True)
+            self.action_cancel_rows.setEnabled(True)
+            self.action_remove_rows.setEnabled(True)
 
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
         """Intercepts the close event of the main window.
