@@ -32,4 +32,7 @@ Download the executable `GTagger.exe` from the [Releases](https://github.com/mae
 
 **Future:**
 
+- Improve performance of the following actions when a lot of files are opened:
+  - Changing mode
+  - (De)selecting track layouts
 - Re-implement the [light theme](https://github.com/maelchiotti/GTagger/tree/light_theme)
