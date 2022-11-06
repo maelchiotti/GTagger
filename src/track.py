@@ -67,43 +67,32 @@ class Track(QtCore.QObject):
 
         # Covers
         if self.has_pictures():
+            # The track has a cover
             picture: FLACPicture = self.get_picture()
             cover = QtGui.QPixmap()
             cover.loadFromData(picture.data)
-            cover_normal = cover.scaled(
-                COVER_SIZE[Mode.NORMAL],
-                COVER_SIZE[Mode.NORMAL],
-                QtCore.Qt.KeepAspectRatio,
-            )
-            cover_compact = cover.scaled(
-                COVER_SIZE[Mode.COMPACT],
-                COVER_SIZE[Mode.COMPACT],
-                QtCore.Qt.KeepAspectRatio,
-            )
-            self.covers[Mode.NORMAL] = cover_normal
-            self.covers[Mode.COMPACT] = cover_compact
         else:
-            # If the track doesn't have a cover, build the placeholders
+            # The track doesn't have a cover, build the placeholders
             icon_dark: QtGui.QIcon = get_icon(
                 "image-off", color=Color_.light_grey.value
             )
-            cover_dark = icon_dark.pixmap(
+            cover = icon_dark.pixmap(
                 icon_dark.actualSize(
                     QtCore.QSize(COVER_SIZE[Mode.NORMAL], COVER_SIZE[Mode.NORMAL])
                 )
             )
-            cover_normal = cover_dark.scaled(
-                COVER_SIZE[Mode.NORMAL],
-                COVER_SIZE[Mode.NORMAL],
-                QtCore.Qt.KeepAspectRatio,
-            )
-            cover_compact = cover_dark.scaled(
-                COVER_SIZE[Mode.COMPACT],
-                COVER_SIZE[Mode.COMPACT],
-                QtCore.Qt.KeepAspectRatio,
-            )
-            self.covers[Mode.NORMAL] = cover_normal
-            self.covers[Mode.COMPACT] = cover_compact
+        cover_normal = cover.scaled(
+            COVER_SIZE[Mode.NORMAL],
+            COVER_SIZE[Mode.NORMAL],
+            QtCore.Qt.KeepAspectRatio,
+        )
+        cover_compact = cover.scaled(
+            COVER_SIZE[Mode.COMPACT],
+            COVER_SIZE[Mode.COMPACT],
+            QtCore.Qt.KeepAspectRatio,
+        )
+        self.covers[Mode.NORMAL] = cover_normal
+        self.covers[Mode.COMPACT] = cover_compact
 
         # Artists: all and main
         if self.get_file_type() == FileType.FLAC:
