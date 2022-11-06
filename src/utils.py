@@ -72,7 +72,7 @@ class Settings(Enum):
     """Enumerates the settings of the application."""
 
     MODE = "mode"
-    RECUSRIVE_SEARCH = "recursive_search"
+    RECURSIVE_SEARCH = "recursive_search"
     OVERWRITE_LYRICS = "overwrite_lyrics"
 
 

@@ -36,7 +36,7 @@ class WindowSettings(QtWidgets.QDialog):
         """Sets up the UI of the window."""
         self.checkbox_recursive = QtWidgets.QCheckBox("Recursively search for files")
         recursive_search = self.gtagger.settings_manager.get_setting(
-            Settings.RECUSRIVE_SEARCH.value, default=True, type_=bool
+            Settings.RECURSIVE_SEARCH.value, default=True, type_=bool
         )
         self.checkbox_recursive.setChecked(recursive_search)
 
@@ -70,7 +70,7 @@ class WindowSettings(QtWidgets.QDialog):
         """Updates the setting for resursively searching for files."""
         recursive_search = self.checkbox_recursive.isChecked()
         self.gtagger.settings_manager.set_setting(
-            Settings.RECUSRIVE_SEARCH.value, recursive_search
+            Settings.RECURSIVE_SEARCH.value, recursive_search
         )
 
     def toggle_overwrite_lyrics(self) -> None:
