@@ -26,7 +26,7 @@ from src.utils import (
     get_icon,
 )
 from src.window_help import WindowHelp
-from src.window_informations import WindowInformations
+from src.window_informations import WindowInformation
 from src.window_settings import WindowSettings
 
 if TYPE_CHECKING:
@@ -45,7 +45,7 @@ class WindowMain(QtWidgets.QWidget):
         track_layouts (dict[Track, TrackLayout]): Layouts containing
         the information of each track added by the user.
         window_settings (WindowSettings): Settings window.
-        window_informations (WindowInformations): Informations window.
+        window_information (WindowInformation): Information window.
         window_help (WindowHelp) : Help window.
         thread_search_lyrics: (ThreadLyricsSearch): Thread to search for the lyrics.
     """
@@ -58,7 +58,7 @@ class WindowMain(QtWidgets.QWidget):
         self.gtagger: GTagger = gtagger
         self.track_layouts: dict[Track, TrackLayout] = {}
         self.window_settings: WindowSettings = WindowSettings(self, self.gtagger)
-        self.window_informations: WindowInformations = WindowInformations(self)
+        self.window_information: WindowInformation = WindowInformation(self)
         self.window_help: WindowHelp = WindowHelp(self)
         self.thread_add_files: ThreadTrackRead = None
         self.thread_search_lyrics: ThreadSearchLyrics = None
@@ -93,8 +93,8 @@ class WindowMain(QtWidgets.QWidget):
         self.action_settings = QtGui.QAction("Settings")
         self.action_settings.setToolTip("Settings")
 
-        self.action_informations = QtGui.QAction("Informations")
-        self.action_informations.setToolTip("Informations")
+        self.action_information = QtGui.QAction("Information")
+        self.action_information.setToolTip("Information")
 
         self.action_help = QtGui.QAction("Help")
         self.action_help.setToolTip("Help")
@@ -116,7 +116,7 @@ class WindowMain(QtWidgets.QWidget):
         self.tool_bar.addAction(self.action_remove_rows)
         self.tool_bar.addWidget(spacer)
         self.tool_bar.addAction(self.action_settings)
-        self.tool_bar.addAction(self.action_informations)
+        self.tool_bar.addAction(self.action_information)
         self.tool_bar.addAction(self.action_help)
 
         # Token input
@@ -205,7 +205,7 @@ class WindowMain(QtWidgets.QWidget):
         self.action_cancel_rows.triggered.connect(self.cancel_rows)
         self.action_remove_rows.triggered.connect(self.remove_selected_layouts)
         self.action_settings.triggered.connect(self.open_settings)
-        self.action_informations.triggered.connect(self.open_informations)
+        self.action_information.triggered.connect(self.open_information)
         self.action_help.triggered.connect(self.open_help)
         self.input_token.textChanged.connect(self.token_changed)
         self.button_token.clicked.connect(self.open_token_page)
@@ -225,7 +225,7 @@ class WindowMain(QtWidgets.QWidget):
         icon_window_help = get_icon("help-circle", color="black")
         self.setWindowIcon(icon_window_main)
         self.window_settings.setWindowIcon(icon_window_settings)
-        self.window_informations.setWindowIcon(icon_window_information)
+        self.window_information.setWindowIcon(icon_window_information)
         self.window_help.setWindowIcon(icon_window_help)
 
         # Change the icons
@@ -255,7 +255,7 @@ class WindowMain(QtWidgets.QWidget):
         self.action_cancel_rows.setIcon(icon_cancel_rows)
         self.action_remove_rows.setIcon(icon_remove_rows)
         self.action_settings.setIcon(icon_settings)
-        self.action_informations.setIcon(icon_information)
+        self.action_information.setIcon(icon_information)
         self.action_help.setIcon(icon_help)
         self.button_token.setIcon(icon_token)
         self.button_filter_lyrics.setIcon(icon_filter_lyrics)
@@ -278,7 +278,7 @@ class WindowMain(QtWidgets.QWidget):
         self.token_changed()
 
         # Change the color of the links
-        self.window_informations.set_texts(Color_.yellow_genius)
+        self.window_information.set_texts(Color_.yellow_genius)
 
     @staticmethod
     def select_directories() -> str | None:
@@ -605,9 +605,9 @@ class WindowMain(QtWidgets.QWidget):
         self.window_settings.show()
 
     @QtCore.Slot()
-    def open_informations(self) -> None:
-        """Opens the informations window."""
-        self.window_informations.show()
+    def open_information(self) -> None:
+        """Opens the information window."""
+        self.window_information.show()
 
     @QtCore.Slot()
     def open_help(self) -> None:
@@ -630,7 +630,7 @@ class WindowMain(QtWidgets.QWidget):
         ):
             # Deselection
             for track_layout in self.track_layouts.values():
-                track_layout.toogle_selection(force=False)
+                track_layout.toggle_selection(force=False)
             self.action_cancel_rows.setEnabled(False)
             self.action_remove_rows.setEnabled(False)
         elif (
@@ -639,7 +639,7 @@ class WindowMain(QtWidgets.QWidget):
         ):
             # Selection
             for track_layout in self.track_layouts.values():
-                track_layout.toogle_selection(force=True)
+                track_layout.toggle_selection(force=True)
             self.action_cancel_rows.setEnabled(True)
             self.action_remove_rows.setEnabled(True)
 

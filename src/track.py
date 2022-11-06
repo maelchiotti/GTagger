@@ -22,7 +22,7 @@ class Track(QtCore.QObject):
     """Represents a music track.
 
     Signals:
-        signal_lyrics_changed (QtCore.Signal): Emmited when the lyrics of the track are changed.
+        signal_lyrics_changed (QtCore.Signal): Emitted when the lyrics of the track are changed.
 
     Attributes:
         filepath (Path): Filepath of the track.

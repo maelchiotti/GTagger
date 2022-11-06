@@ -1,4 +1,4 @@
-"""Layout containing the informations of a track."""
+"""Layout containing the information of a track."""
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 
 class TrackLayout(QtWidgets.QWidget):
-    """Customized implementation of a `QWidget` containing the informations of a track.
+    """Customized implementation of a `QWidget` containing the information of a track.
 
     Signals:
         signal_mouse_event (QtCore.Signal): Emitted when a mouse event is intercepted.
@@ -76,7 +76,7 @@ class TrackLayout(QtWidgets.QWidget):
         """Sets up the layout as normal mode.
 
         Args:
-            track (Track): Track containing the informations to display.
+            track (Track): Track containing the information to display.
         """
         self.state_indicator = StateIndicator(self.state)
         self.state_indicator.setToolTip(self.state.value)
@@ -120,7 +120,7 @@ class TrackLayout(QtWidgets.QWidget):
         self.frame.setFrameStyle(QtWidgets.QFrame.StyledPanel | QtWidgets.QFrame.Plain)
         self.frame.setLayout(self.grid_layout)
         self.frame.mouseReleaseEvent = self.mouseReleaseEvent
-        self.frame.resizeEvent = self.resizeFrame
+        self.frame.resizeEvent = self.resize_frame
 
         self.layout_ = QtWidgets.QGridLayout()
         self.layout_.setContentsMargins(0, 0, 0, 0)
@@ -168,7 +168,7 @@ class TrackLayout(QtWidgets.QWidget):
         self.frame.setFrameStyle(QtWidgets.QFrame.StyledPanel | QtWidgets.QFrame.Plain)
         self.frame.setLayout(self.grid_layout)
         self.frame.mouseReleaseEvent = self.mouseReleaseEvent
-        self.frame.resizeEvent = self.resizeFrame
+        self.frame.resizeEvent = self.resize_frame
 
         self.layout_ = QtWidgets.QGridLayout()
         self.layout_.setContentsMargins(0, 0, 0, 0)
@@ -188,9 +188,9 @@ class TrackLayout(QtWidgets.QWidget):
         if event.button() != QtCore.Qt.LeftButton:
             return
 
-        self.toogle_selection()
+        self.toggle_selection()
 
-    def toogle_selection(self, force: bool = None) -> None:
+    def toggle_selection(self, force: bool = None) -> None:
         """Toggles the selection of the track layout.
 
         Args:
@@ -212,7 +212,7 @@ class TrackLayout(QtWidgets.QWidget):
             # Trigger the signal only on a mouse click event, not on key press events
             self.signal_mouse_event.emit()
 
-    def resizeFrame(self, newSize: QtGui.QResizeEvent):
+    def resize_frame(self, newSize: QtGui.QResizeEvent):
         """Intercepts the resize event on the `QFrame`.
 
         Args:

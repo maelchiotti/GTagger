@@ -27,7 +27,8 @@ class WindowHelp(QtWidgets.QDialog):
             - Add individual files or an entire folder (a recursive search can be enabled in the settings).<br/>
             - Add your Genius client access token.<br/>
             - Use the <i>Search</i> button to search for the lyrics.<br/>
-            - Use the <i>Cancel</i> button to discard the added lyrics if they are wrong, or the <i>Remove</i> button to discard the file entirely.<br/>
+            - Use the <i>Cancel</i> button to discard the added lyrics if they are wrong,
+            or the <i>Remove</i> button to discard the file entirely.<br/>
             - Use the <i>Save</i> button to save the lyrics to the files.
             """
         )

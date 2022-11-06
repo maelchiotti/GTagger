@@ -67,7 +67,7 @@ class WindowSettings(QtWidgets.QDialog):
 
     @QtCore.Slot()
     def toggle_recursive_search(self) -> None:
-        """Updates the setting for resursively searching for files."""
+        """Updates the setting for recursively searching for files."""
         recursive_search = self.checkbox_recursive.isChecked()
         self.gtagger.settings_manager.set_setting(
             Settings.RECURSIVE_SEARCH.value, recursive_search

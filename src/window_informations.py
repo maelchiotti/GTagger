@@ -8,7 +8,7 @@ from PySide6 import QtCore, QtWidgets
 from src.utils import VERSION, Color_
 
 
-class WindowInformations(QtWidgets.QDialog):
+class WindowInformation(QtWidgets.QDialog):
     """Information window of the GUI."""
 
     def __init__(self, parent):
@@ -34,14 +34,14 @@ class WindowInformations(QtWidgets.QDialog):
         self.label_version.setStyleSheet("font-size: 12pt;")
         self.label_developper.setTextFormat(QtCore.Qt.RichText)
 
-        self.label_informations = QtWidgets.QLabel()
-        self.label_informations.setAlignment(QtCore.Qt.AlignCenter)
-        self.label_informations.setStyleSheet("font-size: 14pt; font-weight:400")
-        self.label_informations.setTextFormat(QtCore.Qt.RichText)
-        self.label_informations.setTextInteractionFlags(
+        self.label_information = QtWidgets.QLabel()
+        self.label_information.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_information.setStyleSheet("font-size: 14pt; font-weight:400")
+        self.label_information.setTextFormat(QtCore.Qt.RichText)
+        self.label_information.setTextInteractionFlags(
             QtCore.Qt.TextBrowserInteraction
         )
-        self.label_informations.setOpenExternalLinks(True)
+        self.label_information.setOpenExternalLinks(True)
 
         self.label_credits = QtWidgets.QLabel()
         self.label_credits.setStyleSheet("font-size: 12pt;")
@@ -56,7 +56,7 @@ class WindowInformations(QtWidgets.QDialog):
         self.layout_.addWidget(self.label_developper, 1, 0, 1, 1, QtCore.Qt.AlignCenter)
         self.layout_.addWidget(self.label_version, 2, 0, 1, 1, QtCore.Qt.AlignCenter)
         self.layout_.addWidget(
-            self.label_informations, 3, 0, 1, 1, QtCore.Qt.AlignCenter
+            self.label_information, 3, 0, 1, 1, QtCore.Qt.AlignCenter
         )
         self.layout_.addWidget(self.label_credits, 4, 0, 1, 1)
 
@@ -79,19 +79,23 @@ class WindowInformations(QtWidgets.QDialog):
             """
         )
 
-        self.label_informations.setText(
+        self.label_information.setText(
             f"""
             <br />
-            GTagger is a python tool that adds lyrics from <a href="https://genius.com" style="color: {color}">Genius</a> to <i>.mp3</i> files.
+            GTagger is a python tool that adds lyrics from <a href="https://genius.com"
+            style="color: {color}">Genius</a> to <i>.mp3</i> files.
             <br />
-            The code is open-source and hosted on <a href="https://github.com/maelchiotti/GTagger" style="color: {color}">GitHub</a>
-            under the <a href="https://github.com/maelchiotti/GTagger/blob/main/LICENSE.txt" style="color: {color}">MIT license</a>.
+            The code is open-source and hosted on <a href="https://github.com/maelchiotti/GTagger"
+            style="color: {color}">GitHub</a>
+            under the <a href="https://github.com/maelchiotti/GTagger/blob/main/LICENSE.txt"
+            style="color: {color}">MIT license</a>.
             <br />
             """
         )
         self.label_credits.setText(
             f"""
-            Credits (a more precise list can be found <a href=\"https://github.com/maelchiotti/GTagger/blob/main/CREDITS.md\" style="color: {color}">here</a>):
+            Credits (a more precise list can be found
+            <a href=\"https://github.com/maelchiotti/GTagger/blob/main/CREDITS.md\" style="color: {color}">here</a>):
             <br />
             - <a href=\"https://genius.com\" style="color: {color}">Genius</a><br />
             - <a href=\"https://github.com/fedecalendino/wrap-genius\" style="color: {color}">wrap-genius</a><br />

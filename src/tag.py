@@ -146,7 +146,7 @@ class ThreadSearchLyrics(QtCore.QThread):
     Uses `SearchLyrics` to search the tracks on Genius and set their lyrics.
 
     Signals:
-        signal_lyrics_searched (QtCore.Signal): Emmited when the lyrics of a track
+        signal_lyrics_searched (QtCore.Signal): Emitted when the lyrics of a track
         have been searched.
 
     Attributes:
