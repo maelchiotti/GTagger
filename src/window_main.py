@@ -26,7 +26,7 @@ from src.utils import (
     get_icon,
 )
 from src.window_help import WindowHelp
-from src.window_informations import WindowInformation
+from src.window_information import WindowInformation
 from src.window_settings import WindowSettings
 
 if TYPE_CHECKING:
@@ -619,21 +619,12 @@ class WindowMain(QtWidgets.QWidget):
 
         Detects the following key events:
         - `Ctrl+A` : Select all tracks.
-        - `Escape` : Deselect all tracks.
+        - `Ctrl+D` : Deselect all tracks.
 
         Args:
             event (_type_): Key press event.
         """
         if (
-            event.modifiers() == QtCore.Qt.NoModifier
-            and event.key() == QtCore.Qt.Key_Escape
-        ):
-            # Deselection
-            for track_layout in self.track_layouts.values():
-                track_layout.toggle_selection(force=False)
-            self.action_cancel_rows.setEnabled(False)
-            self.action_remove_rows.setEnabled(False)
-        elif (
             event.modifiers() == QtCore.Qt.ControlModifier
             and event.key() == QtCore.Qt.Key_A
         ):
@@ -642,6 +633,15 @@ class WindowMain(QtWidgets.QWidget):
                 track_layout.toggle_selection(force=True)
             self.action_cancel_rows.setEnabled(True)
             self.action_remove_rows.setEnabled(True)
+        elif (
+            event.modifiers() == QtCore.Qt.ControlModifier
+            and event.key() == QtCore.Qt.Key_D
+        ):
+            # Deselection
+            for track_layout in self.track_layouts.values():
+                track_layout.toggle_selection(force=False)
+            self.action_cancel_rows.setEnabled(False)
+            self.action_remove_rows.setEnabled(False)
 
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
         """Intercepts the close event of the main window.

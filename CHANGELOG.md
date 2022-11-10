@@ -3,7 +3,7 @@
 ## v1.2.2
 
 - Tracks display and management:
-  - All tracks can be selected by hitting `Ctrl+A`, and deselected by hitting `Escape`.
+  - All tracks can be selected by hitting `Ctrl+A`, and deselected by hitting `Ctrl+D`.
 
 ## v1.2.1
 

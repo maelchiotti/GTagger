@@ -22,14 +22,17 @@ class WindowHelp(QtWidgets.QDialog):
         # Usage
         self.label_usage = QtWidgets.QLabel(
             """
-            The usual workflow of GTagger is the following:
-            <br/><br/>
+            The usual workflow of GTagger is the following:<br/>
             - Add individual files or an entire folder (a recursive search can be enabled in the settings).<br/>
             - Add your Genius client access token.<br/>
             - Use the <i>Search</i> button to search for the lyrics.<br/>
             - Use the <i>Cancel</i> button to discard the added lyrics if they are wrong,
             or the <i>Remove</i> button to discard the file entirely.<br/>
             - Use the <i>Save</i> button to save the lyrics to the files.
+            <br/><br/>
+            Shortcuts:<br/>
+            - Ctrl+A: Select all files.<br/>
+            - Ctrl+D: Deselect all files.<br/>
             """
         )
         self.label_usage.setTextFormat(QtCore.Qt.RichText)
@@ -60,7 +63,6 @@ class WindowHelp(QtWidgets.QDialog):
         self.label_state_indicator_title = QtWidgets.QLabel(
             """
             The state indicator indicates the following states:
-            <br/>
             """
         )
         self.label_state_indicator_title.setTextFormat(QtCore.Qt.RichText)
