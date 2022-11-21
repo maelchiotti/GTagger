@@ -22,17 +22,17 @@ class WindowInformation(QtWidgets.QDialog):
         self.label_gtagger.setAlignment(QtCore.Qt.AlignCenter)
         self.label_gtagger.setStyleSheet("font-size: 20pt; font-weight:800")
 
-        self.label_developper = QtWidgets.QLabel()
-        self.label_developper.setAlignment(QtCore.Qt.AlignCenter)
-        self.label_developper.setStyleSheet("font-size: 14pt; font-weight:600")
-        self.label_developper.setTextFormat(QtCore.Qt.RichText)
-        self.label_developper.setTextInteractionFlags(QtCore.Qt.TextBrowserInteraction)
-        self.label_developper.setOpenExternalLinks(True)
+        self.label_developer = QtWidgets.QLabel()
+        self.label_developer.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_developer.setStyleSheet("font-size: 14pt; font-weight:600")
+        self.label_developer.setTextFormat(QtCore.Qt.RichText)
+        self.label_developer.setTextInteractionFlags(QtCore.Qt.TextBrowserInteraction)
+        self.label_developer.setOpenExternalLinks(True)
 
         self.label_version = QtWidgets.QLabel(f"<i>{VERSION}</i>")
         self.label_version.setAlignment(QtCore.Qt.AlignCenter)
         self.label_version.setStyleSheet("font-size: 12pt;")
-        self.label_developper.setTextFormat(QtCore.Qt.RichText)
+        self.label_developer.setTextFormat(QtCore.Qt.RichText)
 
         self.label_information = QtWidgets.QLabel()
         self.label_information.setAlignment(QtCore.Qt.AlignCenter)
@@ -53,7 +53,7 @@ class WindowInformation(QtWidgets.QDialog):
 
         self.layout_ = QtWidgets.QGridLayout()
         self.layout_.addWidget(self.label_gtagger, 0, 0, 1, 1, QtCore.Qt.AlignCenter)
-        self.layout_.addWidget(self.label_developper, 1, 0, 1, 1, QtCore.Qt.AlignCenter)
+        self.layout_.addWidget(self.label_developer, 1, 0, 1, 1, QtCore.Qt.AlignCenter)
         self.layout_.addWidget(self.label_version, 2, 0, 1, 1, QtCore.Qt.AlignCenter)
         self.layout_.addWidget(
             self.label_information, 3, 0, 1, 1, QtCore.Qt.AlignCenter
@@ -72,7 +72,7 @@ class WindowInformation(QtWidgets.QDialog):
         """
         color = link_color.value
 
-        self.label_developper.setText(
+        self.label_developer.setText(
             f"""
             <a href="{QtCore.QCoreApplication.organizationDomain()}" style="color: {color}">
             {QtCore.QCoreApplication.organizationName()}</a>
