@@ -17,7 +17,7 @@ from PySide6 import QtCore, QtGui, QtWidgets
 
 from src.track import Track
 from src.track_layout import TrackLayout
-from src.utils import LYRICS_LINES, State
+from src.utils import LYRICS_LINES, RE_REMOVE_LINES, UNWANTED_TITLE_TEXT, State
 
 if TYPE_CHECKING:
     from gtagger import GTagger
@@ -96,7 +96,14 @@ class LyricsSearch(QtCore.QObject):
         """
         if track.get_title() == "" or track.get_main_artist() == "":
             return False
-        search = f"{track.get_title()} {track.get_main_artist()}"
+
+        search_title = track.get_title()
+        for re_unwanted_text in UNWANTED_TITLE_TEXT:
+            search_title = re_unwanted_text.sub("", search_title)
+        search_title = search_title.strip()
+        print(search_title)
+
+        search = f"{search_title} {track.get_main_artist()}"
         try:
             searched_tracks = self.genius.search(search)
         except Exception as exception:
@@ -106,6 +113,7 @@ class LyricsSearch(QtCore.QObject):
                 exception,
             )
             return False
+
         try:
             searched_track = next(searched_tracks)
         except StopIteration:
@@ -115,7 +123,14 @@ class LyricsSearch(QtCore.QObject):
                 track.get_main_artist(),
             )
             return False
-        track.set_lyrics_new(self.format_lyrics(searched_track.lyrics))
+
+        searched_lyrics = searched_track.lyrics
+        if len("\n".join(searched_lyrics)) > 15000:
+            # If the lyrics are this long, they are probably wrong
+            return False
+
+        track.set_lyrics_new(self.format_lyrics(searched_lyrics))
+
         return True
 
     @staticmethod
@@ -135,7 +150,7 @@ class LyricsSearch(QtCore.QObject):
             else:
                 unformatted_lyrics[index] = line.strip()
         lyrics = "\n".join(unformatted_lyrics)
-        lyrics = lyrics.replace("\n\n\n", "\n\n")
+        lyrics = RE_REMOVE_LINES.sub("\n\n", lyrics)
         lyrics = lyrics.strip()
         return lyrics
 

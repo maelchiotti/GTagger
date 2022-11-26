@@ -10,8 +10,8 @@ from typing import Union
 import mutagen
 from mutagen.flac import Picture as FLACPicture
 from mutagen.flac import StreamInfo as FLACInfo
-from mutagen.id3 import APIC as MP3Picture
-from mutagen.id3 import USLT
+from mutagen.id3._frames import APIC as MP3Picture
+from mutagen.id3._frames import USLT
 from mutagen.mp3 import MPEGInfo as MP3Info
 from PySide6 import QtCore, QtGui
 
@@ -59,50 +59,58 @@ class Track(QtCore.QObject):
             self.file = mutagen.File(self.filepath)
         except Exception as exception:
             log.error(
-                "Error while reading the tags of file '%s' : %s",
+                "Error while opening the file '%s' : %s",
                 self.filename,
                 str(exception),
             )
             return False
 
-        # Covers
-        if self.has_pictures():
-            # The track has a cover
-            picture: FLACPicture = self.get_picture()
-            cover = QtGui.QPixmap()
-            cover.loadFromData(picture.data)
-        else:
-            # The track doesn't have a cover, build the placeholders
-            icon_dark: QtGui.QIcon = get_icon(
-                "image-off", color=Color_.light_grey.value
-            )
-            cover = icon_dark.pixmap(
-                icon_dark.actualSize(
-                    QtCore.QSize(COVER_SIZE[Mode.NORMAL], COVER_SIZE[Mode.NORMAL])
+        try:
+            # Covers
+            if self.has_pictures():
+                # The track has a cover
+                picture: FLACPicture = self.get_picture()
+                cover = QtGui.QPixmap()
+                cover.loadFromData(picture.data)
+            else:
+                # The track doesn't have a cover, build the placeholders
+                icon_dark: QtGui.QIcon = get_icon(
+                    "image-off", color=Color_.light_grey.value
                 )
+                cover = icon_dark.pixmap(
+                    icon_dark.actualSize(
+                        QtCore.QSize(COVER_SIZE[Mode.NORMAL], COVER_SIZE[Mode.NORMAL])
+                    )
+                )
+            cover_normal = cover.scaled(
+                COVER_SIZE[Mode.NORMAL],
+                COVER_SIZE[Mode.NORMAL],
+                QtCore.Qt.KeepAspectRatio,
             )
-        cover_normal = cover.scaled(
-            COVER_SIZE[Mode.NORMAL],
-            COVER_SIZE[Mode.NORMAL],
-            QtCore.Qt.KeepAspectRatio,
-        )
-        cover_compact = cover.scaled(
-            COVER_SIZE[Mode.COMPACT],
-            COVER_SIZE[Mode.COMPACT],
-            QtCore.Qt.KeepAspectRatio,
-        )
-        self.covers[Mode.NORMAL] = cover_normal
-        self.covers[Mode.COMPACT] = cover_compact
+            cover_compact = cover.scaled(
+                COVER_SIZE[Mode.COMPACT],
+                COVER_SIZE[Mode.COMPACT],
+                QtCore.Qt.KeepAspectRatio,
+            )
+            self.covers[Mode.NORMAL] = cover_normal
+            self.covers[Mode.COMPACT] = cover_compact
 
-        # Artists: all and main
-        if self.get_file_type() == FileType.FLAC:
-            if "artist" in self.file.tags:
-                self.artists = re.split(SPLITTERS, self.file.tags["artist"][0])
-                self.main_artist = self.artists[0]
-        else:
-            if self.file.tags is not None and self.file.tags["TPE1"] is not None:
-                self.artists = re.split(SPLITTERS, self.file.tags["TPE1"].text[0])
-                self.main_artist = self.artists[0]
+            # Artists: all and main
+            if self.get_file_type() == FileType.FLAC:
+                if "artist" in self.file.tags:
+                    self.artists = re.split(SPLITTERS, self.file.tags["artist"][0])
+                    self.main_artist = self.artists[0]
+            else:
+                if self.file.tags is not None and self.file.tags["TPE1"] is not None:
+                    self.artists = re.split(SPLITTERS, self.file.tags["TPE1"].text[0])
+                    self.main_artist = self.artists[0]
+        except Exception as exception:
+            log.error(
+                "Error while reading the tags of file '%s' : %s",
+                self.filename,
+                str(exception),
+            )
+            return False
 
         return True
 

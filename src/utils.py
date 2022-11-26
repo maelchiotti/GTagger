@@ -10,6 +10,7 @@ Includes:
 
 from __future__ import annotations
 
+import re
 from enum import Enum
 from typing import Any
 
@@ -19,6 +20,17 @@ from qtawesome import icon
 VERSION = "v1.2.2"
 TOKEN_URL = QtCore.QUrl("https://genius.com/api-clients")
 SPLITTERS = " featuring | feat. | feat | ft. | ft | & | / "
+UNWANTED_TITLE_TEXT = [
+    re.compile(r"\(radio\)", re.IGNORECASE),
+    re.compile(r"\(radio edit\)", re.IGNORECASE),
+    re.compile(r"\(live\)", re.IGNORECASE),
+    re.compile(r"\(live version\)", re.IGNORECASE),
+    re.compile(r"\(alternative\)", re.IGNORECASE),
+    re.compile(r"\(alternative version\)", re.IGNORECASE),
+    re.compile(r"\(extended\)", re.IGNORECASE),
+    re.compile(r"\(extended version\)", re.IGNORECASE),
+]
+RE_REMOVE_LINES = re.compile(r"\n{2,}")
 
 
 class SettingsManager(QtCore.QObject):

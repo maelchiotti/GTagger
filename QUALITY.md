@@ -13,7 +13,7 @@ pyside6-genpyi all
 - Other packages:
 
 ```shell
-stubgen -p mutagen -p genius -p qdarktheme -p qtawesome -o stubs
+stubgen -p mutagen -p genius -p qdarktheme -p qtawesome -p regex -o stubs
 ```
 
 ## Pylint
