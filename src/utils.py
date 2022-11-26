@@ -20,6 +20,9 @@ from qtawesome import icon
 VERSION = "v1.2.2"
 TOKEN_URL = QtCore.QUrl("https://genius.com/api-clients")
 SPLITTERS = " featuring | feat. | feat | ft. | ft | & | / "
+RE_REMOVE_LINES = re.compile(r"\n{2,}")
+
+# Unwanted text in the title that would probably make the search fail
 UNWANTED_TITLE_TEXT = [
     re.compile(r"\(radio\)", re.IGNORECASE),
     re.compile(r"\(radio edit\)", re.IGNORECASE),
@@ -30,7 +33,20 @@ UNWANTED_TITLE_TEXT = [
     re.compile(r"\(extended\)", re.IGNORECASE),
     re.compile(r"\(extended version\)", re.IGNORECASE),
 ]
-RE_REMOVE_LINES = re.compile(r"\n{2,}")
+
+# If the artist is one of these, the lyrics are certainly wrong
+DISCARD_ARTISTS = ["Genius", "Apple Music", "Pop Genius"]
+
+# The lyrics of the song are missing
+MISSING_LYRICS = "Tell us that you would like to have the lyrics of this song."
+
+
+class DiscardLyrics(Exception):
+    """Raised when the lyrics are probably wrong and should be discarded."""
+
+    def __init__(self, error: str, title: str, length: int) -> None:
+        message = f"Discarded the lyrics because {error} for the track {title}: {length} characters"
+        super().__init__(message)
 
 
 class SettingsManager(QtCore.QObject):

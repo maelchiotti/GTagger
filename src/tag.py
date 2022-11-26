@@ -17,7 +17,15 @@ from PySide6 import QtCore, QtGui, QtWidgets
 
 from src.track import Track
 from src.track_layout import TrackLayout
-from src.utils import LYRICS_LINES, RE_REMOVE_LINES, UNWANTED_TITLE_TEXT, State
+from src.utils import (
+    DISCARD_ARTISTS,
+    LYRICS_LINES,
+    MISSING_LYRICS,
+    RE_REMOVE_LINES,
+    UNWANTED_TITLE_TEXT,
+    DiscardLyrics,
+    State,
+)
 
 if TYPE_CHECKING:
     from gtagger import GTagger
@@ -97,13 +105,14 @@ class LyricsSearch(QtCore.QObject):
         if track.get_title() == "" or track.get_main_artist() == "":
             return False
 
+        # Remove unwanted text from the title that would probably make the search fail
         search_title = track.get_title()
         for re_unwanted_text in UNWANTED_TITLE_TEXT:
             search_title = re_unwanted_text.sub("", search_title)
         search_title = search_title.strip()
-        print(search_title)
 
         search = f"{search_title} {track.get_main_artist()}"
+        print(search)
         try:
             searched_tracks = self.genius.search(search)
         except Exception as exception:
@@ -124,17 +133,44 @@ class LyricsSearch(QtCore.QObject):
             )
             return False
 
-        searched_lyrics = searched_track.lyrics
-        if len("\n".join(searched_lyrics)) > 15000:
-            # If the lyrics are this long, they are probably wrong
+        print(searched_track.artist.id)
+        if searched_track.artist.name in DISCARD_ARTISTS:
+            # The track's artist indicates it should be discarded
+            log.error(
+                "Discarded the lyrics because the artist was '%s' for the track '%s'",
+                searched_track.artist.name,
+                track.get_title(),
+            )
             return False
 
-        track.set_lyrics_new(self.format_lyrics(searched_lyrics))
+        searched_lyrics = searched_track.lyrics
+
+        if len("\n".join(searched_lyrics)) > 15000:
+            # If the lyrics are this long, they are probably wrong
+            log.error(
+                "Discarded the lyrics because they were too long for the track '%s'",
+                track.get_title(),
+            )
+            return False
+
+        if searched_lyrics[0].startswith(MISSING_LYRICS):
+            # The track's lyrics are missing
+            log.error(
+                "Discarded the lyrics because they were missing for the track '%s'",
+                track.get_title(),
+            )
+            return False
+
+        try:
+            track.set_lyrics_new(self.format_lyrics(track.get_title(), searched_lyrics))
+        except DiscardLyrics as exception:
+            log.error(exception)
+            return False
 
         return True
 
     @staticmethod
-    def format_lyrics(unformatted_lyrics: list[str]) -> str:
+    def format_lyrics(title: str, unformatted_lyrics: list[str]) -> str:
         """Formats `unformatted_lyrics` by removing unwanted text.
 
         Args:
@@ -144,6 +180,9 @@ class LyricsSearch(QtCore.QObject):
             str: Formatted lyrics.
         """
         for index, line in enumerate(unformatted_lyrics):
+            if len(line) > 500:
+                # If the line is this long, the lyrics are probably wrong
+                raise DiscardLyrics("a line was too long", title, len(line))
             if line.startswith("[") and line.endswith("]"):
                 # Remove indications such as [Chorus]
                 unformatted_lyrics[index] = ""
