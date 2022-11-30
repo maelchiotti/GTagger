@@ -5,7 +5,7 @@ import os
 import re
 import time
 from pathlib import Path
-from typing import Union
+from typing import Optional, Union
 
 import mutagen
 from mutagen.flac import Picture as FLACPicture
@@ -224,7 +224,7 @@ class Track(QtCore.QObject):
         else:
             return FileType.NOT_SUPPORTED
 
-    def get_lyrics(self, lines: int = None, length: int = None) -> str:
+    def get_lyrics(self, lines: Optional[int] = None, length: Optional[int] = None) -> str:
         """Returns the lyrics of the track, or "No lyrics" if the lyrics are not set.
 
         Returns `new_lyrics` is they are set, otherwise the original ones read by `mutagen`.

@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import re
 from enum import Enum
-from typing import Any
+from typing import Optional, Any
 
 from PySide6 import QtCore, QtGui
 from qtawesome import icon
@@ -66,7 +66,10 @@ class SettingsManager(QtCore.QObject):
         self.settings = QtCore.QSettings()
 
     def get_setting(
-        self, setting: str, default: Any = None, type_: object = None
+        self,
+        setting: str,
+        default: Optional[Any] = None,
+        type_: Optional[object] = None,
     ) -> Any:
         """Returns the value of the setting `setting`.
 
@@ -177,7 +180,10 @@ class FileType(Enum):
 
 
 def get_icon(
-    name: str, active: str = None, color: str = "white", color_active: str = "white"
+    name: str,
+    active: Optional[str] = None,
+    color: str = "white",
+    color_active: str = "white",
 ) -> QtGui.QIcon:
     """Returns the MDI6 icon `name` as a `QIcon`.
 

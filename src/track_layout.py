@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 from PySide6 import QtCore, QtGui, QtWidgets
 
@@ -199,7 +199,7 @@ class TrackLayout(QtWidgets.QWidget):
 
         self.toggle_selection()
 
-    def toggle_selection(self, force: bool = None) -> None:
+    def toggle_selection(self, force: Optional[bool] = None) -> None:
         """Toggles the selection of the track layout.
 
         Args:
