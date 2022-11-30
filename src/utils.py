@@ -40,6 +40,9 @@ DISCARD_ARTISTS = ["Genius", "Apple Music", "Pop Genius"]
 # The lyrics of the song are missing
 MISSING_LYRICS = "Tell us that you would like to have the lyrics of this song."
 
+# Stylesheet for the QToolTip
+STYLESHEET_QTOOLTIP = "QToolTip { font-size: 11pt; font-weight: 400 }"
+
 
 class DiscardLyrics(Exception):
     """Raised when the lyrics are probably wrong and should be discarded."""
@@ -118,6 +121,7 @@ class Color_(Enum):
     grey = "#808080"
 
     dark_blue = "#2B3C4F"
+    dark_grey = "#202124"
 
     yellow_genius = "#FFFF64"
     black = "#000000"

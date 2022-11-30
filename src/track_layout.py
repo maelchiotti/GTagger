@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 from PySide6 import QtCore, QtGui, QtWidgets
 
 from src.track import Track
-from src.utils import COVER_SIZE, LYRICS_LINES, Color_, Mode, State
+from src.utils import COVER_SIZE, LYRICS_LINES, STYLESHEET_QTOOLTIP, Color_, Mode, State
 
 if TYPE_CHECKING:
     from gtagger import GTagger
@@ -86,11 +86,20 @@ class TrackLayout(QtWidgets.QWidget):
         self.label_cover.setPixmap(self.covers[self.gtagger.mode])
         self.label_cover.setFixedWidth(COVER_SIZE[self.gtagger.mode])
         self.label_title = QtWidgets.QLabel(track.get_title())
-        self.label_title.setStyleSheet("font-size: 15pt; font-weight:800;")
+        self.label_title.setToolTip(track.get_title())
+        self.label_title.setStyleSheet(
+            "QLabel { font-size: 15pt; font-weight: 800; } " + STYLESHEET_QTOOLTIP
+        )
         self.label_artists = QtWidgets.QLabel(track.get_artists())
-        self.label_artists.setStyleSheet("font-size: 12pt; font-weight:600;")
+        self.label_artists.setToolTip(track.get_artists())
+        self.label_artists.setStyleSheet(
+            "QLabel { font-size: 12pt; font-weight: 600; } " + STYLESHEET_QTOOLTIP
+        )
         self.label_album = QtWidgets.QLabel(track.get_album())
-        self.label_album.setStyleSheet("font-size: 11pt; font-weight:400;")
+        self.label_album.setToolTip(track.get_album())
+        self.label_album.setStyleSheet(
+            "QLabel { font-size: 11pt; font-weight: 400; } " + STYLESHEET_QTOOLTIP
+        )
         self.label_duration = QtWidgets.QLabel(f"<i>{track.get_duration()}</i>")
         self.label_duration.setTextFormat(QtCore.Qt.RichText)
         self.label_lyrics = QtWidgets.QLabel(
@@ -218,7 +227,11 @@ class TrackLayout(QtWidgets.QWidget):
         Args:
             newSize (QtGui.QResizeEvent): Resize event.
         """
-        self.label_artists.setFixedWidth(round(0.33 * newSize.size().width()))
+        frame_width = newSize.size().width()
+        max_width_ratio = 0.33
+        self.label_title.setMaximumWidth(round(max_width_ratio * frame_width))
+        self.label_artists.setMaximumWidth(round(max_width_ratio * frame_width))
+        self.label_album.setMaximumWidth(round(max_width_ratio * frame_width))
 
 
 class StateIndicator(QtWidgets.QWidget):
