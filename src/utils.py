@@ -17,9 +17,15 @@ from typing import Optional, Any
 from PySide6 import QtCore, QtGui
 from qtawesome import icon
 
-VERSION = "v1.2.2"
+VERSION = "v1.2.3"
+
+# URL of the Genius API page
 TOKEN_URL = QtCore.QUrl("https://genius.com/api-clients")
+
+# Splitters for the artists
 SPLITTERS = " featuring | feat. | feat | ft. | ft | & | / "
+
+# Remove multiple new lines
 RE_REMOVE_LINES = re.compile(r"\n{2,}")
 
 # Unwanted text in the title that would probably make the search fail
