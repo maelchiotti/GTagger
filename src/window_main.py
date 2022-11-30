@@ -42,8 +42,8 @@ class WindowMain(QtWidgets.QWidget):
 
     Attributes:
         gtagger (GTagger): GTagger application.
-        track_layouts (dict[Track, TrackLayout]): Layouts containing
-        the information of each track added by the user.
+        track_layouts_items (dict[Track, tuple[TrackLayout, QtWidgets.QListWidgetItem]]): Layouts and items
+            containing the information of each track added by the user.
         window_settings (WindowSettings): Settings window.
         window_information (WindowInformation): Information window.
         window_help (WindowHelp) : Help window.
@@ -56,7 +56,9 @@ class WindowMain(QtWidgets.QWidget):
         super().__init__()
 
         self.gtagger: GTagger = gtagger
-        self.track_layouts: dict[Track, TrackLayout] = {}
+        self.track_layouts_items: dict[
+            Track, tuple[TrackLayout, QtWidgets.QListWidgetItem]
+        ] = {}
         self.window_settings: WindowSettings = WindowSettings(self, self.gtagger)
         self.window_information: WindowInformation = WindowInformation(self)
         self.window_help: WindowHelp = WindowHelp(self)
@@ -149,16 +151,13 @@ class WindowMain(QtWidgets.QWidget):
         self.button_filter_lyrics.setChecked(True)
 
         # Main layout of the files
-        self.layout_files = QtWidgets.QVBoxLayout()
-        self.layout_files.setAlignment(QtCore.Qt.AlignTop)
-        self.layout_files.setContentsMargins(0, 0, 0, 0)
-        self.layout_files.setSpacing(5)
-
-        self.widget_files = QtWidgets.QWidget()
-        self.widget_files.setLayout(self.layout_files)
+        self.list_tracks = QtWidgets.QListWidget()
+        self.list_tracks.setContentsMargins(0, 0, 0, 0)
+        self.list_tracks.setSpacing(5)
+        self.list_tracks.setSortingEnabled(True)
 
         self.scroll_area = QtWidgets.QScrollArea()
-        self.scroll_area.setWidget(self.widget_files)
+        self.scroll_area.setWidget(self.list_tracks)
         self.scroll_area.setWidgetResizable(True)
         self.scroll_area.setFrameShape(QtWidgets.QFrame.NoFrame)
 
@@ -209,7 +208,7 @@ class WindowMain(QtWidgets.QWidget):
         self.action_help.triggered.connect(self.open_help)
         self.input_token.textChanged.connect(self.token_changed)
         self.button_token.clicked.connect(self.open_token_page)
-        self.input_filter_text.returnPressed.connect(self.filter)
+        self.input_filter_text.textChanged.connect(self.filter)
         self.button_filter_lyrics.clicked.connect(self.filter)
         self.button_stop_search.clicked.connect(self.stop_search)
         self.button_change_mode.clicked.connect(self.change_mode)
@@ -264,7 +263,8 @@ class WindowMain(QtWidgets.QWidget):
 
         # Change the cover placeholders and if needed,
         # as well as the lyrics color
-        for track, track_layout in self.track_layouts.items():
+        for track, layout_item in self.track_layouts_items.items():
+            track_layout = layout_item[0]
             if not track_layout.selected:
                 track_layout.label_cover.setPixmap(track.covers[mode])
                 if track.lyrics_new != "":
@@ -316,10 +316,8 @@ class WindowMain(QtWidgets.QWidget):
         Returns:
             bool: `True` if the token is valid.
         """
-        validator_state: QtGui.QValidator.State = self.validator.validate(
-            self.input_token.text(), 0
-        )[0]
-        return validator_state == QtGui.QValidator.State.Acceptable
+        validate = self.validator.validate(self.input_token.text(), 0)
+        return validate[0] == QtGui.QValidator.State.Acceptable  # type: ignore # validate() returns an untyped object
 
     def increment_progression_bar(self) -> None:
         """Increments the progression bar by 1."""
@@ -338,16 +336,15 @@ class WindowMain(QtWidgets.QWidget):
             self.progression_bar.setValue(0)
         self.progression_bar.setMaximum(maximum)
 
-    def remove_layout(self, track: Track, track_layout: TrackLayout) -> None:
-        """Removes a track layout.
+    def remove_layout(self, track: Track, item: QtWidgets.QListWidgetItem) -> None:
+        """Removes a track item.
 
         Args:
             track (Track): Track to remove.
-            track_layout (TrackLayout): Track layout to remove.
+            item (QtWidgets.QListWidgetItem): Track item to remove.
         """
-        track_layout.frame.hide()
-        self.layout_files.removeWidget(track_layout)
-        self.track_layouts.pop(track)
+        self.list_tracks.takeItem(self.list_tracks.row(item))
+        self.track_layouts_items.pop(track)
 
     @QtCore.Slot()
     def change_mode(self) -> None:
@@ -363,12 +360,17 @@ class WindowMain(QtWidgets.QWidget):
             self.button_change_mode.setIcon(get_icon("arrow-expand"))
 
         # Update the GUI
-        for track, track_layout_old in self.track_layouts.copy().items():
-            track_layout_new = TrackLayout(track, track_layout_old.state, self.gtagger)
-            track_layout_new.signal_mouse_event.connect(self.selection_changed)
-            self.remove_layout(track, track_layout_old)
-            self.track_layouts[track] = track_layout_new
-            self.layout_files.addWidget(track_layout_new)
+        for track, layout_item_old in self.track_layouts_items.copy().items():
+            layout_old = layout_item_old[0]
+            item_old = layout_item_old[1]
+            self.remove_layout(track, item_old)
+            layout_new = TrackLayout(track, layout_old.state, self.gtagger)
+            layout_new.signal_mouse_event.connect(self.selection_changed)
+            item_new = QtWidgets.QListWidgetItem(self.list_tracks)
+            item_new.setSizeHint(layout_new.sizeHint())
+            self.list_tracks.addItem(item_new)
+            self.list_tracks.setItemWidget(item_new, layout_new)
+            self.track_layouts_items[track] = (layout_new, item_new)
 
         # Apply all the filters
         self.filter()
@@ -426,15 +428,18 @@ class WindowMain(QtWidgets.QWidget):
                 return
 
             # Create the track layout and add it
-            track_layout = TrackLayout(
+            layout = TrackLayout(
                 track,
                 State.TAGS_READ,
                 self.gtagger,
             )
             track.signal_lyrics_changed.connect(self.lyrics_changed)
-            track_layout.signal_mouse_event.connect(self.selection_changed)
-            self.track_layouts[track] = track_layout
-            self.layout_files.addWidget(track_layout)
+            layout.signal_mouse_event.connect(self.selection_changed)
+            item = QtWidgets.QListWidgetItem(self.list_tracks)
+            item.setSizeHint(layout.sizeHint())
+            self.list_tracks.addItem(item)
+            self.list_tracks.setItemWidget(item, layout)
+            self.track_layouts_items[track] = (layout, item)
             self.increment_progression_bar()
 
     @QtCore.Slot()
@@ -442,14 +447,14 @@ class WindowMain(QtWidgets.QWidget):
         """Searches for the lyrics of the files."""
         self.thread_search_lyrics = ThreadSearchLyrics(
             self.input_token.text(),
-            self.track_layouts,
+            self.track_layouts_items,
             self.window_settings.checkbox_overwrite.isChecked(),
             self.button_stop_search,
             self.gtagger,
         )
         self.thread_search_lyrics.signal_lyrics_searched.connect(self.lyrics_searched)
         self.progression_bar.reset()
-        self.set_maximum_progression_bar(self.track_layouts)
+        self.set_maximum_progression_bar(self.track_layouts_items)
         self.thread_search_lyrics.start()
 
     @QtCore.Slot()
@@ -479,51 +484,55 @@ class WindowMain(QtWidgets.QWidget):
                 f"border: 2px solid {Color_.light_green.value}"
             )
             self.input_token.setToolTip("Valid token")
-            self.action_search_lyrics.setEnabled(len(self.track_layouts) > 0)
+            self.action_search_lyrics.setEnabled(len(self.track_layouts_items) > 0)
 
     @QtCore.Slot()
     def save_lyrics(self) -> None:
         """Saves the lyrics to the files."""
         self.progression_bar.reset()
-        self.set_maximum_progression_bar(self.track_layouts)
-        for track, track_layout in self.track_layouts.items():
+        self.set_maximum_progression_bar(self.track_layouts_items)
+        for track, layout_item in self.track_layouts_items.items():
+            layout = layout_item[0]
             saved = track.save_lyrics()
             if saved:
-                track_layout.state_indicator.set_state(State.LYRICS_SAVED)
-                track_layout.state_indicator.setToolTip(State.LYRICS_SAVED.value)
-                track_layout.state = State.LYRICS_SAVED
+                layout.state_indicator.set_state(State.LYRICS_SAVED)
+                layout.state_indicator.setToolTip(State.LYRICS_SAVED.value)
+                layout.state = State.LYRICS_SAVED
                 track.read_tags()
                 track.set_lyrics_new("")
-                track_layout.label_lyrics.setText(
+                layout.label_lyrics.setText(
                     track.get_lyrics(lines=LYRICS_LINES[self.gtagger.mode])
                 )
-                track_layout.label_lyrics.setToolTip(track.get_lyrics_original())
+                layout.label_lyrics.setToolTip(track.get_lyrics_original())
             else:
-                track_layout.state_indicator.set_state(State.LYRICS_NOT_SAVED)
-                track_layout.state_indicator.setToolTip(State.LYRICS_NOT_SAVED.value)
-                track_layout.state = State.LYRICS_NOT_SAVED
+                layout.state_indicator.set_state(State.LYRICS_NOT_SAVED)
+                layout.state_indicator.setToolTip(State.LYRICS_NOT_SAVED.value)
+                layout.state = State.LYRICS_NOT_SAVED
             self.increment_progression_bar()
 
     @QtCore.Slot()
     def cancel_rows(self) -> None:
         """Removes the added lyrics from the files."""
-        for track, track_layout in self.track_layouts.items():
-            if track_layout.selected:
+        for track, layout_item in self.track_layouts_items.items():
+            layout = layout_item[0]
+            if layout.selected:
                 track.set_lyrics_new("")
-                track_layout.label_lyrics.setText(
+                layout.label_lyrics.setText(
                     track.get_lyrics(lines=LYRICS_LINES[self.gtagger.mode])
                 )
-                track_layout.label_lyrics.setToolTip(track.get_lyrics_original())
-                track_layout.state_indicator.set_state(State.TAGS_READ)
-                track_layout.state_indicator.setToolTip(State.TAGS_READ.value)
-                track_layout.state = State.TAGS_READ
+                layout.label_lyrics.setToolTip(track.get_lyrics_original())
+                layout.state_indicator.set_state(State.TAGS_READ)
+                layout.state_indicator.setToolTip(State.TAGS_READ.value)
+                layout.state = State.TAGS_READ
 
     @QtCore.Slot()
     def remove_selected_layouts(self) -> None:
         """Removes the selected layouts."""
-        for track, track_layout in self.track_layouts.copy().items():
-            if track_layout.selected:
-                self.remove_layout(track, track_layout)
+        for track, layout_item in self.track_layouts_items.copy().items():
+            layout = layout_item[0]
+            item = layout_item[1]
+            if layout.selected:
+                self.remove_layout(track, item)
         self.selection_changed()
 
     @QtCore.Slot()
@@ -534,8 +543,9 @@ class WindowMain(QtWidgets.QWidget):
         """
         enable_cancel = False
         enable_remove = False
-        for track, track_layout in self.track_layouts.items():
-            if track_layout.selected:
+        for track, layout_item in self.track_layouts_items.items():
+            layout = layout_item[0]
+            if layout.selected:
                 enable_remove = True
                 if track.has_lyrics_new():
                     enable_cancel = True
@@ -546,15 +556,14 @@ class WindowMain(QtWidgets.QWidget):
     def lyrics_changed(self) -> None:
         """The lyrics of a track changed."""
         enable_save = False
-        for track, track_layout in self.track_layouts.items():
+        for track, layout_item in self.track_layouts_items.items():
+            layout = layout_item[0]
             if track.has_lyrics_new():
                 # Track has new lyrics
                 enable_save = True
-                track_layout.label_lyrics.setStyleSheet(
-                    f"color: {Color_.light_green.value}"
-                )
+                layout.label_lyrics.setStyleSheet(f"color: {Color_.light_green.value}")
             else:
-                track_layout.label_lyrics.setStyleSheet("")
+                layout.label_lyrics.setStyleSheet("")
         self.action_save_lyrics.setEnabled(enable_save)
         self.selection_changed()  # Update the cancel and remove buttons
 
@@ -565,7 +574,8 @@ class WindowMain(QtWidgets.QWidget):
         text = self.input_filter_text.text()
 
         # Apply the filters
-        for track, track_layout in self.track_layouts.items():
+        for track, layout_items in self.track_layouts_items.items():
+            item = layout_items[1]
             visible = False
             if show_lyrics:
                 if text in track.get_title() or text in track.get_artists():
@@ -573,7 +583,7 @@ class WindowMain(QtWidgets.QWidget):
             elif not track.has_lyrics_original():
                 if text in track.get_title() or text in track.get_artists():
                     visible = True
-            track_layout.setVisible(visible)
+            item.setHidden(not visible)
 
         # Update the lyrics filter button
         if show_lyrics:
@@ -629,7 +639,8 @@ class WindowMain(QtWidgets.QWidget):
             and event.key() == QtCore.Qt.Key_A
         ):
             # Selection
-            for track_layout in self.track_layouts.values():
+            for layout_item in self.track_layouts_items.values():
+                track_layout = layout_item[0]
                 track_layout.toggle_selection(force=True)
             self.action_cancel_rows.setEnabled(True)
             self.action_remove_rows.setEnabled(True)
@@ -638,7 +649,8 @@ class WindowMain(QtWidgets.QWidget):
             and event.key() == QtCore.Qt.Key_D
         ):
             # Deselection
-            for track_layout in self.track_layouts.values():
+            for layout_item in self.track_layouts_items.values():
+                track_layout = layout_item[0]
                 track_layout.toggle_selection(force=False)
             self.action_cancel_rows.setEnabled(False)
             self.action_remove_rows.setEnabled(False)

@@ -231,7 +231,8 @@ class TrackLayout(QtWidgets.QWidget):
         max_width_ratio = 0.33
         self.label_title.setMaximumWidth(round(max_width_ratio * frame_width))
         self.label_artists.setMaximumWidth(round(max_width_ratio * frame_width))
-        self.label_album.setMaximumWidth(round(max_width_ratio * frame_width))
+        if hasattr(self, "label_album"):
+            self.label_album.setMaximumWidth(round(max_width_ratio * frame_width))
 
 
 class StateIndicator(QtWidgets.QWidget):

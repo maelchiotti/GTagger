@@ -216,7 +216,7 @@ class ThreadSearchLyrics(QtCore.QThread):
     def __init__(
         self,
         token: str,
-        track_layouts: dict[Track, TrackLayout],
+        track_layouts_items: dict[Track, tuple[TrackLayout, QtWidgets.QListWidgetItem]],
         overwrite_lyrics: bool,
         button_stop_search: QtWidgets.QPushButton,
         gtagger: GTagger,
@@ -226,7 +226,9 @@ class ThreadSearchLyrics(QtCore.QThread):
         self.stop_search = False
 
         self.token: str = token
-        self.track_layouts: dict[Track, TrackLayout] = track_layouts
+        self.track_layouts_items: dict[
+            Track, tuple[TrackLayout, QtWidgets.QListWidgetItem]
+        ] = track_layouts_items
         self.overwrite_lyrics: bool = overwrite_lyrics
         self.button_stop_search: QtWidgets.QPushButton = button_stop_search
         self.gtagger: GTagger = gtagger
@@ -234,7 +236,8 @@ class ThreadSearchLyrics(QtCore.QThread):
     def run(self):
         self.button_stop_search.setEnabled(True)
         lyrics_search = LyricsSearch(self.token)
-        for track, track_layout in self.track_layouts.copy().items():
+        for track, layout_item in self.track_layouts_items.copy().items():
+            layout = layout_item[0]
             if (
                 (not self.overwrite_lyrics and track.has_lyrics_original())
                 or track.has_lyrics_new()
@@ -246,14 +249,14 @@ class ThreadSearchLyrics(QtCore.QThread):
             found_lyrics = lyrics_search.search_lyrics(track)
             if found_lyrics:
                 lyrics = track.get_lyrics(lines=LYRICS_LINES[self.gtagger.mode])
-                track_layout.label_lyrics.setText(lyrics)
-                track_layout.label_lyrics.setToolTip(track.get_lyrics())
-                track_layout.state_indicator.set_state(State.LYRICS_FOUND)
-                track_layout.state_indicator.setToolTip(State.LYRICS_FOUND.value)
-                track_layout.state = State.LYRICS_FOUND
+                layout.label_lyrics.setText(lyrics)
+                layout.label_lyrics.setToolTip(track.get_lyrics())
+                layout.state_indicator.set_state(State.LYRICS_FOUND)
+                layout.state_indicator.setToolTip(State.LYRICS_FOUND.value)
+                layout.state = State.LYRICS_FOUND
             else:
-                track_layout.state_indicator.set_state(State.LYRICS_NOT_FOUND)
-                track_layout.state_indicator.setToolTip(State.LYRICS_NOT_FOUND.value)
-                track_layout.state = State.LYRICS_NOT_FOUND
+                layout.state_indicator.set_state(State.LYRICS_NOT_FOUND)
+                layout.state_indicator.setToolTip(State.LYRICS_NOT_FOUND.value)
+                layout.state = State.LYRICS_NOT_FOUND
             self.signal_lyrics_searched.emit()
         self.button_stop_search.setEnabled(False)
