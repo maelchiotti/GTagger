@@ -238,7 +238,7 @@ class WindowMain(QtWidgets.QWidget):
         icon_information = get_icon("information")
         icon_help = get_icon("help-circle")
         icon_token = get_icon("launch", color_active=Color_.yellow_genius.value)
-        icon_filter_lyrics = get_icon("format-letter-case")
+        icon_filter_lyrics = get_icon("file-music-outline")
         icon_stop_search = get_icon("stop", color=Color_.red.value)
         if mode == Mode.NORMAL:
             self.button_change_mode.setToolTip("Switch to compact mode")
@@ -350,27 +350,19 @@ class WindowMain(QtWidgets.QWidget):
     def change_mode(self) -> None:
         """Changes the layout mode of the application."""
         # Update the button
-        if self.gtagger.mode == Mode.COMPACT:
-            self.gtagger.mode = Mode.NORMAL
-            self.button_change_mode.setToolTip("Switch to compact mode")
-            self.button_change_mode.setIcon(get_icon("arrow-collapse"))
-        elif self.gtagger.mode == Mode.NORMAL:
+        if self.gtagger.mode == Mode.NORMAL:
             self.gtagger.mode = Mode.COMPACT
             self.button_change_mode.setToolTip("Switch to normal mode")
             self.button_change_mode.setIcon(get_icon("arrow-expand"))
+        elif self.gtagger.mode == Mode.COMPACT:
+            self.gtagger.mode = Mode.NORMAL
+            self.button_change_mode.setToolTip("Switch to compact mode")
+            self.button_change_mode.setIcon(get_icon("arrow-collapse"))
 
         # Update the GUI
-        for track, layout_item_old in self.track_layouts_items.copy().items():
-            layout_old = layout_item_old[0]
-            item_old = layout_item_old[1]
-            self.remove_layout(track, item_old)
-            layout_new = TrackLayout(track, layout_old.state, self.gtagger)
-            layout_new.signal_mouse_event.connect(self.selection_changed)
-            item_new = QtWidgets.QListWidgetItem(self.list_tracks)
-            item_new.setSizeHint(layout_new.sizeHint())
-            self.list_tracks.addItem(item_new)
-            self.list_tracks.setItemWidget(item_new, layout_new)
-            self.track_layouts_items[track] = (layout_new, item_new)
+        for layout_item_old in self.track_layouts_items.values():
+            layout = layout_item_old[0]
+            layout.switch_layout()
 
         # Apply all the filters
         self.filter()

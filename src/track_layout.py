@@ -13,228 +13,6 @@ if TYPE_CHECKING:
     from gtagger import GTagger
 
 
-class TrackLayout(QtWidgets.QWidget):
-    """Customized implementation of a `QWidget` containing the information of a track.
-
-    Signals:
-        signal_mouse_event (QtCore.Signal): Emitted when a mouse event is intercepted.
-
-    Attributes:
-        selected (bool): `True` if the track is currently selected.
-        covers (dict[tuple[Theme, Mode], QtGui.QPixmap]): Covers of the track
-        (in dark and light theme).
-
-    Displays:
-    - Filename (and filepath as a tooltip)
-    - Album cover
-    - Title
-    - Artists
-    - Duration
-    - State
-    - Lyrics
-
-    Layouts:
-    - Normal:
-    ```
-    __|    0   |      1     |     2    |
-    0 [ (state) filename     [ ...     ]
-    1 [  ...  ] [ Title    ] [ ly      ]
-    2 [ album ] [ Artists  ] [ ri      ]
-    3 [ cover ] [ Album    ] [ cs      ]
-    4 [  ...  ] [ Duration ] [ ...     ]
-    ```
-    - Compact:
-    ```
-    __|    0   |      1          |     2    |
-    1 [ album ] [ (state) Title ] [ lyr     ]
-    2 [ cover ] [ Artists       ] [ ics     ]
-    ```
-    """
-
-    signal_mouse_event = QtCore.Signal()
-
-    def __init__(self, track: Track, state: State, gtagger: GTagger) -> None:
-        super().__init__()
-
-        self.state: State = state
-        self.gtagger: GTagger = gtagger
-
-        self.selected: bool = False
-        self.covers: dict[Mode, QtGui.QPixmap] = track.covers
-
-        if self.gtagger.mode == Mode.NORMAL:
-            self.setup_normal_mode(track)
-        elif self.gtagger.mode == Mode.COMPACT:
-            self.setup_compact_mode(track)
-
-        if self.state == State.LYRICS_FOUND:
-            self.label_lyrics.setStyleSheet(f"color: {Color_.light_green.value}")
-        else:
-            self.label_lyrics.setStyleSheet("")
-
-    def setup_normal_mode(self, track: Track):
-        """Sets up the layout as normal mode.
-
-        Args:
-            track (Track): Track containing the information to display.
-        """
-        self.state_indicator = StateIndicator(self.state)
-        self.state_indicator.setToolTip(self.state.value)
-        self.label_filename = QtWidgets.QLabel(track.filename)
-        self.label_filename.setToolTip(track.get_filepath())
-        self.label_cover = QtWidgets.QLabel()
-        self.label_cover.setPixmap(self.covers[self.gtagger.mode])
-        self.label_cover.setFixedWidth(COVER_SIZE[self.gtagger.mode])
-        self.label_title = QtWidgets.QLabel(track.get_title())
-        self.label_title.setToolTip(track.get_title())
-        self.label_title.setStyleSheet(
-            "QLabel { font-size: 15pt; font-weight: 800; } " + STYLESHEET_QTOOLTIP
-        )
-        self.label_artists = QtWidgets.QLabel(track.get_artists())
-        self.label_artists.setToolTip(track.get_artists())
-        self.label_artists.setStyleSheet(
-            "QLabel { font-size: 12pt; font-weight: 600; } " + STYLESHEET_QTOOLTIP
-        )
-        self.label_album = QtWidgets.QLabel(track.get_album())
-        self.label_album.setToolTip(track.get_album())
-        self.label_album.setStyleSheet(
-            "QLabel { font-size: 11pt; font-weight: 400; } " + STYLESHEET_QTOOLTIP
-        )
-        self.label_duration = QtWidgets.QLabel(f"<i>{track.get_duration()}</i>")
-        self.label_duration.setTextFormat(QtCore.Qt.RichText)
-        self.label_lyrics = QtWidgets.QLabel(
-            track.get_lyrics(lines=LYRICS_LINES[self.gtagger.mode])
-        )
-        self.label_lyrics.setSizePolicy(
-            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred
-        )
-        self.label_lyrics.setToolTip(track.get_lyrics())
-        self.label_lyrics.setWordWrap(True)
-
-        self.layout_title = QtWidgets.QHBoxLayout()
-        self.layout_title.addWidget(self.state_indicator)
-        self.layout_title.addWidget(self.label_filename)
-        self.layout_title.addStretch()
-
-        self.grid_layout = QtWidgets.QGridLayout()
-        self.grid_layout.addLayout(self.layout_title, 0, 0, 1, 2)
-        self.grid_layout.addWidget(self.label_cover, 1, 0, 4, 1)
-        self.grid_layout.addWidget(self.label_title, 1, 1, 1, 1)
-        self.grid_layout.addWidget(self.label_artists, 2, 1, 1, 1)
-        self.grid_layout.addWidget(self.label_album, 3, 1, 1, 1)
-        self.grid_layout.addWidget(self.label_duration, 4, 1, 1, 1)
-        self.grid_layout.addWidget(self.label_lyrics, 0, 2, 5, 1)
-
-        self.frame = QtWidgets.QFrame()
-        self.frame.setFrameStyle(QtWidgets.QFrame.StyledPanel | QtWidgets.QFrame.Plain)
-        self.frame.setLayout(self.grid_layout)
-        self.frame.mouseReleaseEvent = self.mouseReleaseEvent
-        self.frame.resizeEvent = self.resize_frame
-
-        self.layout_ = QtWidgets.QGridLayout()
-        self.layout_.setContentsMargins(0, 0, 0, 0)
-        self.layout_.addWidget(self.frame, 0, 0, 1, 1)
-
-        self.setLayout(self.layout_)
-
-    def setup_compact_mode(self, track: Track):
-        """Sets up the layout as compact mode.
-
-        Args:
-            track (Track): Track containing the information to display.
-        """
-        self.state_indicator = StateIndicator(self.state, x=4)
-        self.state_indicator.setToolTip(self.state.value)
-        self.label_cover = QtWidgets.QLabel()
-        self.label_cover.setPixmap(self.covers[self.gtagger.mode])
-        self.label_cover.setFixedWidth(COVER_SIZE[self.gtagger.mode])
-        self.label_title = QtWidgets.QLabel(track.get_title())
-        self.label_title.setToolTip(track.filename)
-        self.label_title.setStyleSheet("font-size: 15pt; font-weight:800;")
-        self.label_artists = QtWidgets.QLabel(track.get_artists())
-        self.label_artists.setStyleSheet("font-size: 12pt; font-weight:600;")
-        self.label_lyrics = QtWidgets.QLabel(
-            track.get_lyrics(lines=LYRICS_LINES[self.gtagger.mode])
-        )
-        self.label_lyrics.setSizePolicy(
-            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred
-        )
-        self.label_lyrics.setToolTip(track.get_lyrics())
-        self.label_lyrics.setWordWrap(True)
-
-        self.layout_title = QtWidgets.QHBoxLayout()
-        self.layout_title.addWidget(self.state_indicator)
-        self.layout_title.addWidget(self.label_title)
-        self.layout_title.addStretch()
-
-        self.grid_layout = QtWidgets.QGridLayout()
-        self.grid_layout.addWidget(self.label_cover, 0, 0, 2, 1)
-        self.grid_layout.addLayout(self.layout_title, 0, 1, 1, 1)
-        self.grid_layout.addWidget(self.label_artists, 1, 1, 1, 1)
-        self.grid_layout.addWidget(self.label_lyrics, 0, 2, 2, 1)
-
-        self.frame = QtWidgets.QFrame()
-        self.frame.setFrameStyle(QtWidgets.QFrame.StyledPanel | QtWidgets.QFrame.Plain)
-        self.frame.setLayout(self.grid_layout)
-        self.frame.mouseReleaseEvent = self.mouseReleaseEvent
-        self.frame.resizeEvent = self.resize_frame
-
-        self.layout_ = QtWidgets.QGridLayout()
-        self.layout_.setContentsMargins(0, 0, 0, 0)
-        self.layout_.addWidget(self.frame, 0, 0, 1, 1)
-
-        self.setLayout(self.layout_)
-
-    def mouseReleaseEvent(self, event: QtGui.QMouseEvent):
-        """Intercepts the mouse release event on the `QFrame`.
-
-        Enables the user to (de)select a track layout by clicking on it.
-
-        Args:
-            event (QtGui.QMouseEvent): Mouse release event.
-        """
-        # Only take into account the left mouse button
-        if event.button() != QtCore.Qt.LeftButton:
-            return
-
-        self.toggle_selection()
-
-    def toggle_selection(self, force: Optional[bool] = None) -> None:
-        """Toggles the selection of the track layout.
-
-        Args:
-            force (bool, optional): Force the selection or deselection of the tracks.
-            Has not effect if it is not set. Defaults to None.
-        """
-        if force is not None:
-            self.selected = force
-        else:
-            self.selected = not self.selected
-
-        if self.selected:
-            stylesheet = f"background-color: {Color_.dark_blue.value};"
-        else:
-            stylesheet = ""
-        self.frame.setStyleSheet(stylesheet)
-
-        if force is None:
-            # Trigger the signal only on a mouse click event, not on key press events
-            self.signal_mouse_event.emit()
-
-    def resize_frame(self, newSize: QtGui.QResizeEvent):
-        """Intercepts the resize event on the `QFrame`.
-
-        Args:
-            newSize (QtGui.QResizeEvent): Resize event.
-        """
-        frame_width = newSize.size().width()
-        max_width_ratio = 0.33
-        self.label_title.setMaximumWidth(round(max_width_ratio * frame_width))
-        self.label_artists.setMaximumWidth(round(max_width_ratio * frame_width))
-        if hasattr(self, "label_album"):
-            self.label_album.setMaximumWidth(round(max_width_ratio * frame_width))
-
-
 class StateIndicator(QtWidgets.QWidget):
     """Filled and colored circle indicating the state of a track."""
 
@@ -292,3 +70,227 @@ class StateIndicator(QtWidgets.QWidget):
         """
         self.state = state
         self.update()
+
+
+class TrackLayout(QtWidgets.QWidget):
+    """Customized implementation of a `QWidget` containing the information of a track.
+
+    Signals:
+        signal_mouse_event (QtCore.Signal): Emitted when a mouse event is intercepted.
+
+    Attributes:
+        selected (bool): `True` if the track is currently selected.
+        covers (dict[tuple[Theme, Mode], QtGui.QPixmap]): Covers of the track
+        (in dark and light theme).
+
+    Displays:
+    - Filename (and filepath as a tooltip)
+    - Album cover
+    - Title
+    - Artists
+    - Duration
+    - State
+    - Lyrics
+
+    Layouts:
+    - Normal:
+    ```
+    __|    0   |      1     |     2    |
+    0 [ (state) filename     [ ...     ]
+    1 [  ...  ] [ Title    ] [ ly      ]
+    2 [ album ] [ Artists  ] [ ri      ]
+    3 [ cover ] [ Album    ] [ cs      ]
+    4 [  ...  ] [ Duration ] [ ...     ]
+    ```
+    - Compact:
+    ```
+    __|    0   |      1          |     2    |
+    1 [ album ] [ (state) Title ] [ lyr     ]
+    2 [ cover ] [ Artists       ] [ ics     ]
+    ```
+    """
+
+    signal_mouse_event = QtCore.Signal()
+
+    def __init__(self, track: Track, state: State, gtagger: GTagger) -> None:
+        super().__init__()
+
+        self.state: State = state
+        self.gtagger: GTagger = gtagger
+
+        self.selected: bool = False
+        self.covers: dict[Mode, QtGui.QPixmap] = track.covers
+
+        self.setup_ui(track)
+
+    def setup_ui(self, track: Track) -> None:
+        self.stacked_widget = QtWidgets.QStackedWidget()
+        self.stacked_widget.addWidget(self.build_normal_ui(track))
+        self.stacked_widget.addWidget(self.build_compact_ui(track))
+
+        self.frame_layout = QtWidgets.QHBoxLayout()
+        self.frame_layout.addWidget(self.stacked_widget)
+
+        self.frame = QtWidgets.QFrame()
+        self.frame.setFrameStyle(QtWidgets.QFrame.StyledPanel | QtWidgets.QFrame.Plain)
+        self.frame.mouseReleaseEvent = self.mouseReleaseEvent
+        self.frame.setLayout(self.frame_layout)
+        self.switch_layout()
+
+        self.layout_ = QtWidgets.QGridLayout()
+        self.layout_.setContentsMargins(0, 0, 0, 0)
+        self.layout_.addWidget(self.frame, 0, 0, 1, 1)
+
+        self.setLayout(self.layout_)
+
+    def build_normal_ui(self, track: Track) -> QtWidgets.QWidget:
+        """Sets up the layout as normal mode.
+
+        Args:
+            track (Track): Track containing the information to display.
+        """
+        state_indicator = StateIndicator(self.state)
+        state_indicator.setToolTip(self.state.value)
+        label_filename = QtWidgets.QLabel(track.filename)
+        label_filename.setToolTip(track.get_filepath())
+        label_cover = QtWidgets.QLabel()
+        label_cover.setPixmap(self.covers[Mode.NORMAL])
+        label_cover.setFixedWidth(COVER_SIZE[Mode.NORMAL])
+        label_title = QtWidgets.QLabel(track.get_title())
+        label_title.setToolTip(track.get_title())
+        label_title.setStyleSheet(
+            "QLabel { font-size: 15pt; font-weight: 800; } " + STYLESHEET_QTOOLTIP
+        )
+        label_artists = QtWidgets.QLabel(track.get_artists())
+        label_artists.setToolTip(track.get_artists())
+        label_artists.setStyleSheet(
+            "QLabel { font-size: 12pt; font-weight: 600; } " + STYLESHEET_QTOOLTIP
+        )
+        label_album = QtWidgets.QLabel(track.get_album())
+        label_album.setToolTip(track.get_album())
+        label_album.setStyleSheet(
+            "QLabel { font-size: 11pt; font-weight: 400; } " + STYLESHEET_QTOOLTIP
+        )
+        label_duration = QtWidgets.QLabel(f"<i>{track.get_duration()}</i>")
+        label_duration.setTextFormat(QtCore.Qt.RichText)
+        label_lyrics = QtWidgets.QLabel(
+            track.get_lyrics(lines=LYRICS_LINES[Mode.NORMAL])
+        )
+        label_lyrics.setSizePolicy(
+            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred
+        )
+        label_lyrics.setToolTip(track.get_lyrics())
+        label_lyrics.setAlignment(QtCore.Qt.AlignRight)
+        layout_title = QtWidgets.QHBoxLayout()
+        layout_title.addWidget(state_indicator)
+        layout_title.addWidget(label_filename)
+        layout_title.addStretch()
+
+        if self.state == State.LYRICS_FOUND:
+            label_lyrics.setStyleSheet(f"color: {Color_.light_green.value}")
+        else:
+            label_lyrics.setStyleSheet("")
+
+        grid_layout_normal = QtWidgets.QGridLayout()
+        grid_layout_normal.addLayout(layout_title, 0, 0, 1, 2)
+        grid_layout_normal.addWidget(label_cover, 1, 0, 4, 1)
+        grid_layout_normal.addWidget(label_title, 1, 1, 1, 1)
+        grid_layout_normal.addWidget(label_artists, 2, 1, 1, 1)
+        grid_layout_normal.addWidget(label_album, 3, 1, 1, 1)
+        grid_layout_normal.addWidget(label_duration, 4, 1, 1, 1)
+        grid_layout_normal.addWidget(label_lyrics, 0, 2, 5, 1)
+
+        widget = QtWidgets.QWidget()
+        widget.setLayout(grid_layout_normal)
+        return widget
+
+    def build_compact_ui(self, track: Track) -> QtWidgets.QWidget:
+        """Sets up the layout as compact mode.
+
+        Args:
+            track (Track): Track containing the information to display.
+        """
+        state_indicator = StateIndicator(self.state, x=4)
+        state_indicator.setToolTip(self.state.value)
+        label_cover = QtWidgets.QLabel()
+        label_cover.setPixmap(self.covers[Mode.COMPACT])
+        label_cover.setFixedWidth(COVER_SIZE[Mode.COMPACT])
+        label_title = QtWidgets.QLabel(track.get_title())
+        label_title.setToolTip(f"{track.filename}\n{track.get_title()}")
+        label_title.setStyleSheet(
+            "QLabel { font-size: 15pt; font-weight: 800; } " + STYLESHEET_QTOOLTIP
+        )
+        label_artists = QtWidgets.QLabel(track.get_artists())
+        label_artists.setToolTip(track.get_artists())
+        label_artists.setStyleSheet(
+            "QLabel { font-size: 12pt; font-weight: 600; } " + STYLESHEET_QTOOLTIP
+        )
+        label_lyrics = QtWidgets.QLabel(
+            track.get_lyrics(lines=LYRICS_LINES[Mode.COMPACT])
+        )
+        label_lyrics.setSizePolicy(
+            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred
+        )
+        label_lyrics.setToolTip(track.get_lyrics())
+        label_lyrics.setAlignment(QtCore.Qt.AlignRight)
+        layout_title = QtWidgets.QHBoxLayout()
+        layout_title.addWidget(state_indicator)
+        layout_title.addWidget(label_title)
+        layout_title.addStretch()
+
+        if self.state == State.LYRICS_FOUND:
+            label_lyrics.setStyleSheet(f"color: {Color_.light_green.value}")
+        else:
+            label_lyrics.setStyleSheet("")
+
+        grid_layout_compact = QtWidgets.QGridLayout()
+        grid_layout_compact.addWidget(label_cover, 0, 0, 2, 1)
+        grid_layout_compact.addLayout(layout_title, 0, 1, 1, 1)
+        grid_layout_compact.addWidget(label_artists, 1, 1, 1, 1)
+        grid_layout_compact.addWidget(label_lyrics, 0, 2, 2, 1)
+
+        widget = QtWidgets.QWidget()
+        widget.setLayout(grid_layout_compact)
+        return widget
+
+    def switch_layout(self) -> None:
+        if self.gtagger.mode == Mode.NORMAL:
+            self.stacked_widget.setCurrentIndex(0)
+        elif self.gtagger.mode == Mode.COMPACT:
+            self.stacked_widget.setCurrentIndex(1)
+
+    def mouseReleaseEvent(self, event: QtGui.QMouseEvent):
+        """Intercepts the mouse release event on the `QFrame`.
+
+        Enables the user to (de)select a track layout by clicking on it.
+
+        Args:
+            event (QtGui.QMouseEvent): Mouse release event.
+        """
+        # Only take into account the left mouse button
+        if event.button() != QtCore.Qt.LeftButton:
+            return
+
+        self.toggle_selection()
+
+    def toggle_selection(self, force: Optional[bool] = None) -> None:
+        """Toggles the selection of the track layout.
+
+        Args:
+            force (bool, optional): Force the selection or deselection of the tracks.
+            Has not effect if it is not set. Defaults to None.
+        """
+        if force is not None:
+            self.selected = force
+        else:
+            self.selected = not self.selected
+
+        if self.selected:
+            stylesheet = f"background-color: {Color_.dark_blue.value};"
+        else:
+            stylesheet = ""
+        self.frame.setStyleSheet(stylesheet)
+
+        if force is None:
+            # Trigger the signal only on a mouse click event, not on key press events
+            self.signal_mouse_event.emit()
