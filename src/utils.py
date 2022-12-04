@@ -19,6 +19,12 @@ from qtawesome import icon
 
 VERSION = "v1.2.3"
 
+# Sizes of the covers depending on the mode
+COVER_SIZE = 128
+
+# Number of lyrics lines to display depending on the mode
+LYRICS_LINES = 9
+
 # URL of the Genius API page
 TOKEN_URL = QtCore.QUrl("https://genius.com/api-clients")
 
@@ -47,7 +53,7 @@ DISCARD_ARTISTS = ["Genius", "Apple Music", "Pop Genius"]
 MISSING_LYRICS = "Tell us that you would like to have the lyrics of this song."
 
 # Stylesheet for the QToolTip
-STYLESHEET_QTOOLTIP = "QToolTip { font-size: 11pt; font-weight: 400 }"
+STYLESHEET_QTOOLTIP = "QToolTip { font-size: 10pt; font-weight: 400 }"
 
 
 class DiscardLyrics(Exception):
@@ -206,16 +212,3 @@ def get_icon(
     if active is None:
         active = name
     return icon(name, active=active, color=color, color_active=color_active)
-
-
-# Sizes of the covers depending on the mode
-COVER_SIZE = {
-    Mode.NORMAL: 128,
-    Mode.COMPACT: 64,
-}
-
-# Number of lyrics lines to display depending on the mode
-LYRICS_LINES = {
-    Mode.NORMAL: 9,
-    Mode.COMPACT: 4,
-}

@@ -78,22 +78,20 @@ class Track(QtCore.QObject):
                     "image-off", color=Color_.light_grey.value
                 )
                 cover = icon_dark.pixmap(
-                    icon_dark.actualSize(
-                        QtCore.QSize(COVER_SIZE[Mode.NORMAL], COVER_SIZE[Mode.NORMAL])
-                    )
+                    icon_dark.actualSize(QtCore.QSize(COVER_SIZE, COVER_SIZE))
                 )
             cover_normal = cover.scaled(
-                COVER_SIZE[Mode.NORMAL],
-                COVER_SIZE[Mode.NORMAL],
+                COVER_SIZE,
+                COVER_SIZE,
                 QtCore.Qt.KeepAspectRatio,
             )
             cover_compact = cover.scaled(
-                COVER_SIZE[Mode.COMPACT],
-                COVER_SIZE[Mode.COMPACT],
+                COVER_SIZE,
+                COVER_SIZE,
                 QtCore.Qt.KeepAspectRatio,
             )
-            self.covers[Mode.NORMAL] = cover_normal
-            self.covers[Mode.COMPACT] = cover_compact
+            self.covers = cover_normal
+            self.covers = cover_compact
 
             # Artists: all and main
             if self.get_file_type() == FileType.FLAC:
@@ -224,7 +222,9 @@ class Track(QtCore.QObject):
         else:
             return FileType.NOT_SUPPORTED
 
-    def get_lyrics(self, lines: Optional[int] = None, length: Optional[int] = None) -> str:
+    def get_lyrics(
+        self, lines: Optional[int] = None, length: Optional[int] = None
+    ) -> str:
         """Returns the lyrics of the track, or "No lyrics" if the lyrics are not set.
 
         Returns `new_lyrics` is they are set, otherwise the original ones read by `mutagen`.
