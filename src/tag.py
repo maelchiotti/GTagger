@@ -107,7 +107,6 @@ class LyricsSearch(QtCore.QObject):
         search_title = search_title.strip()
 
         search = f"{search_title} {track.get_main_artist()}"
-        print(search)
         try:
             searched_tracks = self.genius.search(search)
         except Exception as exception:
@@ -128,7 +127,6 @@ class LyricsSearch(QtCore.QObject):
             )
             return False
 
-        print(searched_track.artist.id)
         if searched_track.artist.name in DISCARD_ARTISTS:
             # The track's artist indicates it should be discarded
             log.error(
