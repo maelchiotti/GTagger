@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from PySide6 import QtCore, QtGui, QtWidgets
 
+from src.consts import COVER_SIZE, LYRICS_LINES, STYLESHEET_QTOOLTIP
+from src.enums import Color_, State
 from src.track import Track
-from src.utils import COVER_SIZE, LYRICS_LINES, STYLESHEET_QTOOLTIP, Color_, Mode, State
 
 if TYPE_CHECKING:
     from gtagger import GTagger
@@ -46,6 +47,8 @@ class StateIndicator(QtWidgets.QWidget):
             color = QtGui.QColor(Color_.yellow_genius.value)
         elif self.state == State.LYRICS_NOT_SAVED:
             color = QtGui.QColor(Color_.light_red.value)
+        else:
+            color = QtGui.QColor(Color_.light_grey.value)
 
         brush = QtGui.QBrush()
         brush.setColor(color)
@@ -94,7 +97,7 @@ class TrackLayout(QtWidgets.QFrame):
         self.gtagger: GTagger = gtagger
 
         self.selected: bool = False
-        self.covers: dict[Mode, QtGui.QPixmap] = track.covers
+        self.covers: QtGui.QPixmap = track.cover
 
         self.setup_ui(track)
 
@@ -104,8 +107,8 @@ class TrackLayout(QtWidgets.QFrame):
         self.label_filename = QtWidgets.QLabel(track.filename)
         self.label_filename.setToolTip(track.get_filepath())
         self.label_cover = QtWidgets.QLabel()
-        self.label_cover.setPixmap(self.covers[Mode.NORMAL])
-        self.label_cover.setFixedWidth(COVER_SIZE[Mode.NORMAL])
+        self.label_cover.setPixmap(track.cover)
+        self.label_cover.setFixedWidth(COVER_SIZE)
         self.label_title = QtWidgets.QLabel(track.get_title())
         self.label_title.setToolTip(track.get_title())
         self.label_title.setStyleSheet(
@@ -123,14 +126,12 @@ class TrackLayout(QtWidgets.QFrame):
         )
         self.label_duration = QtWidgets.QLabel(f"<i>{track.get_duration()}</i>")
         self.label_duration.setTextFormat(QtCore.Qt.RichText)
-        self.label_lyrics = QtWidgets.QLabel(
-            track.get_lyrics(lines=LYRICS_LINES[Mode.NORMAL])
-        )
+        self.label_lyrics = QtWidgets.QLabel(track.get_lyrics(lines=LYRICS_LINES))
         self.label_lyrics.setSizePolicy(
             QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred
         )
         self.label_lyrics.setToolTip(track.get_lyrics())
-        self.label_lyrics.setAlignment(QtCore.Qt.AlignRight)
+        self.label_lyrics.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignCenter)
         self.layout_title = QtWidgets.QHBoxLayout()
         self.layout_title.addWidget(self.state_indicator)
         self.layout_title.addWidget(self.label_filename)

@@ -5,7 +5,8 @@ Handles the creation of the information window.
 
 from PySide6 import QtCore, QtWidgets
 
-from src.utils import VERSION, Color_
+from src.consts import VERSION
+from src.enums import Color_
 
 
 class WindowInformation(QtWidgets.QDialog):
@@ -38,9 +39,7 @@ class WindowInformation(QtWidgets.QDialog):
         self.label_information.setAlignment(QtCore.Qt.AlignCenter)
         self.label_information.setStyleSheet("font-size: 14pt; font-weight:400")
         self.label_information.setTextFormat(QtCore.Qt.RichText)
-        self.label_information.setTextInteractionFlags(
-            QtCore.Qt.TextBrowserInteraction
-        )
+        self.label_information.setTextInteractionFlags(QtCore.Qt.TextBrowserInteraction)
         self.label_information.setOpenExternalLinks(True)
 
         self.label_credits = QtWidgets.QLabel()

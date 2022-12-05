@@ -15,17 +15,12 @@ from typing import TYPE_CHECKING
 import genius
 from PySide6 import QtCore, QtGui, QtWidgets
 
+from src.consts import (DISCARD_ARTISTS, LYRICS_LINES, MISSING_LYRICS,
+                        RE_REMOVE_LINES, UNWANTED_TITLE_TEXT)
+from src.enums import State
+from src.exceptions import DiscardLyrics
 from src.track import Track
 from src.track_layout import TrackLayout
-from src.utils import (
-    DISCARD_ARTISTS,
-    LYRICS_LINES,
-    MISSING_LYRICS,
-    RE_REMOVE_LINES,
-    UNWANTED_TITLE_TEXT,
-    DiscardLyrics,
-    State,
-)
 
 if TYPE_CHECKING:
     from gtagger import GTagger
@@ -248,7 +243,7 @@ class ThreadSearchLyrics(QtCore.QThread):
 
             found_lyrics = lyrics_search.search_lyrics(track)
             if found_lyrics:
-                lyrics = track.get_lyrics(lines=LYRICS_LINES[self.gtagger.mode])
+                lyrics = track.get_lyrics(lines=LYRICS_LINES)
                 layout.label_lyrics.setText(lyrics)
                 layout.label_lyrics.setToolTip(track.get_lyrics())
                 layout.state_indicator.set_state(State.LYRICS_FOUND)

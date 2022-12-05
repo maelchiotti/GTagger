@@ -11,23 +11,15 @@ from typing import TYPE_CHECKING
 
 from PySide6 import QtCore, QtGui, QtWidgets
 
+from src.consts import LYRICS_LINES, TOKEN_URL, VERSION
+from src.enums import Color_, FileType, Settings, State
 from src.tag import ThreadSearchLyrics, ThreadTrackRead
 from src.track import Track
 from src.track_layout import TrackLayout
-from src.utils import (
-    LYRICS_LINES,
-    TOKEN_URL,
-    VERSION,
-    Color_,
-    FileType,
-    Mode,
-    Settings,
-    State,
-    get_icon,
-)
 from src.window_help import WindowHelp
 from src.window_information import WindowInformation
 from src.window_settings import WindowSettings
+from src.icons import get_icon
 
 if TYPE_CHECKING:
     from gtagger import GTagger
@@ -62,8 +54,8 @@ class WindowMain(QtWidgets.QWidget):
         self.window_settings: WindowSettings = WindowSettings(self, self.gtagger)
         self.window_information: WindowInformation = WindowInformation(self)
         self.window_help: WindowHelp = WindowHelp(self)
-        self.thread_add_files: ThreadTrackRead = None
-        self.thread_search_lyrics: ThreadSearchLyrics = None
+        self.thread_add_files: ThreadTrackRead
+        self.thread_search_lyrics: ThreadSearchLyrics
 
         self.setup_ui()
 
@@ -178,12 +170,10 @@ class WindowMain(QtWidgets.QWidget):
         self.button_stop_search = QtWidgets.QPushButton()
         self.button_stop_search.setEnabled(False)
         self.button_stop_search.setToolTip("Stop searching")
-        self.button_change_mode = QtWidgets.QPushButton()
 
         self.status_bar = QtWidgets.QStatusBar()
         self.status_bar.addPermanentWidget(self.progression_bar)
         self.status_bar.addPermanentWidget(self.button_stop_search)
-        self.status_bar.addPermanentWidget(self.button_change_mode)
 
         # Main window
         self.layout_ = QtWidgets.QGridLayout(self)
@@ -211,12 +201,9 @@ class WindowMain(QtWidgets.QWidget):
         self.input_filter_text.textChanged.connect(self.filter)
         self.button_filter_lyrics.clicked.connect(self.filter)
         self.button_stop_search.clicked.connect(self.stop_search)
-        self.button_change_mode.clicked.connect(self.change_mode)
 
     def setup_style(self):
         """Sets up the custom colors and icons for diverse elements of the application."""
-        mode = self.gtagger.mode
-
         # Set up the windows icons
         icon_window_main = get_icon("tag-multiple", color=Color_.yellow_genius.value)
         icon_window_settings = get_icon("cog", color="black")
@@ -240,12 +227,6 @@ class WindowMain(QtWidgets.QWidget):
         icon_token = get_icon("launch", color_active=Color_.yellow_genius.value)
         icon_filter_lyrics = get_icon("file-music-outline")
         icon_stop_search = get_icon("stop", color=Color_.red.value)
-        if mode == Mode.NORMAL:
-            self.button_change_mode.setToolTip("Switch to compact mode")
-            icon_change_mode = get_icon("arrow-expand")
-        elif mode == Mode.COMPACT:
-            self.button_change_mode.setToolTip("Switch to normal mode")
-            icon_change_mode = get_icon("arrow-collapse")
 
         self.action_add_files.setIcon(icon_add_files)
         self.action_add_folder.setIcon(icon_add_folder)
@@ -259,14 +240,13 @@ class WindowMain(QtWidgets.QWidget):
         self.button_token.setIcon(icon_token)
         self.button_filter_lyrics.setIcon(icon_filter_lyrics)
         self.button_stop_search.setIcon(icon_stop_search)
-        self.button_change_mode.setIcon(icon_change_mode)
 
         # Change the cover placeholders and if needed,
         # as well as the lyrics color
         for track, layout_item in self.track_layouts_items.items():
             track_layout = layout_item[0]
             if not track_layout.selected:
-                track_layout.label_cover.setPixmap(track.covers[mode])
+                track_layout.label_cover.setPixmap(track.cover)
                 if track.lyrics_new != "":
                     track_layout.label_lyrics.setStyleSheet(
                         f"color: {Color_.light_green.value}"
@@ -345,32 +325,6 @@ class WindowMain(QtWidgets.QWidget):
         """
         self.list_tracks.takeItem(self.list_tracks.row(item))
         self.track_layouts_items.pop(track)
-
-    @QtCore.Slot()
-    def change_mode(self) -> None:
-        """Changes the layout mode of the application."""
-        # Update the button
-        if self.gtagger.mode == Mode.NORMAL:
-            self.gtagger.mode = Mode.COMPACT
-            self.button_change_mode.setToolTip("Switch to normal mode")
-            self.button_change_mode.setIcon(get_icon("arrow-expand"))
-        elif self.gtagger.mode == Mode.COMPACT:
-            self.gtagger.mode = Mode.NORMAL
-            self.button_change_mode.setToolTip("Switch to compact mode")
-            self.button_change_mode.setIcon(get_icon("arrow-collapse"))
-
-        # Update the GUI
-        for layout_item_old in self.track_layouts_items.values():
-            layout = layout_item_old[0]
-            layout.switch_layout()
-
-        # Apply all the filters
-        self.filter()
-
-        # Update the settings
-        self.gtagger.settings_manager.set_setting(
-            Settings.MODE.value, self.gtagger.mode.value
-        )
 
     @QtCore.Slot()
     def add_files(self, select_directory: bool) -> None:
@@ -492,9 +446,7 @@ class WindowMain(QtWidgets.QWidget):
                 layout.state = State.LYRICS_SAVED
                 track.read_tags()
                 track.set_lyrics_new("")
-                layout.label_lyrics.setText(
-                    track.get_lyrics(lines=LYRICS_LINES[self.gtagger.mode])
-                )
+                layout.label_lyrics.setText(track.get_lyrics(lines=LYRICS_LINES))
                 layout.label_lyrics.setToolTip(track.get_lyrics_original())
             else:
                 layout.state_indicator.set_state(State.LYRICS_NOT_SAVED)
@@ -509,9 +461,7 @@ class WindowMain(QtWidgets.QWidget):
             layout = layout_item[0]
             if layout.selected:
                 track.set_lyrics_new("")
-                layout.label_lyrics.setText(
-                    track.get_lyrics(lines=LYRICS_LINES[self.gtagger.mode])
-                )
+                layout.label_lyrics.setText(track.get_lyrics(lines=LYRICS_LINES))
                 layout.label_lyrics.setToolTip(track.get_lyrics_original())
                 layout.state_indicator.set_state(State.TAGS_READ)
                 layout.state_indicator.setToolTip(State.TAGS_READ.value)
@@ -595,9 +545,8 @@ class WindowMain(QtWidgets.QWidget):
         """The lyrics of a track have been searched."""
         self.increment_progression_bar()
 
-    @staticmethod
     @QtCore.Slot()
-    def open_token_page() -> None:
+    def open_token_page(self) -> None:
         """Opens the Genius website to fetch the client access token."""
         QtGui.QDesktopServices.openUrl(TOKEN_URL)
 

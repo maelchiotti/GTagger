@@ -15,7 +15,9 @@ from mutagen.id3._frames import USLT
 from mutagen.mp3 import MPEGInfo as MP3Info
 from PySide6 import QtCore, QtGui
 
-from src.utils import COVER_SIZE, SPLITTERS, Color_, FileType, Mode, get_icon
+from src.consts import COVER_SIZE, SPLITTERS
+from src.enums import Color_, FileType
+from src.icons import get_icon
 
 
 class Track(QtCore.QObject):
@@ -27,7 +29,7 @@ class Track(QtCore.QObject):
     Attributes:
         filepath (Path): Filepath of the track.
         filename (str): Filename of the track.
-        covers (dict[Mode, QtGui.QPixmap]): Covers of the track
+        cover (QtGui.QPixmap): Cover of the track
         (in dark and light theme and in normal and compact mode).
         artists (list[str]): Artists of the track.
         main_artist (str): Main artist of the track.
@@ -42,11 +44,11 @@ class Track(QtCore.QObject):
 
         self.filepath: Path = filepath
         self.filename: str = os.path.basename(filepath)
-        self.covers: dict[Mode, QtGui.QPixmap] = {}
+        self.cover: QtGui.QPixmap
         self.artists: list[str] = []
         self.main_artist: str = ""
         self.lyrics_new: str = ""
-        self.file: mutagen.FileType = None
+        self.file: mutagen.FileType
 
     def read_tags(self) -> bool:
         """Uses mutagen to read the tags from the file and sets them.
@@ -66,10 +68,10 @@ class Track(QtCore.QObject):
             return False
 
         try:
-            # Covers
+            # Cover
             if self.has_pictures():
                 # The track has a cover
-                picture: FLACPicture = self.get_picture()
+                picture = self.get_picture()
                 cover = QtGui.QPixmap()
                 cover.loadFromData(picture.data)
             else:
@@ -80,18 +82,11 @@ class Track(QtCore.QObject):
                 cover = icon_dark.pixmap(
                     icon_dark.actualSize(QtCore.QSize(COVER_SIZE, COVER_SIZE))
                 )
-            cover_normal = cover.scaled(
+            self.cover = cover.scaled(
                 COVER_SIZE,
                 COVER_SIZE,
                 QtCore.Qt.KeepAspectRatio,
             )
-            cover_compact = cover.scaled(
-                COVER_SIZE,
-                COVER_SIZE,
-                QtCore.Qt.KeepAspectRatio,
-            )
-            self.covers = cover_normal
-            self.covers = cover_compact
 
             # Artists: all and main
             if self.get_file_type() == FileType.FLAC:

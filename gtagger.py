@@ -5,7 +5,8 @@ import sys
 import qdarktheme
 from PySide6 import QtCore, QtWidgets
 
-from src.utils import Color_, Mode, Settings, SettingsManager
+from src.enums import Color_
+from src.settings import SettingsManager
 from src.window_main import WindowMain
 
 
@@ -29,11 +30,6 @@ class GTagger(QtWidgets.QApplication):
 
         # Set the application stylesheet
         self.set_stylesheet()
-
-        # Load the mode setting and default it to normal if it is not set
-        self.mode: Mode = Mode.get_mode(
-            self.settings_manager.get_setting(Settings.MODE.value, Mode.NORMAL.value)
-        )
 
     def set_stylesheet(self):
         """Sets the stylesheet of the application.

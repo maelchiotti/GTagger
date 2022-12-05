@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 
 from PySide6 import QtCore, QtWidgets
 
-from src.utils import Settings
+from src.enums import Settings
 
 if TYPE_CHECKING:
     from gtagger import GTagger
