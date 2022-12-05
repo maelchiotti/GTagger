@@ -12,24 +12,24 @@ class Settings(Enum):
     OVERWRITE_LYRICS = "overwrite_lyrics"
 
 
-class Color_(Enum):
+class CustomColors(Enum):
     """Enumerates useful (name = #hex) colors."""
 
-    light_green = "#90EE90"
-    light_red = "#F08080"
-    light_blue = "#ADD8E6"
-    light_orange = "#FFFACD"
-    light_grey = "#D3D3D3"
+    LIGHT_GREEN = "#90EE90"
+    LIGHT_RED = "#F08080"
+    LIGHT_BLUE = "#ADD8E6"
+    LIGHT_ORANGE = "#FFFACD"
+    LIGHT_GREY = "#D3D3D3"
 
-    red = "#FF0000"
-    orange = "#FFA500"
-    grey = "#808080"
+    RED = "#FF0000"
+    ORANGE = "#FFA500"
+    GREY = "#808080"
 
-    dark_blue = "#2B3C4F"
-    dark_grey = "#202124"
+    DARK_BLUE = "#2B3C4F"
+    DARK_GREY = "#202124"
 
-    yellow_genius = "#FFFF64"
-    black = "#000000"
+    YELLOW_GENIUS = "#FFFF64"
+    BLACK = "#000000"
 
 
 class State(Enum):

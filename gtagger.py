@@ -5,7 +5,7 @@ import sys
 import qdarktheme
 from PySide6 import QtCore, QtWidgets
 
-from src.enums import Color_
+from src.enums import CustomColors
 from src.settings import SettingsManager
 from src.window_main import WindowMain
 from src.consts import MAIN_WINDOW_WIDTH, MAIN_WINDOW_HEIGHT
@@ -42,23 +42,23 @@ class GTagger(QtWidgets.QApplication):
             
             QCheckBox:unchecked:hover {
                 border-bottom: 2px solid """
-            + Color_.yellow_genius.value
+            + CustomColors.YELLOW_GENIUS.value
             + """;
             }
             QCheckBox:checked:hover {
                 border-bottom: 2px solid """
-            + Color_.yellow_genius.value
+            + CustomColors.YELLOW_GENIUS.value
             + """;
             }
             
             QProgressBar {
                 color: """
-            + Color_.grey.value
+            + CustomColors.GREY.value
             + """;
             }
             QProgressBar::chunk {
                 background-color: """
-            + Color_.yellow_genius.value
+            + CustomColors.YELLOW_GENIUS.value
             + """;
             }
             """

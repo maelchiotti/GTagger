@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING
 from PySide6 import QtCore, QtGui, QtWidgets
 
 from src.consts import LYRICS_LINES, TOKEN_URL, VERSION
-from src.enums import Color_, FileType, Settings, State
+from src.enums import CustomColors, FileType, State
 from src.tag import ThreadSearchLyrics, ThreadTrackRead
 from src.track import Track
 from src.track_layout import TrackLayout
@@ -34,8 +34,8 @@ class WindowMain(QtWidgets.QWidget):
 
     Attributes:
         gtagger (GTagger): GTagger application.
-        track_layouts_items (dict[Track, tuple[TrackLayout, QtWidgets.QListWidgetItem]]): Layouts and items
-            containing the information of each track added by the user.
+        track_layouts_items (dict[Track, tuple[TrackLayout, QtWidgets.QListWidgetItem]]): Layouts
+            and items containing the information of each track added by the user.
         window_settings (WindowSettings): Settings window.
         window_information (WindowInformation): Information window.
         window_help (WindowHelp) : Help window.
@@ -205,7 +205,9 @@ class WindowMain(QtWidgets.QWidget):
     def setup_style(self):
         """Sets up the custom colors and icons for diverse elements of the application."""
         # Set up the windows icons
-        icon_window_main = get_icon("tag-multiple", color=Color_.yellow_genius.value)
+        icon_window_main = get_icon(
+            "tag-multiple", color=CustomColors.YELLOW_GENIUS.value
+        )
         icon_window_settings = get_icon("cog", color="black")
         icon_window_information = get_icon("information", color="black")
         icon_window_help = get_icon("help-circle", color="black")
@@ -217,16 +219,18 @@ class WindowMain(QtWidgets.QWidget):
         # Change the icons
         icon_add_files = get_icon("file-outline")
         icon_add_folder = get_icon("folder-open")
-        icon_search_lyrics = get_icon("magnify", color=Color_.light_blue.value)
-        icon_save_lyrics = get_icon("content-save", color=Color_.light_green.value)
-        icon_cancel_rows = get_icon("backup-restore", color=Color_.orange.value)
-        icon_remove_rows = get_icon("minus-circle", color=Color_.red.value)
+        icon_search_lyrics = get_icon("magnify", color=CustomColors.LIGHT_BLUE.value)
+        icon_save_lyrics = get_icon(
+            "content-save", color=CustomColors.LIGHT_GREEN.value
+        )
+        icon_cancel_rows = get_icon("backup-restore", color=CustomColors.ORANGE.value)
+        icon_remove_rows = get_icon("minus-circle", color=CustomColors.RED.value)
         icon_settings = get_icon("cog")
         icon_information = get_icon("information")
         icon_help = get_icon("help-circle")
-        icon_token = get_icon("launch", color_active=Color_.yellow_genius.value)
+        icon_token = get_icon("launch", color_active=CustomColors.YELLOW_GENIUS.value)
         icon_filter_lyrics = get_icon("file-music-outline")
-        icon_stop_search = get_icon("stop", color=Color_.red.value)
+        icon_stop_search = get_icon("stop", color=CustomColors.RED.value)
 
         self.action_add_files.setIcon(icon_add_files)
         self.action_add_folder.setIcon(icon_add_folder)
@@ -249,7 +253,7 @@ class WindowMain(QtWidgets.QWidget):
                 track_layout.label_cover.setPixmap(track.cover)
                 if track.lyrics_new != "":
                     track_layout.label_lyrics.setStyleSheet(
-                        f"color: {Color_.light_green.value}"
+                        f"color: {CustomColors.LIGHT_GREEN.value}"
                     )
                 else:
                     track_layout.label_lyrics.setStyleSheet("")
@@ -258,7 +262,7 @@ class WindowMain(QtWidgets.QWidget):
         self.token_changed()
 
         # Change the color of the links
-        self.window_information.set_texts(Color_.yellow_genius)
+        self.window_information.set_texts(CustomColors.YELLOW_GENIUS)
 
     @staticmethod
     def select_directories() -> str | None:
@@ -297,7 +301,8 @@ class WindowMain(QtWidgets.QWidget):
             bool: `True` if the token is valid.
         """
         validate = self.validator.validate(self.input_token.text(), 0)
-        return validate[0] == QtGui.QValidator.State.Acceptable  # type: ignore # validate() returns an untyped object
+        # validate() returns an untyped object
+        return validate[0] == QtGui.QValidator.State.Acceptable  # type: ignore
 
     def increment_progression_bar(self) -> None:
         """Increments the progression bar by 1."""
@@ -413,21 +418,21 @@ class WindowMain(QtWidgets.QWidget):
         if len(self.input_token.text()) == 0:
             # Input is empty
             self.input_token.setStyleSheet(
-                f"border: 2px solid {Color_.light_red.value}"
+                f"border: 2px solid {CustomColors.LIGHT_RED.value}"
             )
             self.input_token.setToolTip("Enter token")
             self.action_search_lyrics.setEnabled(False)
         elif not self.is_token_valid():
             # Token is not valid
             self.input_token.setStyleSheet(
-                f"border: 2px solid {Color_.light_red.value}"
+                f"border: 2px solid {CustomColors.LIGHT_RED.value}"
             )
             self.input_token.setToolTip("Invalid token")
             self.action_search_lyrics.setEnabled(False)
         else:
             # Token is valid
             self.input_token.setStyleSheet(
-                f"border: 2px solid {Color_.light_green.value}"
+                f"border: 2px solid {CustomColors.LIGHT_GREEN.value}"
             )
             self.input_token.setToolTip("Valid token")
             self.action_search_lyrics.setEnabled(len(self.track_layouts_items) > 0)
@@ -503,7 +508,9 @@ class WindowMain(QtWidgets.QWidget):
             if track.has_lyrics_new():
                 # Track has new lyrics
                 enable_save = True
-                layout.label_lyrics.setStyleSheet(f"color: {Color_.light_green.value}")
+                layout.label_lyrics.setStyleSheet(
+                    f"color: {CustomColors.LIGHT_GREEN.value}"
+                )
             else:
                 layout.label_lyrics.setStyleSheet("")
         self.action_save_lyrics.setEnabled(enable_save)

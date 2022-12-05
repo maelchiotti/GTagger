@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Optional
 from PySide6 import QtCore, QtGui, QtWidgets
 
 from src.consts import COVER_SIZE, LYRICS_LINES, STYLESHEET_QTOOLTIP
-from src.enums import Color_, State
+from src.enums import CustomColors, State
 from src.track import Track
 
 if TYPE_CHECKING:
@@ -38,24 +38,24 @@ class StateIndicator(QtWidgets.QWidget):
             event (QtGui.QPaintEvent): Paint event.
         """
         if self.state == State.TAGS_READ:
-            color = QtGui.QColor(Color_.light_blue.value)
+            color = QtGui.QColor(CustomColors.LIGHT_BLUE.value)
         elif self.state == State.LYRICS_FOUND:
-            color = QtGui.QColor(Color_.light_green.value)
+            color = QtGui.QColor(CustomColors.LIGHT_GREEN.value)
         elif self.state == State.LYRICS_NOT_FOUND:
-            color = QtGui.QColor(Color_.orange.value)
+            color = QtGui.QColor(CustomColors.ORANGE.value)
         elif self.state == State.LYRICS_SAVED:
-            color = QtGui.QColor(Color_.yellow_genius.value)
+            color = QtGui.QColor(CustomColors.YELLOW_GENIUS.value)
         elif self.state == State.LYRICS_NOT_SAVED:
-            color = QtGui.QColor(Color_.light_red.value)
+            color = QtGui.QColor(CustomColors.LIGHT_RED.value)
         else:
-            color = QtGui.QColor(Color_.light_grey.value)
+            color = QtGui.QColor(CustomColors.LIGHT_GREY.value)
 
         brush = QtGui.QBrush()
         brush.setColor(color)
         brush.setStyle(QtCore.Qt.SolidPattern)
 
         pen = QtGui.QPen()
-        pen.setColor(Color_.grey.value)
+        pen.setColor(CustomColors.GREY.value)
         pen.setStyle(QtCore.Qt.SolidLine)
         pen.setWidth(1)
 
@@ -138,7 +138,7 @@ class TrackLayout(QtWidgets.QFrame):
         self.layout_title.addStretch()
 
         if self.state == State.LYRICS_FOUND:
-            self.label_lyrics.setStyleSheet(f"color: {Color_.light_green.value}")
+            self.label_lyrics.setStyleSheet(f"color: {CustomColors.LIGHT_GREEN.value}")
         else:
             self.label_lyrics.setStyleSheet("")
 
@@ -183,7 +183,7 @@ class TrackLayout(QtWidgets.QFrame):
             self.selected = not self.selected
 
         if self.selected:
-            stylesheet = f"background-color: {Color_.dark_blue.value};"
+            stylesheet = f"background-color: {CustomColors.DARK_BLUE.value};"
         else:
             stylesheet = ""
         self.setStyleSheet(stylesheet)

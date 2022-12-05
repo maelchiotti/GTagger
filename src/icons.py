@@ -18,7 +18,8 @@ def get_icon(
         name (str): Name of the MDI6 icon.
         active (str, optional): Name of the MDI6 icon when the button is active. Defaults to None.
         color (str, optional): Color of the icon. Defaults to "white".
-        color_active (str, optional): Color of the icon when the button is active. Defaults to "white".
+        color_active (str, optional): Color of the icon when the button is active.
+        Defaults to "white".
 
     Returns:
         QtGui.QIcon: MDI6 icon `name` as a `QIcon`.

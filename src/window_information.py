@@ -6,7 +6,7 @@ Handles the creation of the information window.
 from PySide6 import QtCore, QtWidgets
 
 from src.consts import VERSION
-from src.enums import Color_
+from src.enums import CustomColors
 
 
 class WindowInformation(QtWidgets.QDialog):
@@ -48,7 +48,7 @@ class WindowInformation(QtWidgets.QDialog):
         self.label_credits.setTextInteractionFlags(QtCore.Qt.TextBrowserInteraction)
         self.label_credits.setOpenExternalLinks(True)
 
-        self.set_texts(Color_.yellow_genius)
+        self.set_texts(CustomColors.YELLOW_GENIUS)
 
         self.layout_ = QtWidgets.QGridLayout()
         self.layout_.addWidget(self.label_gtagger, 0, 0, 1, 1, QtCore.Qt.AlignCenter)
@@ -63,7 +63,7 @@ class WindowInformation(QtWidgets.QDialog):
         self.setWindowTitle("Information")
         self.setWindowModality(QtCore.Qt.ApplicationModal)
 
-    def set_texts(self, link_color: Color_) -> None:
+    def set_texts(self, link_color: CustomColors) -> None:
         """Sets the texts of the labels.
 
         Args:

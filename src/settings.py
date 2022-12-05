@@ -42,8 +42,7 @@ class SettingsManager(QtCore.QObject):
         """
         if type_ is None:
             return self.settings.value(setting, defaultValue=default)
-        else:
-            return self.settings.value(setting, defaultValue=default, type=type_)
+        return self.settings.value(setting, defaultValue=default, type=type_)
 
     def set_setting(self, setting: str, value: object) -> None:
         """Sets the value of `setting` to `value`.
