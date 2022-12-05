@@ -66,6 +66,8 @@ class Track(QtCore.QObject):
                 str(exception),
             )
             return False
+        if self.file is None:
+            return False
 
         try:
             # Cover

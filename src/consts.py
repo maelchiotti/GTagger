@@ -6,6 +6,10 @@ from PySide6 import QtCore
 
 VERSION = "v1.2.3"
 
+# Size of the main window
+MAIN_WINDOW_WIDTH = 1200
+MAIN_WINDOW_HEIGHT = 800
+
 # Sizes of the covers depending on the mode
 COVER_SIZE = 128
 

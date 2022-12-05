@@ -8,6 +8,7 @@ from PySide6 import QtCore, QtWidgets
 from src.enums import Color_
 from src.settings import SettingsManager
 from src.window_main import WindowMain
+from src.consts import MAIN_WINDOW_WIDTH, MAIN_WINDOW_HEIGHT
 
 
 class GTagger(QtWidgets.QApplication):
@@ -15,7 +16,6 @@ class GTagger(QtWidgets.QApplication):
 
     Attributes:
         settings_manager (SettingsManager): Settings manager of the application.
-        mode (Mode): Current layout mode of the application.
     """
 
     def __init__(self) -> None:
@@ -69,7 +69,7 @@ if __name__ == "__main__":
     gtagger = GTagger()
 
     main_window = WindowMain(gtagger)
-    main_window.resize(1200, 800)
+    main_window.resize(MAIN_WINDOW_WIDTH, MAIN_WINDOW_HEIGHT)
     main_window.show()
 
     sys.exit(gtagger.exec())
