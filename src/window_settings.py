@@ -23,7 +23,8 @@ class WindowSettings(QtWidgets.QDialog):
     """
 
     def __init__(self, parent, gtagger: GTagger):
-        """
+        """Init WindowSettings.
+
         Args:
             gtagger (GTagger): GTagger application.
         """
@@ -34,7 +35,7 @@ class WindowSettings(QtWidgets.QDialog):
         self.setup_ui()
 
     def setup_ui(self) -> None:
-        """Sets up the UI of the window."""
+        """Set up the UI of the window."""
         self.checkbox_recursive = QtWidgets.QCheckBox("Recursively search for files")
         recursive_search = self.gtagger.settings_manager.get_setting(
             Settings.RECURSIVE_SEARCH.value, default=True, type_=bool
@@ -68,14 +69,14 @@ class WindowSettings(QtWidgets.QDialog):
 
     @QtCore.Slot()
     def toggle_recursive_search(self) -> None:
-        """Updates the setting for recursively searching for files."""
+        """Update the setting for recursively searching for files."""
         recursive_search = self.checkbox_recursive.isChecked()
         self.gtagger.settings_manager.set_setting(
             Settings.RECURSIVE_SEARCH.value, recursive_search
         )
 
     def toggle_overwrite_lyrics(self) -> None:
-        """Updates the setting for overwriting original lyrics."""
+        """Update the setting for overwriting original lyrics."""
         overwrite_lyrics = self.checkbox_overwrite.isChecked()
         self.gtagger.settings_manager.set_setting(
             Settings.OVERWRITE_LYRICS.value, overwrite_lyrics

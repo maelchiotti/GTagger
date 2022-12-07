@@ -27,7 +27,8 @@ class StateIndicator(QtWidgets.QWidget):
     def __init__(
         self, state: State, x: int = 2, y: int = 2, w: int = 15, h: int = 15
     ) -> None:
-        """
+        """Init StateIndicator.
+
         Args:
             x (int): x coordinate. Defaults to 2.
             y (int): y coordinate. Defaults to 2.
@@ -46,7 +47,7 @@ class StateIndicator(QtWidgets.QWidget):
         self.setFixedHeight(self.y + self.h + 1)
 
     def paintEvent(self, event: QtGui.QPaintEvent) -> None:
-        """Intercepts the paint event of the `QWidget`.
+        """Intercept the paint event of the `QWidget`.
 
         Args:
             event (QtGui.QPaintEvent): Paint event.
@@ -80,7 +81,7 @@ class StateIndicator(QtWidgets.QWidget):
         painter.drawEllipse(self.x, self.y, self.w, self.h)
 
     def set_state(self, state: State) -> None:
-        """Sets the state of the indicator to `state` and repaints it.
+        """Set the state of the indicator to `state` and repaints it.
 
         Args:
             state (State): New state.
@@ -106,7 +107,8 @@ class TrackLayout(QtWidgets.QFrame):
     signal_mouse_event = QtCore.Signal()
 
     def __init__(self, track: Track, state: State, gtagger: GTagger) -> None:
-        """
+        """Init TrackLayout.
+
         Args:
             track (Track): Track to display.
             state (State): State of the track.
@@ -122,10 +124,11 @@ class TrackLayout(QtWidgets.QFrame):
         self.setup_ui(track)
 
     def setup_ui(self, track: Track) -> None:
-        """Sets up the UI of the window.
+        """Set up the UI of the window.
 
         Attributes:
-            track (Track): Track to display."""
+            track (Track): Track to display.
+        """
         self.state_indicator = StateIndicator(self.state)
         self.state_indicator.setToolTip(self.state.value)
         self.label_filename = QtWidgets.QLabel(track.filename)
@@ -181,7 +184,7 @@ class TrackLayout(QtWidgets.QFrame):
         self.mouseReleaseEvent = self.mouseReleaseEvent
 
     def mouseReleaseEvent(self, event: QtGui.QMouseEvent):
-        """Intercepts the mouse release event on the `QFrame`.
+        """Intercept the mouse release event on the `QFrame`.
 
         Enables the user to (de)select a track layout by clicking on it.
 
@@ -195,7 +198,7 @@ class TrackLayout(QtWidgets.QFrame):
         self.toggle_selection()
 
     def toggle_selection(self, force: Optional[bool] = None) -> None:
-        """Toggles the selection of the track layout.
+        """Toggle the selection of the track layout.
 
         Args:
             force (Optional[bool]): Force the selection or deselection of the tracks. Has not effect if it is not set. Defaults to None.

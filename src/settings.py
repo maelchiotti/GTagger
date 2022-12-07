@@ -13,6 +13,7 @@ class SettingsManager(QtCore.QObject):
     """
 
     def __init__(self) -> None:
+        """Init SettingsManager."""
         super().__init__()
 
         QtCore.QSettings.setDefaultFormat(QtCore.QSettings.IniFormat)
@@ -24,7 +25,7 @@ class SettingsManager(QtCore.QObject):
         default: Optional[Any] = None,
         type_: Optional[object] = None,
     ) -> Any:
-        """Returns the value of the setting `setting`.
+        """Return the value of the setting `setting`.
 
         The setting is defaulted to `default` if it does not exist,
         which defaults to `None`.
@@ -45,7 +46,7 @@ class SettingsManager(QtCore.QObject):
         return self.settings.value(setting, defaultValue=default, type=type_)
 
     def set_setting(self, setting: str, value: object) -> None:
-        """Sets the value of `setting` to `value`.
+        """Set the value of `setting` to `value`.
 
         Args:
             setting (str): Name of the setting.

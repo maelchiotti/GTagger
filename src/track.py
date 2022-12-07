@@ -39,7 +39,8 @@ class Track(QtCore.QObject):
     signal_lyrics_changed = QtCore.Signal()
 
     def __init__(self, filepath: Path) -> None:
-        """
+        """Init Track.
+
         Args:
             filepath (Path): Filepath of the track.
         """
@@ -54,7 +55,7 @@ class Track(QtCore.QObject):
         self.file: mutagen.FileType
 
     def read_tags(self) -> bool:
-        """Uses mutagen to read the tags from the file and sets them.
+        """Use mutagen to read the tags from the file and sets them.
 
         Returns:
             bool: `True` if the tags were successfully read.
@@ -113,7 +114,7 @@ class Track(QtCore.QObject):
         return True
 
     def get_filepath(self) -> str:
-        """Returns the path to the file.
+        """Return the path to the file.
 
         Returns:
             str: Path to the file.
@@ -121,7 +122,7 @@ class Track(QtCore.QObject):
         return self.filepath.as_posix()
 
     def get_duration(self) -> str:
-        """Returns the formatted duration of the track.
+        """Return the formatted duration of the track.
 
         The duration is rounded to the second and returned in the format `MM:SS`.
 
@@ -132,7 +133,7 @@ class Track(QtCore.QObject):
         return time.strftime("%M:%S", duration)
 
     def get_title(self) -> str:
-        """Returns the title of the track, or "No title" if the title is not set.
+        """Return the title of the track, or "No title" if the title is not set.
 
         Returns:
             str: Title of the track.
@@ -149,7 +150,7 @@ class Track(QtCore.QObject):
                 return "No title"
 
     def get_artists(self) -> str:
-        """Returns the artists of the track, or "No artist(s)" if the artists are not set.
+        """Return the artists of the track, or "No artist(s)" if the artists are not set.
 
         Returns:
             str: Artists of the track.
@@ -160,7 +161,7 @@ class Track(QtCore.QObject):
             return ", ".join(self.artists)
 
     def get_main_artist(self) -> str:
-        """Returns the main artist of the track, or "No artist" if the main artist is not set.
+        """Return the main artist of the track, or "No artist" if the main artist is not set.
 
         Returns:
             str: Main artist of the track.
@@ -171,7 +172,7 @@ class Track(QtCore.QObject):
             return self.main_artist
 
     def get_album(self) -> str:
-        """Returns the album of the track, or "No album" if the album is not set.
+        """Return the album of the track, or "No album" if the album is not set.
 
         Returns:
             str: Album of the track.
@@ -188,7 +189,7 @@ class Track(QtCore.QObject):
                 return "No album"
 
     def get_picture(self) -> Union[FLACPicture, MP3Picture]:
-        """Returns the first picture of the track.
+        """Return the first picture of the track.
 
         Returns:
             FLACPicture | MP3Picture: Picture of the track.
@@ -199,7 +200,7 @@ class Track(QtCore.QObject):
             return self.file.tags["APIC:"]
 
     def has_pictures(self) -> bool:
-        """Returns `True` if the track has pictures.
+        """Return `True` if the track has pictures.
 
         Returns:
             bool: `True` if the track has pictures.
@@ -210,7 +211,7 @@ class Track(QtCore.QObject):
             return self.file.tags is not None and "APIC:" in self.file.tags
 
     def get_file_type(self) -> FileType:
-        """Returns the type of the file.
+        """Return the type of the file.
 
         Returns:
             FileType: Type of the file.
@@ -225,13 +226,13 @@ class Track(QtCore.QObject):
     def get_lyrics(
         self, lines: Optional[int] = None, length: Optional[int] = None
     ) -> str:
-        """Returns the lyrics of the track, or "No lyrics" if the lyrics are not set.
+        """Return the lyrics of the track, or "No lyrics" if the lyrics are not set.
 
-        Returns `new_lyrics` is they are set, otherwise the original ones read by `mutagen`.
+        Return `new_lyrics` is they are set, otherwise the original ones read by `mutagen`.
 
-        If specified, returns a maximum of `lines` lines.
-        Otherwise, if specified, returns a maximum of `length` characters.
-        In any other case, returns the full lyrics.
+        If specified, return a maximum of `lines` lines.
+        Otherwise, if specified, return a maximum of `length` characters.
+        In any other case, return the full lyrics.
 
         Args:
             lines (Optional[int]): Maximum number of lines to return. Defaults to `None`.
@@ -256,8 +257,7 @@ class Track(QtCore.QObject):
             return lyrics
 
     def get_lyrics_original(self) -> str:
-        """Returns the original lyrics of the track read by `mutagen`,
-        or "No lyrics" if the lyrics are not set.
+        """Return the original lyrics of the track read by `mutagen` or "No lyrics" if the lyrics are not set.
 
         Returns:
             str: Original lyrics of the track.
@@ -271,7 +271,7 @@ class Track(QtCore.QObject):
             return "No lyrics"
 
     def set_lyrics_new(self, lyrics: str):
-        """Sets the lyrics of the track to `lyrics`.
+        """Set the lyrics of the track to `lyrics`.
 
         Emits a signal indicating that the lyrics have changed.
 
@@ -283,7 +283,7 @@ class Track(QtCore.QObject):
         self.signal_lyrics_changed.emit()
 
     def save_lyrics(self) -> bool:
-        """Saves the lyrics to the file.
+        """Save the lyrics to the file.
 
         Returns:
             bool: `True` if the lyrics were successfully saved.
@@ -305,7 +305,7 @@ class Track(QtCore.QObject):
         return True
 
     def has_lyrics_original(self) -> bool:
-        """Returns `True` if the track has original lyrics read by `mutagen`.
+        """Return `True` if the track has original lyrics read by `mutagen`.
 
         Returns:
             bool: `True` if the track has original lyrics.
@@ -320,7 +320,7 @@ class Track(QtCore.QObject):
             )
 
     def has_lyrics_new(self) -> bool:
-        """Returns `True` if the track has new lyrics.
+        """Return `True` if the track has new lyrics.
 
         Returns:
             bool: `True` if the track has new lyrics.
@@ -328,7 +328,7 @@ class Track(QtCore.QObject):
         return self.lyrics_new != ""
 
     def get_uslt(self) -> Union[USLT, None]:
-        """Returns the USLT field of a MP3 file.
+        """Return the USLT field of a MP3 file.
 
         In ID3 tags of a MP3 file, lyrics are stored in a field named "USLT::XXX",
         where "XXX" stands for a code identifying the language of the lyrics

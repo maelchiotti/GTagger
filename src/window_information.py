@@ -13,12 +13,13 @@ class WindowInformation(QtWidgets.QDialog):
     """Information window of the GUI."""
 
     def __init__(self, parent):
+        """Init WindowInformation."""
         super().__init__(parent)
 
         self.setup_ui()
 
     def setup_ui(self) -> None:
-        """Sets up the UI of the window."""
+        """Set up the UI of the window."""
         self.label_gtagger = QtWidgets.QLabel(QtCore.QCoreApplication.applicationName())
         self.label_gtagger.setAlignment(QtCore.Qt.AlignCenter)
         self.label_gtagger.setStyleSheet("font-size: 20pt; font-weight:800")
@@ -64,7 +65,7 @@ class WindowInformation(QtWidgets.QDialog):
         self.setWindowModality(QtCore.Qt.ApplicationModal)
 
     def set_texts(self, link_color: CustomColors) -> None:
-        """Sets the texts of the labels.
+        """Set the texts of the labels.
 
         Args:
             link_color (CustomColors): Color of the links.

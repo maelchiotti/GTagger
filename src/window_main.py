@@ -42,9 +42,11 @@ class WindowMain(QtWidgets.QWidget):
     lock = threading.Lock()
 
     def __init__(self, gtagger: GTagger) -> None:
-        """
+        """Init WindowMain.
+
         Args:
-            gtagger (GTagger): GTagger application."""
+            gtagger (GTagger): GTagger application.
+        """
         super().__init__()
 
         self.gtagger: GTagger = gtagger
@@ -60,7 +62,7 @@ class WindowMain(QtWidgets.QWidget):
         self.setup_ui()
 
     def setup_ui(self) -> None:
-        """Sets up the UI of the window."""
+        """Set up the UI of the window."""
         # Toolbar
         self.action_add_files = QtGui.QAction("Select files")
         self.action_add_files.setToolTip("Select files")
@@ -203,7 +205,7 @@ class WindowMain(QtWidgets.QWidget):
         self.button_stop_search.clicked.connect(self.stop_search)
 
     def setup_style(self):
-        """Sets up the custom colors and icons for diverse elements of the application."""
+        """Set up the custom colors and icons for diverse elements of the application."""
         # Set up the windows icons
         icon_window_main = get_icon(
             "tag-multiple", color=CustomColors.YELLOW_GENIUS.value
@@ -294,7 +296,7 @@ class WindowMain(QtWidgets.QWidget):
         return [Path(file) for file in files[0]]
 
     def is_token_valid(self) -> bool:
-        """Checks to see if the token is in a valid format.
+        """Check to see if the token is in a valid format.
 
         Genius client access token have a length of 64 characters,
         and may include letters, digits, '_' and '-'.
@@ -324,7 +326,7 @@ class WindowMain(QtWidgets.QWidget):
         self.progression_bar.setMaximum(maximum)
 
     def remove_layout(self, track: Track, item: QtWidgets.QListWidgetItem) -> None:
-        """Removes a track item.
+        """Remove a track item.
 
         Args:
             track (Track): Track to remove.
@@ -335,7 +337,7 @@ class WindowMain(QtWidgets.QWidget):
 
     @QtCore.Slot()
     def add_files(self, select_directory: bool) -> None:
-        """Adds the selected tracks to the scroll area.
+        """Add the selected tracks to the scroll area.
 
         Args:
             select_directory (bool): `True` if the user selected a directory.
@@ -368,7 +370,7 @@ class WindowMain(QtWidgets.QWidget):
 
     @QtCore.Slot()
     def add_track(self, track: Track):
-        """Adds the track `track` to the scroll area.
+        """Add the track `track` to the scroll area.
 
         Args:
             track (Track): Track to add.
@@ -397,7 +399,7 @@ class WindowMain(QtWidgets.QWidget):
 
     @QtCore.Slot()
     def search_lyrics(self) -> None:
-        """Searches for the lyrics of the files."""
+        """Search for the lyrics of the files."""
         self.thread_search_lyrics = ThreadSearchLyrics(
             self.input_token.text(),
             self.track_layouts_items,
@@ -412,9 +414,9 @@ class WindowMain(QtWidgets.QWidget):
 
     @QtCore.Slot()
     def token_changed(self) -> None:
-        """The token was changed by the user.
+        """Token changed by the user.
 
-        Changes the color of the `QLineEdit` according to the new token,
+        Change the color of the `QLineEdit` according to the new token,
         and toggles the search button accordingly.
         """
         if len(self.input_token.text()) == 0:
@@ -441,7 +443,7 @@ class WindowMain(QtWidgets.QWidget):
 
     @QtCore.Slot()
     def save_lyrics(self) -> None:
-        """Saves the lyrics to the files."""
+        """Save the lyrics to the files."""
         self.progression_bar.reset()
         self.set_maximum_progression_bar(self.track_layouts_items)
         for track, layout_item in self.track_layouts_items.items():
@@ -463,7 +465,7 @@ class WindowMain(QtWidgets.QWidget):
 
     @QtCore.Slot()
     def cancel_rows(self) -> None:
-        """Removes the added lyrics from the files."""
+        """Remove the added lyrics from the files."""
         for track, layout_item in self.track_layouts_items.items():
             layout = layout_item[0]
             if layout.selected:
@@ -476,7 +478,7 @@ class WindowMain(QtWidgets.QWidget):
 
     @QtCore.Slot()
     def remove_selected_layouts(self) -> None:
-        """Removes the selected layouts."""
+        """Remove the selected layouts."""
         for track, layout_item in self.track_layouts_items.copy().items():
             layout = layout_item[0]
             item = layout_item[1]
@@ -486,7 +488,7 @@ class WindowMain(QtWidgets.QWidget):
 
     @QtCore.Slot()
     def selection_changed(self) -> None:
-        """The selection of the tracks changed.
+        """Selection of the tracks changed.
 
         Toggles the cancel and remove buttons, and changes lyrics color.
         """
@@ -503,7 +505,7 @@ class WindowMain(QtWidgets.QWidget):
 
     @QtCore.Slot()
     def lyrics_changed(self) -> None:
-        """The lyrics of a track changed."""
+        """Lyrics of a track changed."""
         enable_save = False
         for track, layout_item in self.track_layouts_items.items():
             layout = layout_item[0]
@@ -520,7 +522,7 @@ class WindowMain(QtWidgets.QWidget):
 
     @QtCore.Slot()
     def filter_tracks(self) -> None:
-        """Applies the filters to the track layouts."""
+        """Apply the filters to the track layouts."""
         show_lyrics = self.button_filter_lyrics.isChecked()
         text = self.input_filter_text.text()
 
@@ -551,31 +553,31 @@ class WindowMain(QtWidgets.QWidget):
 
     @QtCore.Slot()
     def lyrics_searched(self) -> None:
-        """The lyrics of a track have been searched."""
+        """Lyrics of a track searched."""
         self.increment_progression_bar()
 
     @QtCore.Slot()
     def open_token_page(self) -> None:
-        """Opens the Genius website to fetch the client access token."""
+        """Open the Genius website to fetch the client access token."""
         QtGui.QDesktopServices.openUrl(TOKEN_URL)
 
     @QtCore.Slot()
     def open_settings(self) -> None:
-        """Opens the settings window."""
+        """Open the settings window."""
         self.window_settings.show()
 
     @QtCore.Slot()
     def open_information(self) -> None:
-        """Opens the information window."""
+        """Open the information window."""
         self.window_information.show()
 
     @QtCore.Slot()
     def open_help(self) -> None:
-        """Opens the help window."""
+        """Open the help window."""
         self.window_help.show()
 
     def keyPressEvent(self, event: QtGui.QKeyEvent):
-        """Intercepts the key press event of the main window.
+        """Intercept the key press event of the main window.
 
         Detects the following key events:
         - `Ctrl+A` : Select all tracks.
@@ -606,7 +608,7 @@ class WindowMain(QtWidgets.QWidget):
             self.action_remove_rows.setEnabled(False)
 
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
-        """Intercepts the close event of the main window.
+        """Intercept the close event of the main window.
 
         If it is running, waits for `ThreadLyricsSearch` to quit before exiting the application.
 

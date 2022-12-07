@@ -12,7 +12,7 @@ def get_icon(
     color: str = "white",
     color_active: str = "white",
 ) -> QtGui.QIcon:
-    """Returns the MDI6 icon `name` as a `QIcon`.
+    """Return the MDI6 icon `name` as a `QIcon`.
 
     Args:
         name (str): Name of the MDI6 icon.

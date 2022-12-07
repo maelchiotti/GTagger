@@ -19,6 +19,7 @@ class GTagger(QtWidgets.QApplication):
     """
 
     def __init__(self) -> None:
+        """Init GTagger."""
         super().__init__()
 
         QtCore.QCoreApplication.setOrganizationName("Maël Chiotti")
@@ -32,9 +33,9 @@ class GTagger(QtWidgets.QApplication):
         self.set_stylesheet()
 
     def set_stylesheet(self):
-        """Sets the stylesheet of the application.
+        """Set the stylesheet of the application.
 
-        Uses the dark stylesheet of `qdarktheme` and adds some custom styling.
+        Use the dark stylesheet of `qdarktheme` and add some custom styling.
         """
         self.setStyleSheet(
             qdarktheme.load_stylesheet("dark", "rounded")

@@ -48,7 +48,8 @@ class ThreadReadTracks(QtCore.QThread):
         action_add_folder: QtGui.QAction,
         gtagger: GTagger,
     ) -> None:
-        """
+        """Init ThreadReadTracks.
+
         Args:
             files (list[Path]): List of files to read.
             action_add_files (QtGui.QAction): Add files action.
@@ -62,6 +63,7 @@ class ThreadReadTracks(QtCore.QThread):
         self.gtagger: GTagger = gtagger
 
     def run(self):
+        """Run ThreadReadTracks."""
         self.action_add_files.setEnabled(False)
         self.action_add_folder.setEnabled(False)
         for file in self.files:
@@ -89,7 +91,8 @@ class LyricsSearch(QtCore.QObject):
     """
 
     def __init__(self, token: str) -> None:
-        """
+        """Init LyricsSearch.
+
         Args:
             token (str): Genius client access token.
         """
@@ -98,7 +101,9 @@ class LyricsSearch(QtCore.QObject):
         self.genius: genius.Genius = genius.Genius(self.token)
 
     def search_lyrics(self, track: Track) -> bool:
-        """Uses `wrap-genius` to search for a track on Genius
+        """Search the lyrics of the track.
+
+        Use `wrap-genius` to search for a track on Genius
         based on its title and artist, and fetch its lyrics.
 
         Args:
@@ -176,7 +181,7 @@ class LyricsSearch(QtCore.QObject):
 
     @staticmethod
     def format_lyrics(title: str, unformatted_lyrics: list[str]) -> str:
-        """Formats `unformatted_lyrics` by removing unwanted text.
+        """Format `unformatted_lyrics` by removing unwanted text.
 
         Args:
             unformatted_lyrics (list[str]): Lyrics to format.
@@ -226,7 +231,8 @@ class ThreadSearchLyrics(QtCore.QThread):
         button_stop_search: QtWidgets.QPushButton,
         gtagger: GTagger,
     ) -> None:
-        """
+        """Init ThreadSearchLyrics.
+
         Args:
             token (str): Token to search the track on Genius.
             track_layouts (dict[Track, tuple[TrackLayout, QtWidgets.QListWidgetItem]]): Layouts and items of the tracks.
@@ -247,6 +253,7 @@ class ThreadSearchLyrics(QtCore.QThread):
         self.gtagger: GTagger = gtagger
 
     def run(self):
+        """Run ThreadSearchLyrics."""
         self.button_stop_search.setEnabled(True)
         lyrics_search = LyricsSearch(self.token)
         for track, layout_item in self.track_layouts_items.copy().items():
