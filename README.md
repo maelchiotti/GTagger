@@ -8,11 +8,11 @@ It uses [wrap-genius](https://github.com/fedecalendino/wrap-genius) to find the 
 
 To avoid any issue with your files, please back them up before using GTagger.
 
-## Usage
+## Use
 
 ### On Windows
 
-Download the executable `GTagger.exe` from the [Releases](https://github.com/maelchiotti/GTagger/releases) and execute it.
+Download the latest version of the executable `GTagger.exe` from the [Releases](https://github.com/maelchiotti/GTagger/releases) and execute it.
 
 ### From source
 
@@ -22,16 +22,12 @@ Download the executable `GTagger.exe` from the [Releases](https://github.com/mae
   pip install -r requirements.txt
   ```
 
-- Launch GTagger with the following command:
+- Launch GTagger:
 
   ```shell
   python gtagger.py
   ```
 
-## TODO
+### Contribute
 
-**Future:**
-
-- Improve performance when (de)selecting files using shortcuts. This will allow to enable the reset button only if at least one track has new lyrics.
-- Re-implement the [light theme](https://github.com/maelchiotti/GTagger/tree/light_theme).
-- Re-implement the compact mode.
+Pull requests are welcome. A list of planned improvements is available in [TODO.md](TODO.md). Please make sure you follow the guidelines in [QUALITY.md](QUALITY.md).
