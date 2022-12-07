@@ -26,6 +26,7 @@ class WindowSettings(QtWidgets.QDialog):
         """Init WindowSettings.
 
         Args:
+            parent: Parent window.
             gtagger (GTagger): GTagger application.
         """
         super().__init__(parent)

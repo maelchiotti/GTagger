@@ -13,7 +13,11 @@ class WindowInformation(QtWidgets.QDialog):
     """Information window of the GUI."""
 
     def __init__(self, parent):
-        """Init WindowInformation."""
+        """Init WindowInformation.
+
+        Args:
+            parent: Parent window.
+        """
         super().__init__(parent)
 
         self.setup_ui()

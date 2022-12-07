@@ -184,10 +184,14 @@ class LyricsSearch(QtCore.QObject):
         """Format `unformatted_lyrics` by removing unwanted text.
 
         Args:
+            title (str): Title of the track.
             unformatted_lyrics (list[str]): Lyrics to format.
 
         Returns:
             str: Formatted lyrics.
+
+        Raises:
+            DiscardLyrics: If the lyrics should be discarded.
         """
         for index, line in enumerate(unformatted_lyrics):
             if len(line) > 500:
@@ -235,7 +239,7 @@ class ThreadSearchLyrics(QtCore.QThread):
 
         Args:
             token (str): Token to search the track on Genius.
-            track_layouts (dict[Track, tuple[TrackLayout, QtWidgets.QListWidgetItem]]): Layouts and items of the tracks.
+            track_layouts_items (dict[Track, tuple[TrackLayout, QtWidgets.QListWidgetItem]]): Layouts and items of the tracks.
             overwrite_lyrics (bool): `True` if the lyrics should be overwritten.
             button_stop_search (QtWidgets.QPushButton): Button to stop the search.
             gtagger (GTagger): GTagger application.

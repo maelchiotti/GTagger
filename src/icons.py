@@ -16,9 +16,9 @@ def get_icon(
 
     Args:
         name (str): Name of the MDI6 icon.
-        active (str, optional): Name of the MDI6 icon when the button is active. Defaults to None.
-        color (str, optional): Color of the icon. Defaults to "white".
-        color_active (str, optional): Color of the icon when the button is active.
+        active (Optional[str]): Name of the MDI6 icon when the button is active. Defaults to None.
+        color (str): Color of the icon. Defaults to "white".
+        color_active (str): Color of the icon when the button is active.
         Defaults to "white".
 
     Returns:

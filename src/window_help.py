@@ -13,7 +13,11 @@ class WindowHelp(QtWidgets.QDialog):
     """Help window of the GUI."""
 
     def __init__(self, parent):
-        """Init WindowHelp."""
+        """Init WindowHelp.
+
+        Args:
+            parent: Parent window.
+        """
         super().__init__(parent)
 
         self.setup_ui()

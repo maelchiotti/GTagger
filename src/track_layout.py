@@ -30,6 +30,7 @@ class StateIndicator(QtWidgets.QWidget):
         """Init StateIndicator.
 
         Args:
+            state (State): State of the track.
             x (int): x coordinate. Defaults to 2.
             y (int): y coordinate. Defaults to 2.
             w (int): width. Defaults to 15.
@@ -126,7 +127,7 @@ class TrackLayout(QtWidgets.QFrame):
     def setup_ui(self, track: Track) -> None:
         """Set up the UI of the window.
 
-        Attributes:
+        Args:
             track (Track): Track to display.
         """
         self.state_indicator = StateIndicator(self.state)
