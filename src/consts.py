@@ -10,6 +10,9 @@ VERSION = "v1.2.3"
 MAIN_WINDOW_WIDTH = 1200
 MAIN_WINDOW_HEIGHT = 800
 
+# Height of the buttons
+BUTTON_HEIGHT = 35
+
 # Sizes of the cover
 COVER_SIZE = 128
 

@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING
 
 from PySide6 import QtCore, QtGui, QtWidgets
 
-from src.consts import LYRICS_LINES, TOKEN_URL, VERSION
+from src.consts import LYRICS_LINES, TOKEN_URL, VERSION, BUTTON_HEIGHT
 from src.enums import CustomColors, FileType, State
 from src.tag import ThreadSearchLyrics, ThreadReadTracks
 from src.track import Track
@@ -122,31 +122,39 @@ class WindowMain(QtWidgets.QWidget):
         regex = QtCore.QRegularExpression("[a-zA-Z0-9_-]{64}")
         self.validator = QtGui.QRegularExpressionValidator(regex, self)
         self.input_token.setValidator(self.validator)
+        self.input_token.setSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum
+        )
 
         # Button to open the Genius website
         self.button_token = QtWidgets.QPushButton()
         self.button_token.setToolTip("Get the token on Genius website")
-
-        # Separator
-        self.frame_separator = QtWidgets.QFrame()
-        self.frame_separator.setFrameStyle(
-            QtWidgets.QFrame.HLine | QtWidgets.QFrame.Plain
-        )
+        self.button_token.setFixedHeight(BUTTON_HEIGHT)
 
         # Text filter input
         self.input_filter_text = QtWidgets.QLineEdit()
         self.input_filter_text.setPlaceholderText("Filter by title or artist")
         self.input_filter_text.setToolTip("Enter text")
+        self.input_filter_text.setSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum
+        )
 
         # Has lyrics filter
         self.button_filter_lyrics = QtWidgets.QPushButton()
-        self.button_filter_lyrics.setToolTip("Hide files with lyrics")
+        self.button_filter_lyrics.setToolTip("Show files with lyrics")
         self.button_filter_lyrics.setCheckable(True)
         self.button_filter_lyrics.setChecked(True)
+        self.button_filter_lyrics.setFixedHeight(BUTTON_HEIGHT)
+
+        # Case filter
+        self.button_filter_case = QtWidgets.QPushButton()
+        self.button_filter_case.setToolTip("Match case")
+        self.button_filter_case.setCheckable(True)
+        self.button_filter_case.setChecked(False)
+        self.button_filter_case.setFixedHeight(BUTTON_HEIGHT)
 
         # Main layout of the files
         self.list_tracks = QtWidgets.QListWidget()
-        self.list_tracks.setContentsMargins(0, 0, 0, 0)
         self.list_tracks.setSpacing(5)
         self.list_tracks.setSortingEnabled(True)
 
@@ -157,11 +165,11 @@ class WindowMain(QtWidgets.QWidget):
 
         self.layout_main = QtWidgets.QGridLayout()
         self.layout_main.addWidget(self.input_token, 0, 0, 1, 1)
-        self.layout_main.addWidget(self.button_token, 0, 1, 1, 1)
+        self.layout_main.addWidget(self.button_token, 0, 1, 1, 2)
         self.layout_main.addWidget(self.input_filter_text, 1, 0, 1, 1)
         self.layout_main.addWidget(self.button_filter_lyrics, 1, 1, 1, 1)
-        self.layout_main.addWidget(self.frame_separator, 2, 0, 1, 2)
-        self.layout_main.addWidget(self.scroll_area, 3, 0, 1, 2)
+        self.layout_main.addWidget(self.button_filter_case, 1, 2, 1, 1)
+        self.layout_main.addWidget(self.scroll_area, 3, 0, 1, 3)
         self.layout_main.setContentsMargins(5, 5, 5, 5)
 
         # Status bar
@@ -178,13 +186,13 @@ class WindowMain(QtWidgets.QWidget):
         self.status_bar.addPermanentWidget(self.button_stop_search)
 
         # Main window
-        self.layout_ = QtWidgets.QGridLayout(self)
-        self.layout_.setContentsMargins(5, 5, 5, 5)
-        self.layout_.setMenuBar(self.tool_bar)
-        self.layout_.addLayout(self.layout_main, 0, 0, 1, 1)
-        self.layout_.addWidget(self.status_bar, 1, 0, 1, 1)
+        self.grid_layout = QtWidgets.QGridLayout(self)
+        self.grid_layout.setContentsMargins(0, 0, 0, 0)
+        self.grid_layout.setMenuBar(self.tool_bar)
+        self.grid_layout.addLayout(self.layout_main, 0, 0, 1, 1)
+        self.grid_layout.addWidget(self.status_bar, 1, 0, 1, 1)
 
-        self.setLayout(self.layout_)
+        self.setLayout(self.grid_layout)
         self.setWindowTitle(f"GTagger ({VERSION})")
 
         self.setup_style()
@@ -202,6 +210,7 @@ class WindowMain(QtWidgets.QWidget):
         self.button_token.clicked.connect(self.open_token_page)
         self.input_filter_text.textChanged.connect(self.filter_tracks)
         self.button_filter_lyrics.clicked.connect(self.filter_tracks)
+        self.button_filter_case.clicked.connect(self.filter_tracks)
         self.button_stop_search.clicked.connect(self.stop_search)
 
     def setup_style(self):
@@ -232,6 +241,7 @@ class WindowMain(QtWidgets.QWidget):
         icon_help = get_icon("help-circle")
         icon_token = get_icon("launch", color_active=CustomColors.YELLOW_GENIUS.value)
         icon_filter_lyrics = get_icon("file-music-outline")
+        icon_filter_case = get_icon("format-letter-case")
         icon_stop_search = get_icon("stop", color=CustomColors.RED.value)
 
         self.action_add_files.setIcon(icon_add_files)
@@ -245,6 +255,7 @@ class WindowMain(QtWidgets.QWidget):
         self.action_help.setIcon(icon_help)
         self.button_token.setIcon(icon_token)
         self.button_filter_lyrics.setIcon(icon_filter_lyrics)
+        self.button_filter_case.setIcon(icon_filter_case)
         self.button_stop_search.setIcon(icon_stop_search)
 
         # Change the cover placeholders and if needed,
@@ -524,17 +535,23 @@ class WindowMain(QtWidgets.QWidget):
     def filter_tracks(self) -> None:
         """Apply the filters to the track layouts."""
         show_lyrics = self.button_filter_lyrics.isChecked()
+        match_case = self.button_filter_case.isChecked()
         text = self.input_filter_text.text()
+        if not match_case:
+            text = text.casefold()
 
         # Apply the filters
         for track, layout_items in self.track_layouts_items.items():
             item = layout_items[1]
             visible = False
-            if show_lyrics:
-                if text in track.get_title() or text in track.get_artists():
-                    visible = True
-            elif not track.has_lyrics_original():
-                if text in track.get_title() or text in track.get_artists():
+            if show_lyrics or not track.has_lyrics_original():
+                if not match_case:
+                    title = track.get_title().casefold()
+                    artists = track.get_artists().casefold()
+                else:
+                    title = track.get_title()
+                    artists = track.get_artists()
+                if text in title or text in artists:
                     visible = True
             item.setHidden(not visible)
 
@@ -577,7 +594,7 @@ class WindowMain(QtWidgets.QWidget):
         self.window_help.show()
 
     def keyPressEvent(self, event: QtGui.QKeyEvent):
-        """Intercept the key press event of the main window.
+        """Intercept the key press event of the main windows.
 
         Detects the following key events:
         - `Ctrl+A` : Select all tracks.
@@ -616,7 +633,7 @@ class WindowMain(QtWidgets.QWidget):
             event (QtGui.QCloseEvent): Close event.
         """
         if (
-            self.thread_search_lyrics is not None
+            hasattr(self, "thread_search_lyrics")
             and self.thread_search_lyrics.isRunning()
         ):
             self.thread_search_lyrics.stop_search = True
