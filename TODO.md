@@ -2,6 +2,8 @@
 
 ## Next version
 
+- Implement multiprocessing for searching for the lyrics, reading and saving the files.
+
 ## Future
 
 - Improve performance when (de)selecting files using shortcuts. This will allow to enable the reset button only if at least one track has new lyrics.
