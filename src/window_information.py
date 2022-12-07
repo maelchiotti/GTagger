@@ -67,7 +67,7 @@ class WindowInformation(QtWidgets.QDialog):
         """Sets the texts of the labels.
 
         Args:
-            link_color (Color_): Color of the links.
+            link_color (CustomColors): Color of the links.
         """
         color = link_color.value
 

@@ -18,14 +18,15 @@ if TYPE_CHECKING:
 class WindowSettings(QtWidgets.QDialog):
     """Settings window of the GUI.
 
-    Args:
-        gtagger (GTagger): GTagger application.
-
     Attributes:
         gtagger (GTagger): GTagger application.
     """
 
     def __init__(self, parent, gtagger: GTagger):
+        """
+        Args:
+            gtagger (GTagger): GTagger application.
+        """
         super().__init__(parent)
 
         self.gtagger: GTagger = gtagger

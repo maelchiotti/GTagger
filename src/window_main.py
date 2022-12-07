@@ -13,7 +13,7 @@ from PySide6 import QtCore, QtGui, QtWidgets
 
 from src.consts import LYRICS_LINES, TOKEN_URL, VERSION
 from src.enums import CustomColors, FileType, State
-from src.tag import ThreadSearchLyrics, ThreadTrackRead
+from src.tag import ThreadSearchLyrics, ThreadReadTracks
 from src.track import Track
 from src.track_layout import TrackLayout
 from src.window_help import WindowHelp
@@ -29,22 +29,22 @@ class WindowMain(QtWidgets.QWidget):
     """
     Main window of the GUI.
 
-    Args:
-        gtagger (GTagger): GTagger application.
-
     Attributes:
         gtagger (GTagger): GTagger application.
-        track_layouts_items (dict[Track, tuple[TrackLayout, QtWidgets.QListWidgetItem]]): Layouts
-            and items containing the information of each track added by the user.
+        track_layouts_items (dict[Track, tuple[TrackLayout, QtWidgets.QListWidgetItem]]): Layouts and items containing the information of each track added by the user.
         window_settings (WindowSettings): Settings window.
         window_information (WindowInformation): Information window.
         window_help (WindowHelp) : Help window.
+        thread_add_files: (ThreadReadTracks): Thread to read the tracks.
         thread_search_lyrics: (ThreadLyricsSearch): Thread to search for the lyrics.
     """
 
     lock = threading.Lock()
 
     def __init__(self, gtagger: GTagger) -> None:
+        """
+        Args:
+            gtagger (GTagger): GTagger application."""
         super().__init__()
 
         self.gtagger: GTagger = gtagger
@@ -54,7 +54,7 @@ class WindowMain(QtWidgets.QWidget):
         self.window_settings: WindowSettings = WindowSettings(self, self.gtagger)
         self.window_information: WindowInformation = WindowInformation(self)
         self.window_help: WindowHelp = WindowHelp(self)
-        self.thread_add_files: ThreadTrackRead
+        self.thread_read_tracks: ThreadReadTracks
         self.thread_search_lyrics: ThreadSearchLyrics
 
         self.setup_ui()
@@ -198,8 +198,8 @@ class WindowMain(QtWidgets.QWidget):
         self.action_help.triggered.connect(self.open_help)
         self.input_token.textChanged.connect(self.token_changed)
         self.button_token.clicked.connect(self.open_token_page)
-        self.input_filter_text.textChanged.connect(self.filter)
-        self.button_filter_lyrics.clicked.connect(self.filter)
+        self.input_filter_text.textChanged.connect(self.filter_tracks)
+        self.button_filter_lyrics.clicked.connect(self.filter_tracks)
         self.button_stop_search.clicked.connect(self.stop_search)
 
     def setup_style(self):
@@ -268,8 +268,10 @@ class WindowMain(QtWidgets.QWidget):
     def select_directories() -> str | None:
         """Asks the user to select a directory.
 
+        Returns None if the user cancels.
+
         Returns:
-            str: Path of the directory.
+            str | None: Path of the directory.
         """
         directory_dialog = QtWidgets.QFileDialog()
         directory = directory_dialog.getExistingDirectory(caption="Select folder")
@@ -358,11 +360,11 @@ class WindowMain(QtWidgets.QWidget):
         self.progression_bar.reset()
         self.set_maximum_progression_bar(files)
 
-        self.thread_add_files = ThreadTrackRead(
+        self.thread_read_tracks = ThreadReadTracks(
             files, self.action_add_files, self.action_add_folder, self.gtagger
         )
-        self.thread_add_files.add_track.connect(self.add_track)
-        self.thread_add_files.start()
+        self.thread_read_tracks.add_track.connect(self.add_track)
+        self.thread_read_tracks.start()
 
     @QtCore.Slot()
     def add_track(self, track: Track):
@@ -517,7 +519,7 @@ class WindowMain(QtWidgets.QWidget):
         self.selection_changed()  # Update the cancel and remove buttons
 
     @QtCore.Slot()
-    def filter(self) -> None:
+    def filter_tracks(self) -> None:
         """Applies the filters to the track layouts."""
         show_lyrics = self.button_filter_lyrics.isChecked()
         text = self.input_filter_text.text()
@@ -572,7 +574,7 @@ class WindowMain(QtWidgets.QWidget):
         """Opens the help window."""
         self.window_help.show()
 
-    def keyPressEvent(self, event):
+    def keyPressEvent(self, event: QtGui.QKeyEvent):
         """Intercepts the key press event of the main window.
 
         Detects the following key events:
@@ -580,7 +582,7 @@ class WindowMain(QtWidgets.QWidget):
         - `Ctrl+D` : Deselect all tracks.
 
         Args:
-            event (_type_): Key press event.
+            event (QtGui.QKeyEvent): Key press event.
         """
         if (
             event.modifiers() == QtCore.Qt.ControlModifier

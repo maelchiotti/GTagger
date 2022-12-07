@@ -29,8 +29,7 @@ class Track(QtCore.QObject):
     Attributes:
         filepath (Path): Filepath of the track.
         filename (str): Filename of the track.
-        cover (QtGui.QPixmap): Cover of the track
-        (in dark and light theme and in normal and compact mode).
+        cover (QtGui.QPixmap): Cover of the track.
         artists (list[str]): Artists of the track.
         main_artist (str): Main artist of the track.
         lyrics_new (str): New lyrics of the track.
@@ -40,6 +39,10 @@ class Track(QtCore.QObject):
     signal_lyrics_changed = QtCore.Signal()
 
     def __init__(self, filepath: Path) -> None:
+        """
+        Args:
+            filepath (Path): Filepath of the track.
+        """
         super().__init__()
 
         self.filepath: Path = filepath
@@ -77,12 +80,12 @@ class Track(QtCore.QObject):
                 cover = QtGui.QPixmap()
                 cover.loadFromData(picture.data)
             else:
-                # The track doesn't have a cover, build the placeholders
-                icon_dark: QtGui.QIcon = get_icon(
+                # The track doesn't have a cover, build the placeholder
+                icon_cover: QtGui.QIcon = get_icon(
                     "image-off", color=CustomColors.LIGHT_GREY.value
                 )
-                cover = icon_dark.pixmap(
-                    icon_dark.actualSize(QtCore.QSize(COVER_SIZE, COVER_SIZE))
+                cover = icon_cover.pixmap(
+                    icon_cover.actualSize(QtCore.QSize(COVER_SIZE, COVER_SIZE))
                 )
             self.cover = cover.scaled(
                 COVER_SIZE,
@@ -231,8 +234,8 @@ class Track(QtCore.QObject):
         In any other case, returns the full lyrics.
 
         Args:
-            lines (int): Maximum number of lines to return. Defaults to `None`.
-            length (int): Maximum number of characters to return. Defaults to `None`.
+            lines (Optional[int]): Maximum number of lines to return. Defaults to `None`.
+            length (Optional[int]): Maximum number of characters to return. Defaults to `None`.
 
         Returns:
             str: Lyrics of the track (up to `lines`, `length` or full).
@@ -270,7 +273,7 @@ class Track(QtCore.QObject):
     def set_lyrics_new(self, lyrics: str):
         """Sets the lyrics of the track to `lyrics`.
 
-        Also emits a signal indicating that the lyrics have changed.
+        Emits a signal indicating that the lyrics have changed.
 
         Args:
             lyrics (str): New lyrics of the track.

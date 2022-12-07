@@ -10,7 +10,7 @@ VERSION = "v1.2.3"
 MAIN_WINDOW_WIDTH = 1200
 MAIN_WINDOW_HEIGHT = 800
 
-# Sizes of the covers depending on the mode
+# Sizes of the cover
 COVER_SIZE = 128
 
 # Number of lyrics lines to display depending on the mode

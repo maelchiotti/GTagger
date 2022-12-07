@@ -6,7 +6,7 @@ from PySide6 import QtCore
 
 
 class SettingsManager(QtCore.QObject):
-    """Settings manager that handles of the settings of the application.
+    """Settings manager that handles the settings of the application.
 
     Attributes:
         settings (QtCore.QSettings): Settings of the application.

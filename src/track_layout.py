@@ -15,11 +15,25 @@ if TYPE_CHECKING:
 
 
 class StateIndicator(QtWidgets.QWidget):
-    """Filled and colored circle indicating the state of a track."""
+    """Filled and colored circle indicating the state of a track.
+
+    Attributes:
+        x (int): x coordinate.
+        y (int): y coordinate.
+        w (int): width.
+        h (int): height.
+    """
 
     def __init__(
         self, state: State, x: int = 2, y: int = 2, w: int = 15, h: int = 15
     ) -> None:
+        """
+        Args:
+            x (int): x coordinate. Defaults to 2.
+            y (int): y coordinate. Defaults to 2.
+            w (int): width. Defaults to 15.
+            h (int): height. Defaults to 15.
+        """
         super().__init__()
 
         self.state: State = state
@@ -82,26 +96,36 @@ class TrackLayout(QtWidgets.QFrame):
         signal_mouse_event (QtCore.Signal): Emitted when a mouse event is intercepted.
 
     Attributes:
+        state (State): State of the track.
         selected (bool): `True` if the track is currently selected.
-        covers (dict[tuple[Theme, Mode], QtGui.QPixmap]): Covers of the track
-        (in dark and light theme).
+        cover (QtGui.QPixmap): Cover of the track.
+        gtagger (GTagger): GTagger application.
     ```
     """
 
     signal_mouse_event = QtCore.Signal()
 
     def __init__(self, track: Track, state: State, gtagger: GTagger) -> None:
+        """
+        Args:
+            track (Track): Track to display.
+            state (State): State of the track.
+            gtagger (GTagger): GTagger application.
+        """
         super().__init__()
 
         self.state: State = state
-        self.gtagger: GTagger = gtagger
-
         self.selected: bool = False
-        self.covers: QtGui.QPixmap = track.cover
+        self.cover: QtGui.QPixmap = track.cover
+        self.gtagger: GTagger = gtagger
 
         self.setup_ui(track)
 
     def setup_ui(self, track: Track) -> None:
+        """Sets up the UI of the window.
+
+        Attributes:
+            track (Track): Track to display."""
         self.state_indicator = StateIndicator(self.state)
         self.state_indicator.setToolTip(self.state.value)
         self.label_filename = QtWidgets.QLabel(track.filename)
@@ -174,8 +198,7 @@ class TrackLayout(QtWidgets.QFrame):
         """Toggles the selection of the track layout.
 
         Args:
-            force (bool, optional): Force the selection or deselection of the tracks.
-            Has not effect if it is not set. Defaults to None.
+            force (Optional[bool]): Force the selection or deselection of the tracks. Has not effect if it is not set. Defaults to None.
         """
         if force is not None:
             self.selected = force

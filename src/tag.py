@@ -1,10 +1,4 @@
-"""Manages the tags of a track.
-
-Includes:
-- `ThreadTrackRead`: Reads the tags of a track.
-- `LyricsSearch`: Searches a track ant its lyrics on Genius.
-- `ThreadLyricsSearch`: Runs the lyrics search.
-"""
+"""Manages the tags of a track."""
 
 from __future__ import annotations
 
@@ -15,8 +9,13 @@ from typing import TYPE_CHECKING
 import genius
 from PySide6 import QtCore, QtGui, QtWidgets
 
-from src.consts import (DISCARD_ARTISTS, LYRICS_LINES, MISSING_LYRICS,
-                        RE_REMOVE_LINES, UNWANTED_TITLE_TEXT)
+from src.consts import (
+    DISCARD_ARTISTS,
+    LYRICS_LINES,
+    MISSING_LYRICS,
+    RE_REMOVE_LINES,
+    UNWANTED_TITLE_TEXT,
+)
 from src.enums import State
 from src.exceptions import DiscardLyrics
 from src.track import Track
@@ -26,7 +25,7 @@ if TYPE_CHECKING:
     from gtagger import GTagger
 
 
-class ThreadTrackRead(QtCore.QThread):
+class ThreadReadTracks(QtCore.QThread):
     """Reads the tags of the files.
 
     Signals:
@@ -49,6 +48,13 @@ class ThreadTrackRead(QtCore.QThread):
         action_add_folder: QtGui.QAction,
         gtagger: GTagger,
     ) -> None:
+        """
+        Args:
+            files (list[Path]): List of files to read.
+            action_add_files (QtGui.QAction): Add files action.
+            action_add_folder (QtGui.QAction): Add folder action.
+            gtagger (GTagger): GTagger application.
+        """
         super().__init__()
         self.files: list[Path] = files
         self.action_add_files: QtGui.QAction = action_add_files
@@ -83,12 +89,16 @@ class LyricsSearch(QtCore.QObject):
     """
 
     def __init__(self, token: str) -> None:
+        """
+        Args:
+            token (str): Genius client access token.
+        """
         super().__init__()
         self.token: str = token
         self.genius: genius.Genius = genius.Genius(self.token)
 
     def search_lyrics(self, track: Track) -> bool:
-        """Uses `wrap-genius` to search a track on Genius
+        """Uses `wrap-genius` to search for a track on Genius
         based on its title and artist, and fetch its lyrics.
 
         Args:
@@ -106,6 +116,7 @@ class LyricsSearch(QtCore.QObject):
             search_title = re_unwanted_text.sub("", search_title)
         search_title = search_title.strip()
 
+        # Search for the track
         search = f"{search_title} {track.get_main_artist()}"
         try:
             searched_tracks = self.genius.search(search)
@@ -117,6 +128,7 @@ class LyricsSearch(QtCore.QObject):
             )
             return False
 
+        # Select the first result of the search
         try:
             searched_track = next(searched_tracks)
         except StopIteration:
@@ -198,7 +210,7 @@ class ThreadSearchLyrics(QtCore.QThread):
 
     Attributes:
         token (str): Token to search the track on Genius.
-        track_layouts (dict[Track, TrackLayout]): Layouts of the tracks.
+        track_layouts (dict[Track, tuple[TrackLayout, QtWidgets.QListWidgetItem]]): Layouts and items of the tracks.
         overwrite_lyrics (bool): `True` if the lyrics should be overwritten.
         button_stop_search (QtWidgets.QPushButton): Button to stop the search.
         gtagger (GTagger): GTagger application.
@@ -214,6 +226,14 @@ class ThreadSearchLyrics(QtCore.QThread):
         button_stop_search: QtWidgets.QPushButton,
         gtagger: GTagger,
     ) -> None:
+        """
+        Args:
+            token (str): Token to search the track on Genius.
+            track_layouts (dict[Track, tuple[TrackLayout, QtWidgets.QListWidgetItem]]): Layouts and items of the tracks.
+            overwrite_lyrics (bool): `True` if the lyrics should be overwritten.
+            button_stop_search (QtWidgets.QPushButton): Button to stop the search.
+            gtagger (GTagger): GTagger application.
+        """
         super().__init__()
 
         self.stop_search = False
