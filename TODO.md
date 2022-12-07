@@ -3,6 +3,7 @@
 ## Next version
 
 - Implement multiprocessing for searching for the lyrics, reading and saving the files.
+- Implement tracks sorting.
 
 ## Future
 
