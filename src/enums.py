@@ -44,14 +44,15 @@ class State(Enum):
 
 
 class FileType(Enum):
-    """Enumerates the different file types supported by GTagger.
-
-    Includes:
-        - FLAC
-        - MP3
-        - NOT_SUPPORTED
-    """
+    """Enumerates the different file types supported by GTagger."""
 
     MP3 = "mp3"
     FLAC = "flac"
     NOT_SUPPORTED = "not supported"
+
+
+class Sort(Enum):
+    """Enumerates the different sorting modes for the list of tracks."""
+
+    DESCENDING = "descending"
+    ASCENDING = "ascending"

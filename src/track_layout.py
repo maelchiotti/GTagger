@@ -92,7 +92,7 @@ class StateIndicator(QtWidgets.QWidget):
 
 
 class TrackLayout(QtWidgets.QFrame):
-    """Customized implementation of a `QFrame` containing the information of a track.
+    """Custom implementation of a `QFrame` containing the information of a track.
 
     Signals:
         signal_mouse_event (QtCore.Signal): Emitted when a mouse event is intercepted.

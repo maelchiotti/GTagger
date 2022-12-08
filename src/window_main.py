@@ -11,15 +11,15 @@ from typing import TYPE_CHECKING
 
 from PySide6 import QtCore, QtGui, QtWidgets
 
-from src.consts import LYRICS_LINES, TOKEN_URL, VERSION, BUTTON_HEIGHT
-from src.enums import CustomColors, FileType, State
-from src.tag import ThreadSearchLyrics, ThreadReadTracks
+from src.consts import BUTTON_SIZE, LYRICS_LINES, TOKEN_URL, VERSION
+from src.enums import CustomColors, FileType, Sort, State
+from src.icons import get_icon
+from src.tag import ThreadReadTracks, ThreadSearchLyrics
 from src.track import Track
 from src.track_layout import TrackLayout
 from src.window_help import WindowHelp
 from src.window_information import WindowInformation
 from src.window_settings import WindowSettings
-from src.icons import get_icon
 
 if TYPE_CHECKING:
     from gtagger import GTagger
@@ -31,12 +31,13 @@ class WindowMain(QtWidgets.QWidget):
 
     Attributes:
         gtagger (GTagger): GTagger application.
-        track_layouts_items (dict[Track, tuple[TrackLayout, QtWidgets.QListWidgetItem]]): Layouts and items containing the information of each track added by the user.
+        track_layouts_items (dict[Track, tuple[TrackLayout, CustomListWidgetItem]]): Layouts and items containing the information of each track added by the user.
         window_settings (WindowSettings): Settings window.
         window_information (WindowInformation): Information window.
         window_help (WindowHelp) : Help window.
         thread_add_files: (ThreadReadTracks): Thread to read the tracks.
         thread_search_lyrics: (ThreadLyricsSearch): Thread to search for the lyrics.
+        self.sort (Sort): Sort mode for the list of tracks.
     """
 
     lock = threading.Lock()
@@ -51,13 +52,14 @@ class WindowMain(QtWidgets.QWidget):
 
         self.gtagger: GTagger = gtagger
         self.track_layouts_items: dict[
-            Track, tuple[TrackLayout, QtWidgets.QListWidgetItem]
+            Track, tuple[TrackLayout, CustomListWidgetItem]
         ] = {}
         self.window_settings: WindowSettings = WindowSettings(self, self.gtagger)
         self.window_information: WindowInformation = WindowInformation(self)
         self.window_help: WindowHelp = WindowHelp(self)
         self.thread_read_tracks: ThreadReadTracks
         self.thread_search_lyrics: ThreadSearchLyrics
+        self.sort: Sort = Sort.ASCENDING
 
         self.setup_ui()
 
@@ -129,7 +131,7 @@ class WindowMain(QtWidgets.QWidget):
         # Button to open the Genius website
         self.button_token = QtWidgets.QPushButton()
         self.button_token.setToolTip("Get the token on Genius website")
-        self.button_token.setFixedHeight(BUTTON_HEIGHT)
+        self.button_token.setFixedSize(BUTTON_SIZE, BUTTON_SIZE)
 
         # Text filter input
         self.input_filter_text = QtWidgets.QLineEdit()
@@ -144,14 +146,19 @@ class WindowMain(QtWidgets.QWidget):
         self.button_filter_lyrics.setToolTip("Show files with lyrics")
         self.button_filter_lyrics.setCheckable(True)
         self.button_filter_lyrics.setChecked(True)
-        self.button_filter_lyrics.setFixedHeight(BUTTON_HEIGHT)
+        self.button_filter_lyrics.setFixedSize(BUTTON_SIZE, BUTTON_SIZE)
 
         # Case filter
         self.button_filter_case = QtWidgets.QPushButton()
         self.button_filter_case.setToolTip("Match case")
         self.button_filter_case.setCheckable(True)
         self.button_filter_case.setChecked(False)
-        self.button_filter_case.setFixedHeight(BUTTON_HEIGHT)
+        self.button_filter_case.setFixedSize(BUTTON_SIZE, BUTTON_SIZE)
+
+        # Title sort
+        self.button_sort_title = QtWidgets.QPushButton()
+        self.button_sort_title.setToolTip("Sort based on title")
+        self.button_sort_title.setFixedSize(BUTTON_SIZE, BUTTON_SIZE)
 
         # Main layout of the files
         self.list_tracks = QtWidgets.QListWidget()
@@ -164,12 +171,13 @@ class WindowMain(QtWidgets.QWidget):
         self.scroll_area.setFrameShape(QtWidgets.QFrame.NoFrame)
 
         self.layout_main = QtWidgets.QGridLayout()
-        self.layout_main.addWidget(self.input_token, 0, 0, 1, 1)
-        self.layout_main.addWidget(self.button_token, 0, 1, 1, 2)
+        self.layout_main.addWidget(self.input_token, 0, 0, 1, 3)
+        self.layout_main.addWidget(self.button_token, 0, 3, 1, 1)
         self.layout_main.addWidget(self.input_filter_text, 1, 0, 1, 1)
         self.layout_main.addWidget(self.button_filter_lyrics, 1, 1, 1, 1)
         self.layout_main.addWidget(self.button_filter_case, 1, 2, 1, 1)
-        self.layout_main.addWidget(self.scroll_area, 3, 0, 1, 3)
+        self.layout_main.addWidget(self.button_sort_title, 1, 3, 1, 1)
+        self.layout_main.addWidget(self.scroll_area, 3, 0, 1, 4)
         self.layout_main.setContentsMargins(5, 5, 5, 5)
 
         # Status bar
@@ -211,6 +219,7 @@ class WindowMain(QtWidgets.QWidget):
         self.input_filter_text.textChanged.connect(self.filter_tracks)
         self.button_filter_lyrics.clicked.connect(self.filter_tracks)
         self.button_filter_case.clicked.connect(self.filter_tracks)
+        self.button_sort_title.clicked.connect(self.sort_tracks)
         self.button_stop_search.clicked.connect(self.stop_search)
 
     def setup_style(self):
@@ -242,6 +251,8 @@ class WindowMain(QtWidgets.QWidget):
         icon_token = get_icon("launch", color_active=CustomColors.YELLOW_GENIUS.value)
         icon_filter_lyrics = get_icon("file-music-outline")
         icon_filter_case = get_icon("format-letter-case")
+        self.icon_sort_title_ascending = get_icon("sort-alphabetical-ascending")
+        self.icon_sort_title_descending = get_icon("sort-alphabetical-descending")
         icon_stop_search = get_icon("stop", color=CustomColors.RED.value)
 
         self.action_add_files.setIcon(icon_add_files)
@@ -256,6 +267,7 @@ class WindowMain(QtWidgets.QWidget):
         self.button_token.setIcon(icon_token)
         self.button_filter_lyrics.setIcon(icon_filter_lyrics)
         self.button_filter_case.setIcon(icon_filter_case)
+        self.button_sort_title.setIcon(self.icon_sort_title_ascending)
         self.button_stop_search.setIcon(icon_stop_search)
 
         # Change the cover placeholders and if needed,
@@ -336,12 +348,12 @@ class WindowMain(QtWidgets.QWidget):
             self.progression_bar.setValue(0)
         self.progression_bar.setMaximum(maximum)
 
-    def remove_layout(self, track: Track, item: QtWidgets.QListWidgetItem) -> None:
+    def remove_layout(self, track: Track, item: CustomListWidgetItem) -> None:
         """Remove a track item.
 
         Args:
             track (Track): Track to remove.
-            item (QtWidgets.QListWidgetItem): Track item to remove.
+            item (CustomListWidgetItem): Track item to remove.
         """
         self.list_tracks.takeItem(self.list_tracks.row(item))
         self.track_layouts_items.pop(track)
@@ -401,7 +413,7 @@ class WindowMain(QtWidgets.QWidget):
             )
             track.signal_lyrics_changed.connect(self.lyrics_changed)
             layout.signal_mouse_event.connect(self.selection_changed)
-            item = QtWidgets.QListWidgetItem(self.list_tracks)
+            item = CustomListWidgetItem(track.get_title(), self.list_tracks)
             item.setSizeHint(layout.sizeHint())
             self.list_tracks.addItem(item)
             self.list_tracks.setItemWidget(item, layout)
@@ -562,6 +574,18 @@ class WindowMain(QtWidgets.QWidget):
             self.button_filter_lyrics.setToolTip("Show files with lyrics")
 
     @QtCore.Slot()
+    def sort_tracks(self) -> None:
+        """Sort the tracks based on their title."""
+        if self.sort == Sort.ASCENDING:
+            self.sort = Sort.DESCENDING
+            self.button_sort_title.setIcon(self.icon_sort_title_descending)
+            self.list_tracks.sortItems(QtCore.Qt.SortOrder.DescendingOrder)
+        elif self.sort == Sort.DESCENDING:
+            self.sort = Sort.ASCENDING
+            self.button_sort_title.setIcon(self.icon_sort_title_ascending)
+            self.list_tracks.sortItems(QtCore.Qt.SortOrder.AscendingOrder)
+
+    @QtCore.Slot()
     def stop_search(self) -> None:
         """Stop searching for the lyrics."""
         if self.thread_search_lyrics.isRunning():
@@ -639,3 +663,35 @@ class WindowMain(QtWidgets.QWidget):
             self.thread_search_lyrics.stop_search = True
             self.thread_search_lyrics.wait()
         event.accept()
+
+
+class CustomListWidgetItem(QtWidgets.QListWidgetItem):
+    """Custom implementation of a `QListWidgetItem` containing the title of the track.
+
+    Attributes:
+        title (str): Title of the track used for comparison.
+    """
+
+    def __init__(self, title: str, listview: QtWidgets.QListWidget | None = ...):
+        """Init CustomListWidgetItem.
+
+        Args:
+            title (str): Title of the track used for comparison.
+            listview (QtWidgets.QListWidget | None): `QListWidget` to pass to the parent class.
+        """
+        super().__init__(listview)
+        self.title: str = title
+
+    def __lt__(self, other: CustomListWidgetItem) -> bool:
+        """Return `True` if the title of this item is lower than the `other`'s one.
+
+        Args:
+            other (CustomListWidgetItem): Other item on which to perform the comparison.
+
+        Returns:
+            bool: `True` if the title of this item is lower than the `other`'s one.
+        """
+        try:
+            return self.title < other.title
+        except AttributeError:
+            return False
