@@ -20,6 +20,7 @@ from src.enums import State
 from src.exceptions import DiscardLyrics
 from src.track import Track
 from src.track_layout import TrackLayout
+from src.tracks_list import CustomListWidgetItem
 
 if TYPE_CHECKING:
     from gtagger import GTagger
@@ -219,7 +220,7 @@ class ThreadSearchLyrics(QtCore.QThread):
 
     Attributes:
         token (str): Token to search the track on Genius.
-        track_layouts (dict[Track, tuple[TrackLayout, QtWidgets.QListWidgetItem]]): Layouts and items of the tracks.
+        track_layouts (dict[Track, tuple[TrackLayout, CustomListWidgetItem]]): Layouts and items of the tracks.
         overwrite_lyrics (bool): `True` if the lyrics should be overwritten.
         button_stop_search (QtWidgets.QPushButton): Button to stop the search.
         gtagger (GTagger): GTagger application.
@@ -230,7 +231,7 @@ class ThreadSearchLyrics(QtCore.QThread):
     def __init__(
         self,
         token: str,
-        track_layouts_items: dict[Track, tuple[TrackLayout, QtWidgets.QListWidgetItem]],
+        track_layouts_items: dict[Track, tuple[TrackLayout, CustomListWidgetItem]],
         overwrite_lyrics: bool,
         button_stop_search: QtWidgets.QPushButton,
         gtagger: GTagger,

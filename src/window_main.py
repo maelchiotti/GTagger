@@ -17,6 +17,7 @@ from src.icons import get_icon
 from src.tag import ThreadReadTracks, ThreadSearchLyrics
 from src.track import Track
 from src.track_layout import TrackLayout
+from src.tracks_list import CustomListWidgetItem
 from src.window_help import WindowHelp
 from src.window_information import WindowInformation
 from src.window_settings import WindowSettings
@@ -668,35 +669,3 @@ class WindowMain(QtWidgets.QWidget):
             self.thread_search_lyrics.stop_search = True
             self.thread_search_lyrics.wait()
         event.accept()
-
-
-class CustomListWidgetItem(QtWidgets.QListWidgetItem):
-    """Custom implementation of a `QListWidgetItem` containing the title of the track.
-
-    Attributes:
-        title (str): Title of the track used for comparison.
-    """
-
-    def __init__(self, title: str, listview: QtWidgets.QListWidget | None = ...):
-        """Init CustomListWidgetItem.
-
-        Args:
-            title (str): Title of the track used for comparison.
-            listview (QtWidgets.QListWidget | None): `QListWidget` to pass to the parent class.
-        """
-        super().__init__(listview)
-        self.title: str = title
-
-    def __lt__(self, other: CustomListWidgetItem) -> bool:
-        """Return `True` if the title of this item is lower than the `other`'s one.
-
-        Args:
-            other (CustomListWidgetItem): Other item on which to perform the comparison.
-
-        Returns:
-            bool: `True` if the title of this item is lower than the `other`'s one.
-        """
-        try:
-            return self.title < other.title
-        except AttributeError:
-            return False
