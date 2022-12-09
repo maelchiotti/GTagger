@@ -240,7 +240,7 @@ class ThreadSearchLyrics(QtCore.QThread):
 
         Args:
             token (str): Token to search the track on Genius.
-            track_layouts_items (dict[Track, tuple[TrackLayout, QtWidgets.QListWidgetItem]]): Layouts and items of the tracks.
+            track_layouts_items (dict[Track, tuple[TrackLayout, CustomListWidgetItem]]): Layouts and items of the tracks.
             overwrite_lyrics (bool): `True` if the lyrics should be overwritten.
             button_stop_search (QtWidgets.QPushButton): Button to stop the search.
             gtagger (GTagger): GTagger application.
@@ -251,7 +251,7 @@ class ThreadSearchLyrics(QtCore.QThread):
 
         self.token: str = token
         self.track_layouts_items: dict[
-            Track, tuple[TrackLayout, QtWidgets.QListWidgetItem]
+            Track, tuple[TrackLayout, CustomListWidgetItem]
         ] = track_layouts_items
         self.overwrite_lyrics: bool = overwrite_lyrics
         self.button_stop_search: QtWidgets.QPushButton = button_stop_search
