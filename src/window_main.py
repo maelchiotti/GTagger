@@ -120,6 +120,7 @@ class WindowMain(QtWidgets.QWidget):
 
         # Token input
         self.input_token = QtWidgets.QLineEdit()
+        self.input_token.setClearButtonEnabled(True)
         self.input_token.setPlaceholderText("Enter your Genius client access token")
         self.input_token.setToolTip("Enter token")
         regex = QtCore.QRegularExpression("[a-zA-Z0-9_-]{64}")
@@ -137,6 +138,7 @@ class WindowMain(QtWidgets.QWidget):
 
         # Text filter input
         self.input_filter_text = QtWidgets.QLineEdit()
+        self.input_filter_text.setClearButtonEnabled(True)
         self.input_filter_text.setPlaceholderText("Filter by title or artist")
         self.input_filter_text.setToolTip("Enter text")
         self.input_filter_text.setSizePolicy(
