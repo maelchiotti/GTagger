@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING
 
 from PySide6 import QtCore, QtGui, QtWidgets
 
-from src.consts import BUTTON_SIZE, LYRICS_LINES, TOKEN_URL, VERSION
+from src.consts import BUTTON_SIZE, ICON_SIZE, LYRICS_LINES, TOKEN_URL, VERSION
 from src.enums import CustomColors, FileType, Sort, State
 from src.icons import get_icon
 from src.tag import ThreadReadTracks, ThreadSearchLyrics
@@ -132,6 +132,7 @@ class WindowMain(QtWidgets.QWidget):
         self.button_token = QtWidgets.QPushButton()
         self.button_token.setToolTip("Get the token on Genius website")
         self.button_token.setFixedSize(BUTTON_SIZE, BUTTON_SIZE)
+        self.button_token.setStyleSheet(f"""icon-size: {ICON_SIZE}px""")
 
         # Text filter input
         self.input_filter_text = QtWidgets.QLineEdit()
@@ -147,6 +148,7 @@ class WindowMain(QtWidgets.QWidget):
         self.button_filter_lyrics.setCheckable(True)
         self.button_filter_lyrics.setChecked(True)
         self.button_filter_lyrics.setFixedSize(BUTTON_SIZE, BUTTON_SIZE)
+        self.button_filter_lyrics.setStyleSheet(f"""icon-size: {ICON_SIZE}px""")
 
         # Case filter
         self.button_filter_case = QtWidgets.QPushButton()
@@ -154,11 +156,13 @@ class WindowMain(QtWidgets.QWidget):
         self.button_filter_case.setCheckable(True)
         self.button_filter_case.setChecked(False)
         self.button_filter_case.setFixedSize(BUTTON_SIZE, BUTTON_SIZE)
+        self.button_filter_case.setStyleSheet(f"""icon-size: {ICON_SIZE}px""")
 
         # Title sort
         self.button_sort_title = QtWidgets.QPushButton()
         self.button_sort_title.setToolTip("Sort based on title")
         self.button_sort_title.setFixedSize(BUTTON_SIZE, BUTTON_SIZE)
+        self.button_sort_title.setStyleSheet(f"""icon-size: {ICON_SIZE}px""")
 
         # Main layout of the files
         self.list_tracks = QtWidgets.QListWidget()
@@ -188,6 +192,7 @@ class WindowMain(QtWidgets.QWidget):
         self.button_stop_search = QtWidgets.QPushButton()
         self.button_stop_search.setEnabled(False)
         self.button_stop_search.setToolTip("Stop searching")
+        self.button_stop_search.setStyleSheet(f"""icon-size: {ICON_SIZE}px""")
 
         self.status_bar = QtWidgets.QStatusBar()
         self.status_bar.addPermanentWidget(self.progression_bar)

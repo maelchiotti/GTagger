@@ -13,6 +13,9 @@ MAIN_WINDOW_HEIGHT = 800
 # Size of the buttons
 BUTTON_SIZE = 35
 
+# Size of the icons
+ICON_SIZE = 20
+
 # Sizes of the cover
 COVER_SIZE = 128
 
