@@ -11,7 +11,18 @@ from typing import TYPE_CHECKING
 
 from PySide6 import QtCore, QtGui, QtWidgets
 
-from src.consts import BUTTON_SIZE, ICON_SIZE, LYRICS_LINES, TOKEN_URL, VERSION
+from src.consts import (
+    HEIGHT_PROGRESS_BAR,
+    LINES_LYRICS,
+    MARGIN_TRACK_LAYOUT,
+    MARGIN_CENTRAL_WIDGET,
+    SIZE_BUTTON,
+    SIZE_ICON,
+    SIZE_ICON_TOOL_BAR,
+    URL_TOKEN,
+    VERSION,
+    WIDTH_PROGRESS_BAR,
+)
 from src.enums import CustomColors, FileType, Sort, State
 from src.icons import get_icon
 from src.tag import ThreadReadTracks, ThreadSearchLyrics
@@ -26,7 +37,7 @@ if TYPE_CHECKING:
     from gtagger import GTagger
 
 
-class WindowMain(QtWidgets.QWidget):
+class WindowMain(QtWidgets.QMainWindow):
     """
     Main window of the GUI.
 
@@ -100,11 +111,11 @@ class WindowMain(QtWidgets.QWidget):
 
         spacer = QtWidgets.QWidget()
         spacer.setSizePolicy(
-            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred
+            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding
         )
 
         self.tool_bar = QtWidgets.QToolBar()
-        self.tool_bar.setIconSize(QtCore.QSize(30, 30))
+        self.tool_bar.setIconSize(SIZE_ICON_TOOL_BAR)
         self.tool_bar.addAction(self.action_add_files)
         self.tool_bar.addAction(self.action_add_folder)
         self.tool_bar.addSeparator()
@@ -133,8 +144,8 @@ class WindowMain(QtWidgets.QWidget):
         # Button to open the Genius website
         self.button_token = QtWidgets.QPushButton()
         self.button_token.setToolTip("Get the token on Genius website")
-        self.button_token.setFixedSize(BUTTON_SIZE, BUTTON_SIZE)
-        self.button_token.setStyleSheet(f"""icon-size: {ICON_SIZE}px""")
+        self.button_token.setFixedSize(SIZE_BUTTON, SIZE_BUTTON)
+        self.button_token.setStyleSheet(f"""icon-size: {SIZE_ICON}px""")
 
         # Text filter input
         self.input_filter_text = QtWidgets.QLineEdit()
@@ -150,53 +161,66 @@ class WindowMain(QtWidgets.QWidget):
         self.button_filter_lyrics.setToolTip("Show files with lyrics")
         self.button_filter_lyrics.setCheckable(True)
         self.button_filter_lyrics.setChecked(True)
-        self.button_filter_lyrics.setFixedSize(BUTTON_SIZE, BUTTON_SIZE)
-        self.button_filter_lyrics.setStyleSheet(f"""icon-size: {ICON_SIZE}px""")
+        self.button_filter_lyrics.setFixedSize(SIZE_BUTTON, SIZE_BUTTON)
+        self.button_filter_lyrics.setStyleSheet(f"""icon-size: {SIZE_ICON}px""")
 
         # Case filter
         self.button_filter_case = QtWidgets.QPushButton()
         self.button_filter_case.setToolTip("Match case")
         self.button_filter_case.setCheckable(True)
         self.button_filter_case.setChecked(False)
-        self.button_filter_case.setFixedSize(BUTTON_SIZE, BUTTON_SIZE)
-        self.button_filter_case.setStyleSheet(f"""icon-size: {ICON_SIZE}px""")
+        self.button_filter_case.setFixedSize(SIZE_BUTTON, SIZE_BUTTON)
+        self.button_filter_case.setStyleSheet(f"""icon-size: {SIZE_ICON}px""")
 
         # Title sort
         self.button_sort_title = QtWidgets.QPushButton()
         self.button_sort_title.setToolTip("Sort based on title")
-        self.button_sort_title.setFixedSize(BUTTON_SIZE, BUTTON_SIZE)
-        self.button_sort_title.setStyleSheet(f"""icon-size: {ICON_SIZE}px""")
+        self.button_sort_title.setFixedSize(SIZE_BUTTON, SIZE_BUTTON)
+        self.button_sort_title.setStyleSheet(f"""icon-size: {SIZE_ICON}px""")
 
-        # Main layout of the files
+        # List of the tracks
         self.list_tracks = QtWidgets.QListWidget()
-        self.list_tracks.setSpacing(5)
         self.list_tracks.setSortingEnabled(True)
+        self.list_tracks.setFrameShape(QtWidgets.QFrame.NoFrame)
+        self.list_tracks.setStyleSheet(
+            """QListWidget::item {margin-bottom: """
+            + str(MARGIN_TRACK_LAYOUT)
+            + """px; margin-right: """
+            + str(MARGIN_TRACK_LAYOUT)
+            + """px;}"""
+        )
 
+        # Scroll are for the list of tracks
         self.scroll_area = QtWidgets.QScrollArea()
         self.scroll_area.setWidget(self.list_tracks)
         self.scroll_area.setWidgetResizable(True)
         self.scroll_area.setFrameShape(QtWidgets.QFrame.NoFrame)
 
-        self.layout_main = QtWidgets.QGridLayout()
-        self.layout_main.addWidget(self.input_token, 0, 0, 1, 3)
-        self.layout_main.addWidget(self.button_token, 0, 3, 1, 1)
-        self.layout_main.addWidget(self.input_filter_text, 1, 0, 1, 1)
-        self.layout_main.addWidget(self.button_filter_lyrics, 1, 1, 1, 1)
-        self.layout_main.addWidget(self.button_filter_case, 1, 2, 1, 1)
-        self.layout_main.addWidget(self.button_sort_title, 1, 3, 1, 1)
-        self.layout_main.addWidget(self.scroll_area, 3, 0, 1, 4)
-        self.layout_main.setContentsMargins(5, 5, 5, 0)
+        # Central widget's layout
+        self.layout_widget_central = QtWidgets.QGridLayout()
+        self.layout_widget_central.addWidget(self.input_token, 0, 0, 1, 3)
+        self.layout_widget_central.addWidget(self.button_token, 0, 3, 1, 1)
+        self.layout_widget_central.addWidget(self.input_filter_text, 1, 0, 1, 1)
+        self.layout_widget_central.addWidget(self.button_filter_lyrics, 1, 1, 1, 1)
+        self.layout_widget_central.addWidget(self.button_filter_case, 1, 2, 1, 1)
+        self.layout_widget_central.addWidget(self.button_sort_title, 1, 3, 1, 1)
+        self.layout_widget_central.addWidget(self.scroll_area, 3, 0, 1, 4)
+        self.layout_widget_central.setContentsMargins(MARGIN_CENTRAL_WIDGET)
 
-        # Status bar
+        # Central widget
+        self.widget_central = QtWidgets.QWidget()
+        self.widget_central.setLayout(self.layout_widget_central)
+
+        # Progression bar
         self.progression_bar = QtWidgets.QProgressBar()
-        self.progression_bar.setMaximumWidth(300)
-        self.progression_bar.setFixedHeight(25)
+        self.progression_bar.setMaximumWidth(WIDTH_PROGRESS_BAR)
+        self.progression_bar.setFixedHeight(HEIGHT_PROGRESS_BAR)
 
         # Button stop search
         self.button_stop_search = QtWidgets.QPushButton()
         self.button_stop_search.setEnabled(False)
         self.button_stop_search.setToolTip("Stop searching")
-        self.button_stop_search.setStyleSheet(f"""icon-size: {ICON_SIZE}px""")
+        self.button_stop_search.setStyleSheet(f"""icon-size: {SIZE_ICON}px""")
 
         # Status bar
         self.status_bar = QtWidgets.QStatusBar()
@@ -204,14 +228,10 @@ class WindowMain(QtWidgets.QWidget):
         self.status_bar.addPermanentWidget(self.button_stop_search)
 
         # Main window
-        self.grid_layout = QtWidgets.QGridLayout(self)
-        self.grid_layout.setContentsMargins(0, 0, 0, 0)
-        self.grid_layout.setMenuBar(self.tool_bar)
-        self.grid_layout.addLayout(self.layout_main, 0, 0, 1, 1)
-        self.grid_layout.addWidget(self.status_bar, 1, 0, 1, 1)
-
-        self.setLayout(self.grid_layout)
         self.setWindowTitle(f"GTagger ({VERSION})")
+        self.setCentralWidget(self.widget_central)
+        self.addToolBar(QtCore.Qt.LeftToolBarArea, self.tool_bar)
+        self.setStatusBar(self.status_bar)
 
         self.setup_style()
 
@@ -488,7 +508,7 @@ class WindowMain(QtWidgets.QWidget):
                 layout.state = State.LYRICS_SAVED
                 track.read_tags()
                 track.set_lyrics_new("")
-                layout.label_lyrics.setText(track.get_lyrics(lines=LYRICS_LINES))
+                layout.label_lyrics.setText(track.get_lyrics(lines=LINES_LYRICS))
                 layout.label_lyrics.setToolTip(track.get_lyrics_original())
             else:
                 layout.state_indicator.set_state(State.LYRICS_NOT_SAVED)
@@ -503,7 +523,7 @@ class WindowMain(QtWidgets.QWidget):
             layout = layout_item[0]
             if layout.selected:
                 track.set_lyrics_new("")
-                layout.label_lyrics.setText(track.get_lyrics(lines=LYRICS_LINES))
+                layout.label_lyrics.setText(track.get_lyrics(lines=LINES_LYRICS))
                 layout.label_lyrics.setToolTip(track.get_lyrics_original())
                 layout.state_indicator.set_state(State.TAGS_READ)
                 layout.state_indicator.setToolTip(State.TAGS_READ.value)
@@ -610,7 +630,7 @@ class WindowMain(QtWidgets.QWidget):
     @QtCore.Slot()
     def open_token_page(self) -> None:
         """Open the Genius website to fetch the client access token."""
-        QtGui.QDesktopServices.openUrl(TOKEN_URL)
+        QtGui.QDesktopServices.openUrl(URL_TOKEN)
 
     @QtCore.Slot()
     def open_settings(self) -> None:

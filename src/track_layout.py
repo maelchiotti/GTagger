@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Optional
 
 from PySide6 import QtCore, QtGui, QtWidgets
 
-from src.consts import COVER_SIZE, LYRICS_LINES, STYLESHEET_QTOOLTIP
+from src.consts import SIZE_COVER, LINES_LYRICS, STYLESHEET_QTOOLTIP
 from src.enums import CustomColors, State
 from src.track import Track
 
@@ -136,7 +136,7 @@ class TrackLayout(QtWidgets.QFrame):
         self.label_filename.setToolTip(track.get_filepath())
         self.label_cover = QtWidgets.QLabel()
         self.label_cover.setPixmap(track.cover)
-        self.label_cover.setFixedWidth(COVER_SIZE)
+        self.label_cover.setFixedWidth(SIZE_COVER)
         self.label_title = QtWidgets.QLabel(track.get_title())
         self.label_title.setToolTip(track.get_title())
         self.label_title.setStyleSheet(
@@ -154,7 +154,7 @@ class TrackLayout(QtWidgets.QFrame):
         )
         self.label_duration = QtWidgets.QLabel(f"<i>{track.get_duration()}</i>")
         self.label_duration.setTextFormat(QtCore.Qt.RichText)
-        self.label_lyrics = QtWidgets.QLabel(track.get_lyrics(lines=LYRICS_LINES))
+        self.label_lyrics = QtWidgets.QLabel(track.get_lyrics(lines=LINES_LYRICS))
         self.label_lyrics.setSizePolicy(
             QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred
         )

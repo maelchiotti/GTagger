@@ -8,7 +8,7 @@ from PySide6 import QtCore, QtWidgets
 from src.enums import CustomColors
 from src.settings import SettingsManager
 from src.window_main import WindowMain
-from src.consts import MAIN_WINDOW_WIDTH, MAIN_WINDOW_HEIGHT
+from src.consts import SIZE_MAIN_WINDOW
 
 
 class GTagger(QtWidgets.QApplication):
@@ -70,7 +70,7 @@ if __name__ == "__main__":
     gtagger = GTagger()
 
     main_window = WindowMain(gtagger)
-    main_window.resize(MAIN_WINDOW_WIDTH, MAIN_WINDOW_HEIGHT)
+    main_window.resize(SIZE_MAIN_WINDOW)
     main_window.show()
 
     sys.exit(gtagger.exec())

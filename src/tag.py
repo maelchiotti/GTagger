@@ -11,7 +11,7 @@ from PySide6 import QtCore, QtGui, QtWidgets
 
 from src.consts import (
     DISCARD_ARTISTS,
-    LYRICS_LINES,
+    LINES_LYRICS,
     MISSING_LYRICS,
     RE_REMOVE_LINES,
     UNWANTED_TITLE_TEXT,
@@ -273,7 +273,7 @@ class ThreadSearchLyrics(QtCore.QThread):
 
             found_lyrics = lyrics_search.search_lyrics(track)
             if found_lyrics:
-                lyrics = track.get_lyrics(lines=LYRICS_LINES)
+                lyrics = track.get_lyrics(lines=LINES_LYRICS)
                 layout.label_lyrics.setText(lyrics)
                 layout.label_lyrics.setToolTip(track.get_lyrics())
                 layout.state_indicator.set_state(State.LYRICS_FOUND)

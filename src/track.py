@@ -15,7 +15,7 @@ from mutagen.id3._frames import USLT
 from mutagen.mp3 import MPEGInfo as MP3Info
 from PySide6 import QtCore, QtGui
 
-from src.consts import COVER_SIZE, SPLITTERS
+from src.consts import SIZE_COVER, SPLITTERS
 from src.enums import CustomColors, FileType
 from src.icons import get_icon
 
@@ -86,11 +86,11 @@ class Track(QtCore.QObject):
                     "image-off", color=CustomColors.LIGHT_GREY.value
                 )
                 cover = icon_cover.pixmap(
-                    icon_cover.actualSize(QtCore.QSize(COVER_SIZE, COVER_SIZE))
+                    icon_cover.actualSize(QtCore.QSize(SIZE_COVER, SIZE_COVER))
                 )
             self.cover = cover.scaled(
-                COVER_SIZE,
-                COVER_SIZE,
+                SIZE_COVER,
+                SIZE_COVER,
                 QtCore.Qt.KeepAspectRatio,
             )
 

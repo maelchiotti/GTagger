@@ -7,23 +7,35 @@ from PySide6 import QtCore
 VERSION = "v1.2.3"
 
 # Size of the main window
-MAIN_WINDOW_WIDTH = 1200
-MAIN_WINDOW_HEIGHT = 800
+SIZE_MAIN_WINDOW = QtCore.QSize(1200, 800)
+
+# Size of the tool bar icons
+SIZE_ICON_TOOL_BAR = QtCore.QSize(30, 30)
 
 # Size of the buttons
-BUTTON_SIZE = 35
+SIZE_BUTTON = 35
 
 # Size of the icons
-ICON_SIZE = 20
+SIZE_ICON = 20
+
+# Size of the margin between track layouts
+MARGIN_TRACK_LAYOUT = 5
+
+# Size of the progress bar
+WIDTH_PROGRESS_BAR = 300
+HEIGHT_PROGRESS_BAR = 25
+
+# Margin of the central widget
+MARGIN_CENTRAL_WIDGET = QtCore.QMargins(5, 5, 5, 5)
 
 # Sizes of the cover
-COVER_SIZE = 128
+SIZE_COVER = 128
 
 # Number of lyrics lines to display depending on the mode
-LYRICS_LINES = 9
+LINES_LYRICS = 9
 
 # URL of the Genius API page
-TOKEN_URL = QtCore.QUrl("https://genius.com/api-clients")
+URL_TOKEN = QtCore.QUrl("https://genius.com/api-clients")
 
 # Splitters for the artists
 SPLITTERS = " featuring | feat. | feat | ft. | ft | & | / "
