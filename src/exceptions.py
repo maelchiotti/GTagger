@@ -12,5 +12,5 @@ class DiscardLyrics(Exception):
             title (str): Title of the track on which the error occurred.
             length (int): Number of characters of the line that triggered the error.
         """
-        message = f"Discarded the lyrics because {error} for the track {title}: {length} characters"
+        message = f"Discarded the lyrics because {error} for the track '{title}': {length} characters"
         super().__init__(message)
