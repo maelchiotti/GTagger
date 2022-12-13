@@ -5,10 +5,10 @@ import sys
 import qdarktheme
 from PySide6 import QtCore, QtWidgets
 
+from src.consts import SIZE_MAIN_WINDOW
 from src.enums import CustomColors
 from src.settings import SettingsManager
 from src.window_main import WindowMain
-from src.consts import SIZE_MAIN_WINDOW
 
 
 class GTagger(QtWidgets.QApplication):

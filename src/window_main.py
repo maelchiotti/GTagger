@@ -14,8 +14,8 @@ from PySide6 import QtCore, QtGui, QtWidgets
 from src.consts import (
     HEIGHT_PROGRESS_BAR,
     LINES_LYRICS,
-    MARGIN_TRACK_LAYOUT,
     MARGIN_CENTRAL_WIDGET,
+    MARGIN_TRACK_LAYOUT,
     SIZE_BUTTON,
     SIZE_ICON,
     SIZE_ICON_TOOL_BAR,
