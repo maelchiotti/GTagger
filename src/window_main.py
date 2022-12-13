@@ -185,18 +185,20 @@ class WindowMain(QtWidgets.QWidget):
         self.layout_main.addWidget(self.button_filter_case, 1, 2, 1, 1)
         self.layout_main.addWidget(self.button_sort_title, 1, 3, 1, 1)
         self.layout_main.addWidget(self.scroll_area, 3, 0, 1, 4)
-        self.layout_main.setContentsMargins(5, 5, 5, 5)
+        self.layout_main.setContentsMargins(5, 5, 5, 0)
 
         # Status bar
         self.progression_bar = QtWidgets.QProgressBar()
         self.progression_bar.setMaximumWidth(300)
         self.progression_bar.setFixedHeight(25)
 
+        # Button stop search
         self.button_stop_search = QtWidgets.QPushButton()
         self.button_stop_search.setEnabled(False)
         self.button_stop_search.setToolTip("Stop searching")
         self.button_stop_search.setStyleSheet(f"""icon-size: {ICON_SIZE}px""")
 
+        # Status bar
         self.status_bar = QtWidgets.QStatusBar()
         self.status_bar.addPermanentWidget(self.progression_bar)
         self.status_bar.addPermanentWidget(self.button_stop_search)
