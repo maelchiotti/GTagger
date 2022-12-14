@@ -146,7 +146,6 @@ class LyricsSearch(QtCore.QObject):
                     track.get_main_artist(),
                 )
                 return False
-            print(searched_track.id)
 
             searched_lyrics = searched_track.lyrics
             if not self.check_lyrics(searched_track, searched_lyrics, track):
@@ -230,7 +229,6 @@ class LyricsSearch(QtCore.QObject):
         lyrics = "\n".join(unformatted_lyrics)
         lyrics = RE_REMOVE_LINES.sub("\n\n", lyrics)
         lyrics = lyrics.strip()
-        print(lyrics)
         return lyrics
 
 
