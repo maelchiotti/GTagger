@@ -60,7 +60,7 @@ UNWANTED_TITLE_TEXT = [
 ]
 
 # If the artist is one of these, the lyrics are certainly wrong
-DISCARD_ARTISTS = ["Genius", "Apple Music", "Pop Genius", "NVP"]
+DISCARD_ARTISTS = ["Genius", "Apple Music", "Pop Genius"]
 
 # The lyrics of the song are missing
 MISSING_LYRICS = "Tell us that you would like to have the lyrics of this song."
