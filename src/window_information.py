@@ -87,7 +87,7 @@ class WindowInformation(QtWidgets.QDialog):
             f"""
             <br />
             GTagger is a python tool that adds lyrics from <a href="https://genius.com"
-            style="color: {color}">Genius</a> to <i>.mp3</i> files.
+            style="color: {color}">Genius</a> to <i>.flac</i> and <i>.mp3</i> files.
             <br />
             The code is open-source and hosted on <a href="https://github.com/maelchiotti/GTagger"
             style="color: {color}">GitHub</a>

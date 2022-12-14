@@ -20,7 +20,6 @@ from src.consts import (
     SIZE_ICON,
     SIZE_ICON_TOOL_BAR,
     URL_TOKEN,
-    VERSION,
     WIDTH_PROGRESS_BAR,
 )
 from src.enums import CustomColors, FileType, Sort, State
@@ -228,7 +227,7 @@ class WindowMain(QtWidgets.QMainWindow):
         self.status_bar.addPermanentWidget(self.button_stop_search)
 
         # Main window
-        self.setWindowTitle(f"GTagger ({VERSION})")
+        self.setWindowTitle(f"GTagger")
         self.setCentralWidget(self.widget_central)
         self.addToolBar(QtCore.Qt.LeftToolBarArea, self.tool_bar)
         self.setStatusBar(self.status_bar)
