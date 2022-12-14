@@ -1,4 +1,4 @@
-# Code quality
+# Quality
 
 ## Stubs
 
