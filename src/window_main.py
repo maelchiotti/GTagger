@@ -659,8 +659,8 @@ class WindowMain(QtWidgets.QMainWindow):
             event (QtCore.QEvent): Event.
         """
         if event.type() == QtCore.QEvent.ShortcutOverride:
-            self.keyPressEvent(event)
-
+            # event can only be a QKeyEvent
+            self.keyPressEvent(event)  # type: ignore # k
         return super().eventFilter(watched, event)
 
     def keyPressEvent(self, event: QtGui.QKeyEvent):
