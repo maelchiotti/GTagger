@@ -9,6 +9,7 @@
   - Added a clear button for the token and filter inputs.
   - Added the choice to match case or not when filtering.
   - Added the ability sort the tracks by title.
+  - Removed the compact layout because it didn't fit with the way the track layouts are now managed.
 - Tags management:
   - Improved the detection of wrong lyrics.
 
