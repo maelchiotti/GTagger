@@ -61,6 +61,8 @@ class WindowMain(QtWidgets.QMainWindow):
         """
         super().__init__()
 
+        self.installEventFilter(self)
+
         self.gtagger: GTagger = gtagger
         self.track_layouts_items: dict[
             Track, tuple[TrackLayout, CustomListWidgetItem]
@@ -646,6 +648,21 @@ class WindowMain(QtWidgets.QMainWindow):
         """Open the help window."""
         self.window_help.show()
 
+    def eventFilter(self, watched: QtCore.QObject, event: QtCore.QEvent):
+        """Filter the event to intercept the shortcuts.
+
+        `Ctrl+A` is not triggered as a `keyPressEvent`, it is considered to be a `ShortcutOverride`.
+        Thus, it needs to be filtered and triggered manually.
+
+        Args:
+            watched (QtCore.QObject): Object on which the event occured.
+            event (QtCore.QEvent): Event.
+        """
+        if event.type() == QtCore.QEvent.ShortcutOverride:
+            self.keyPressEvent(event)
+
+        return super().eventFilter(watched, event)
+
     def keyPressEvent(self, event: QtGui.QKeyEvent):
         """Intercept the key press event of the main windows.
 
@@ -656,6 +673,10 @@ class WindowMain(QtWidgets.QMainWindow):
         Args:
             event (QtGui.QKeyEvent): Key press event.
         """
+        if len(self.track_layouts_items) == 0:
+            super().keyPressEvent(event)
+            return
+
         if (
             event.modifiers() == QtCore.Qt.ControlModifier
             and event.key() == QtCore.Qt.Key_A
@@ -676,6 +697,8 @@ class WindowMain(QtWidgets.QMainWindow):
                 track_layout.toggle_selection(force=False)
             self.action_cancel_rows.setEnabled(False)
             self.action_remove_rows.setEnabled(False)
+
+        super().keyPressEvent(event)
 
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
         """Intercept the close event of the main window.
