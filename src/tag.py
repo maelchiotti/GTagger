@@ -12,6 +12,7 @@ from PySide6 import QtCore, QtGui, QtWidgets
 from src.consts import (
     DISCARD_ARTISTS,
     LINES_LYRICS,
+    MAX_SEARCH_INDEX,
     MISSING_LYRICS,
     RE_REMOVE_LINES,
     UNWANTED_TITLE_TEXT,
@@ -134,19 +135,50 @@ class LyricsSearch(QtCore.QObject):
             )
             return False
 
-        # Select the first result of the search
-        try:
-            searched_track = next(searched_tracks)
-        except StopIteration:
-            log.warning(
-                "Track '%s' by %s not found on Genius",
-                track.get_title(),
-                track.get_main_artist(),
-            )
-            return False
+        for _ in range(MAX_SEARCH_INDEX):
+            # Select the next result of the search
+            try:
+                searched_track = next(searched_tracks)
+            except StopIteration:
+                log.warning(
+                    "Track '%s' by %s not found on Genius",
+                    track.get_title(),
+                    track.get_main_artist(),
+                )
+                return False
+            print(searched_track.id)
 
+            searched_lyrics = searched_track.lyrics
+            if not self.check_lyrics(searched_track, searched_lyrics, track):
+                continue
+
+            try:
+                track.set_lyrics_new(
+                    self.format_lyrics(track.get_title(), searched_lyrics)
+                )
+                break
+            except DiscardLyrics as exception:
+                log.error(exception)
+                continue
+
+        return True
+
+    @staticmethod
+    def check_lyrics(
+        searched_track: genius.api.Song, searched_lyrics: list[str], track: Track
+    ) -> bool:
+        """Check for issues in the lyrics of the track.
+
+        Args:
+            searched_track (genius.api.Song): Track that was searched.
+            searched_lyrics (list[str]): Lyrics of the track that was searched.
+            track (Track): Current track that is being processed.
+
+        Returns:
+            bool: `True` if the lyrics seem correct.
+        """
+        # The track's artist indicates it should be discarded
         if searched_track.artist.name in DISCARD_ARTISTS:
-            # The track's artist indicates it should be discarded
             log.error(
                 "Discarded the lyrics because the artist was '%s' for the track '%s'",
                 searched_track.artist.name,
@@ -154,28 +186,20 @@ class LyricsSearch(QtCore.QObject):
             )
             return False
 
-        searched_lyrics = searched_track.lyrics
-
+        # If the lyrics are this long, they are probably wrong
         if len("\n".join(searched_lyrics)) > 15000:
-            # If the lyrics are this long, they are probably wrong
             log.error(
                 "Discarded the lyrics because they were too long for the track '%s'",
                 track.get_title(),
             )
             return False
 
+        # The track's lyrics are missing
         if searched_lyrics[0].startswith(MISSING_LYRICS):
-            # The track's lyrics are missing
             log.error(
                 "Discarded the lyrics because they were missing for the track '%s'",
                 track.get_title(),
             )
-            return False
-
-        try:
-            track.set_lyrics_new(self.format_lyrics(track.get_title(), searched_lyrics))
-        except DiscardLyrics as exception:
-            log.error(exception)
             return False
 
         return True
@@ -206,6 +230,7 @@ class LyricsSearch(QtCore.QObject):
         lyrics = "\n".join(unformatted_lyrics)
         lyrics = RE_REMOVE_LINES.sub("\n\n", lyrics)
         lyrics = lyrics.strip()
+        print(lyrics)
         return lyrics
 
 

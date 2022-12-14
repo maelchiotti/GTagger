@@ -34,6 +34,10 @@ SIZE_COVER = 128
 # Number of lyrics lines to display depending on the mode
 LINES_LYRICS = 9
 
+# Maximum number of track searches to process
+# The correct one is mostly the first one, rarely the second one and almost never another one
+MAX_SEARCH_INDEX = 3
+
 # URL of the Genius API page
 URL_TOKEN = QtCore.QUrl("https://genius.com/api-clients")
 
@@ -56,7 +60,7 @@ UNWANTED_TITLE_TEXT = [
 ]
 
 # If the artist is one of these, the lyrics are certainly wrong
-DISCARD_ARTISTS = ["Genius", "Apple Music", "Pop Genius"]
+DISCARD_ARTISTS = ["Genius", "Apple Music", "Pop Genius", "NVP"]
 
 # The lyrics of the song are missing
 MISSING_LYRICS = "Tell us that you would like to have the lyrics of this song."

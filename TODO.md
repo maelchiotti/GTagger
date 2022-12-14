@@ -2,8 +2,6 @@
 
 ## Next version
 
-- If the lyrics are discarded, then take the following song in the search list.
-
 ## Future
 
 - Implement multiprocessing for searching for the lyrics, reading and saving the files.
