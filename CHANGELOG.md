@@ -12,6 +12,7 @@
   - Removed the compact layout because it didn't fit with the way the track layouts are now managed.
 - Tags management:
   - Improved the detection of wrong lyrics.
+  - Improved the search of tracks.
 
 ## v1.2.2
 
