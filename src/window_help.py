@@ -37,7 +37,7 @@ class WindowHelp(QtWidgets.QDialog):
             <br/><br/>
             Shortcuts:<br/>
             - Ctrl+A: Select all files.<br/>
-            - Ctrl+D: Deselect all files.<br/>
+            - Ctrl+D: Deselect all files.
             """
         )
         self.label_usage.setTextFormat(QtCore.Qt.RichText)
