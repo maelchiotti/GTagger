@@ -9,7 +9,7 @@ VERSION = "v1.2.3"
 # Size of the main window
 SIZE_MAIN_WINDOW = QtCore.QSize(1200, 800)
 
-# Size of the tool bar icons
+# Size of the toolbar icons
 SIZE_ICON_TOOL_BAR = QtCore.QSize(30, 30)
 
 # Size of the buttons

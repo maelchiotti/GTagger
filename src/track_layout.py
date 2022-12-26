@@ -131,7 +131,7 @@ class TrackLayout(QtWidgets.QFrame):
             track (Track): Track to display.
         """
         self.state_indicator = StateIndicator(self.state)
-        self.state_indicator.setToolTip(self.state.value)
+        self.state_indicator.setToolTip(str(self.state.value))
         self.label_filename = QtWidgets.QLabel(track.filename)
         self.label_filename.setToolTip(track.get_filepath())
         self.label_cover = QtWidgets.QLabel()
@@ -202,7 +202,7 @@ class TrackLayout(QtWidgets.QFrame):
         """Toggle the selection of the track layout.
 
         Args:
-            force (Optional[bool]): Force the selection or deselection of the tracks. Has not effect if it is not set. Defaults to None.
+            force (Optional[bool]): Force the selection or deselection of the tracks. Has no effect if it is not set. Defaults to None.
         """
         if force is not None:
             self.selected = force
