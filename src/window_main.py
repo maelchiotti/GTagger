@@ -37,8 +37,7 @@ if TYPE_CHECKING:
 
 
 class WindowMain(QtWidgets.QMainWindow):
-    """
-    Main window of the GUI.
+    """Main window of the GUI.
 
     Attributes:
         gtagger (GTagger): GTagger application.
@@ -46,8 +45,8 @@ class WindowMain(QtWidgets.QMainWindow):
         window_settings (WindowSettings): Settings window.
         window_information (WindowInformation): Information window.
         window_help (WindowHelp) : Help window.
-        thread_read_tracks: (ThreadReadTracks): Thread to read the tracks.
-        thread_search_lyrics: (ThreadLyricsSearch): Thread to search for the lyrics.
+        thread_read_tracks (ThreadReadTracks): Thread to read the tracks.
+        thread_search_lyrics (ThreadLyricsSearch): Thread to search for the lyrics.
         self.sort (Sort): Sort mode for the list of tracks.
     """
 
@@ -229,7 +228,7 @@ class WindowMain(QtWidgets.QMainWindow):
         self.status_bar.addPermanentWidget(self.button_stop_search)
 
         # Main window
-        self.setWindowTitle(f"GTagger")
+        self.setWindowTitle("GTagger")
         self.setCentralWidget(self.widget_central)
         self.addToolBar(QtCore.Qt.LeftToolBarArea, self.tool_bar)
         self.setStatusBar(self.status_bar)
