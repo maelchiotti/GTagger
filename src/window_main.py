@@ -46,7 +46,7 @@ class WindowMain(QtWidgets.QMainWindow):
         window_settings (WindowSettings): Settings window.
         window_information (WindowInformation): Information window.
         window_help (WindowHelp) : Help window.
-        thread_add_files: (ThreadReadTracks): Thread to read the tracks.
+        thread_read_tracks: (ThreadReadTracks): Thread to read the tracks.
         thread_search_lyrics: (ThreadLyricsSearch): Thread to search for the lyrics.
         self.sort (Sort): Sort mode for the list of tracks.
     """
@@ -655,7 +655,7 @@ class WindowMain(QtWidgets.QMainWindow):
         Thus, it needs to be filtered and triggered manually.
 
         Args:
-            watched (QtCore.QObject): Object on which the event occured.
+            watched (QtCore.QObject): Object on which the event occurred.
             event (QtCore.QEvent): Event.
         """
         if event.type() == QtCore.QEvent.ShortcutOverride:
