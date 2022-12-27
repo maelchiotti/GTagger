@@ -230,9 +230,13 @@ class WindowMain(QtWidgets.QMainWindow):
         # Main window
         self.setWindowTitle("GTagger")
         self.setCentralWidget(self.widget_central)
-        self.addToolBar(self.gtagger.settings_manager.get_setting(Settings.TOOLBAR_POSITION.value,
-                                                                  default=QtCore.Qt.ToolBarArea.LeftToolBarArea),
-                        self.toolbar)
+        self.addToolBar(
+            self.gtagger.settings_manager.get_setting(
+                Settings.TOOLBAR_POSITION.value,
+                default=QtCore.Qt.ToolBarArea.LeftToolBarArea,
+            ),
+            self.toolbar,
+        )
         self.setStatusBar(self.status_bar)
 
         self.setup_style()
@@ -684,8 +688,8 @@ class WindowMain(QtWidgets.QMainWindow):
             return
 
         if (
-                event.modifiers() == QtCore.Qt.ControlModifier
-                and event.key() == QtCore.Qt.Key_A
+            event.modifiers() == QtCore.Qt.ControlModifier
+            and event.key() == QtCore.Qt.Key_A
         ):
             # Selection
             for layout_item in self.track_layouts_items.values():
@@ -694,8 +698,8 @@ class WindowMain(QtWidgets.QMainWindow):
             self.action_cancel_rows.setEnabled(True)
             self.action_remove_rows.setEnabled(True)
         elif (
-                event.modifiers() == QtCore.Qt.ControlModifier
-                and event.key() == QtCore.Qt.Key_D
+            event.modifiers() == QtCore.Qt.ControlModifier
+            and event.key() == QtCore.Qt.Key_D
         ):
             # Deselection
             for layout_item in self.track_layouts_items.values():
@@ -715,14 +719,16 @@ class WindowMain(QtWidgets.QMainWindow):
             event (QtGui.QCloseEvent): Close event.
         """
         if (
-                hasattr(self, "thread_search_lyrics")
-                and self.thread_search_lyrics.isRunning()
+            hasattr(self, "thread_search_lyrics")
+            and self.thread_search_lyrics.isRunning()
         ):
             self.thread_search_lyrics.stop_search = True
             self.thread_search_lyrics.wait()
 
         # Save the toolbar position into the settings
-        self.gtagger.settings_manager.set_setting(Settings.TOOLBAR_POSITION.value, self.toolBarArea(self.toolbar))
+        self.gtagger.settings_manager.set_setting(
+            Settings.TOOLBAR_POSITION.value, self.toolBarArea(self.toolbar)
+        )
 
         print(self.gtagger.settings_manager.settings.fileName())
 

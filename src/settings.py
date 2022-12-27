@@ -20,10 +20,10 @@ class SettingsManager(QtCore.QObject):
         self.settings = QtCore.QSettings()
 
     def get_setting(
-            self,
-            setting: str,
-            default: Optional[Any] = None,
-            type_: Optional[object] = None,
+        self,
+        setting: str,
+        default: Optional[Any] = None,
+        type_: Optional[object] = None,
     ) -> Any:
         """Return the value of the setting `setting`.
 
