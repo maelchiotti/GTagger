@@ -486,20 +486,20 @@ class WindowMain(QtWidgets.QMainWindow):
             )
             self.input_token.setToolTip("Enter token")
             self.action_search_lyrics.setEnabled(False)
-        elif not self.is_token_valid():
-            # Token is not valid
-            self.input_token.setStyleSheet(
-                f"border: 2px solid {CustomColors.LIGHT_RED.value}"
-            )
-            self.input_token.setToolTip("Invalid token")
-            self.action_search_lyrics.setEnabled(False)
-        else:
+        elif self.is_token_valid():
             # Token is valid
             self.input_token.setStyleSheet(
                 f"border: 2px solid {CustomColors.LIGHT_GREEN.value}"
             )
             self.input_token.setToolTip("Valid token")
             self.action_search_lyrics.setEnabled(len(self.track_layouts_items) > 0)
+        else:
+            # Token is not valid
+            self.input_token.setStyleSheet(
+                f"border: 2px solid {CustomColors.LIGHT_RED.value}"
+            )
+            self.input_token.setToolTip("Invalid token")
+            self.action_search_lyrics.setEnabled(False)
 
     @QtCore.Slot()
     def save_lyrics(self) -> None:
