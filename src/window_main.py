@@ -18,11 +18,11 @@ from src.consts import (
     MARGIN_TRACK_LAYOUT,
     SIZE_BUTTON,
     SIZE_ICON,
-    SIZE_ICON_TOOL_BAR,
+    SIZE_ICON_TOOLBAR,
     URL_TOKEN,
     WIDTH_PROGRESS_BAR,
 )
-from src.enums import CustomColors, FileType, Sort, State
+from src.enums import CustomColors, FileType, Sort, State, Settings
 from src.icons import get_icon
 from src.tag import ThreadReadTracks, ThreadSearchLyrics
 from src.track import Track
@@ -47,7 +47,7 @@ class WindowMain(QtWidgets.QMainWindow):
         window_help (WindowHelp) : Help window.
         thread_read_tracks (ThreadReadTracks): Thread to read the tracks.
         thread_search_lyrics (ThreadLyricsSearch): Thread to search for the lyrics.
-        self.sort (Sort): Sort mode for the list of tracks.
+        sort (Sort): Sort mode for the list of tracks.
     """
 
     lock = threading.Lock()
@@ -114,20 +114,20 @@ class WindowMain(QtWidgets.QMainWindow):
             QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding
         )
 
-        self.tool_bar = QtWidgets.QToolBar()
-        self.tool_bar.setIconSize(SIZE_ICON_TOOL_BAR)
-        self.tool_bar.addAction(self.action_add_files)
-        self.tool_bar.addAction(self.action_add_folder)
-        self.tool_bar.addSeparator()
-        self.tool_bar.addAction(self.action_search_lyrics)
-        self.tool_bar.addAction(self.action_save_lyrics)
-        self.tool_bar.addSeparator()
-        self.tool_bar.addAction(self.action_cancel_rows)
-        self.tool_bar.addAction(self.action_remove_rows)
-        self.tool_bar.addWidget(spacer)
-        self.tool_bar.addAction(self.action_settings)
-        self.tool_bar.addAction(self.action_information)
-        self.tool_bar.addAction(self.action_help)
+        self.toolbar = QtWidgets.QToolBar()
+        self.toolbar.setIconSize(SIZE_ICON_TOOLBAR)
+        self.toolbar.addAction(self.action_add_files)
+        self.toolbar.addAction(self.action_add_folder)
+        self.toolbar.addSeparator()
+        self.toolbar.addAction(self.action_search_lyrics)
+        self.toolbar.addAction(self.action_save_lyrics)
+        self.toolbar.addSeparator()
+        self.toolbar.addAction(self.action_cancel_rows)
+        self.toolbar.addAction(self.action_remove_rows)
+        self.toolbar.addWidget(spacer)
+        self.toolbar.addAction(self.action_settings)
+        self.toolbar.addAction(self.action_information)
+        self.toolbar.addAction(self.action_help)
 
         # Token input
         self.input_token = QtWidgets.QLineEdit()
@@ -230,7 +230,9 @@ class WindowMain(QtWidgets.QMainWindow):
         # Main window
         self.setWindowTitle("GTagger")
         self.setCentralWidget(self.widget_central)
-        self.addToolBar(QtCore.Qt.LeftToolBarArea, self.tool_bar)
+        self.addToolBar(self.gtagger.settings_manager.get_setting(Settings.TOOLBAR_POSITION.value,
+                                                                  default=QtCore.Qt.ToolBarArea.LeftToolBarArea),
+                        self.toolbar)
         self.setStatusBar(self.status_bar)
 
         self.setup_style()
@@ -251,6 +253,7 @@ class WindowMain(QtWidgets.QMainWindow):
         self.button_filter_case.clicked.connect(self.filter_tracks)
         self.button_sort_title.clicked.connect(self.sort_tracks)
         self.button_stop_search.clicked.connect(self.stop_search)
+        self.toolbar.allowedAreasChanged.connect(self.toolbar_area_changed)
 
     def setup_style(self):
         """Set up the custom colors and icons for diverse elements of the application."""
@@ -628,6 +631,10 @@ class WindowMain(QtWidgets.QMainWindow):
         self.increment_progression_bar()
 
     @QtCore.Slot()
+    def toolbar_area_changed(self, allowedAreas: QtCore.Qt.ToolBarArea) -> None:
+        print(allowedAreas)
+
+    @QtCore.Slot()
     def open_token_page(self) -> None:
         """Open the Genius website to fetch the client access token."""
         QtGui.QDesktopServices.openUrl(URL_TOKEN)
@@ -677,8 +684,8 @@ class WindowMain(QtWidgets.QMainWindow):
             return
 
         if (
-            event.modifiers() == QtCore.Qt.ControlModifier
-            and event.key() == QtCore.Qt.Key_A
+                event.modifiers() == QtCore.Qt.ControlModifier
+                and event.key() == QtCore.Qt.Key_A
         ):
             # Selection
             for layout_item in self.track_layouts_items.values():
@@ -687,8 +694,8 @@ class WindowMain(QtWidgets.QMainWindow):
             self.action_cancel_rows.setEnabled(True)
             self.action_remove_rows.setEnabled(True)
         elif (
-            event.modifiers() == QtCore.Qt.ControlModifier
-            and event.key() == QtCore.Qt.Key_D
+                event.modifiers() == QtCore.Qt.ControlModifier
+                and event.key() == QtCore.Qt.Key_D
         ):
             # Deselection
             for layout_item in self.track_layouts_items.values():
@@ -708,9 +715,15 @@ class WindowMain(QtWidgets.QMainWindow):
             event (QtGui.QCloseEvent): Close event.
         """
         if (
-            hasattr(self, "thread_search_lyrics")
-            and self.thread_search_lyrics.isRunning()
+                hasattr(self, "thread_search_lyrics")
+                and self.thread_search_lyrics.isRunning()
         ):
             self.thread_search_lyrics.stop_search = True
             self.thread_search_lyrics.wait()
+
+        # Save the toolbar position into the settings
+        self.gtagger.settings_manager.set_setting(Settings.TOOLBAR_POSITION.value, self.toolBarArea(self.toolbar))
+
+        print(self.gtagger.settings_manager.settings.fileName())
+
         event.accept()

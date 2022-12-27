@@ -10,6 +10,7 @@ class Settings(Enum):
 
     RECURSIVE_SEARCH = "recursive_search"
     OVERWRITE_LYRICS = "overwrite_lyrics"
+    TOOLBAR_POSITION = "toolbar_position"
 
 
 class CustomColors(Enum):
