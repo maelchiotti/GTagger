@@ -1,5 +1,19 @@
 # Quality
 
+## Hooks
+
+- This `pre-commit` hook should be used to automatically format files on commit:
+
+  ```shell
+  #!/bin/sh
+  
+  black gtagger.py src
+  
+  git add --all
+  
+  exit 0
+  ```
+
 ## Stubs
 
 Stubs should be generated with the following commands:
