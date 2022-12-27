@@ -342,7 +342,7 @@ class WindowMain(QtWidgets.QMainWindow):
         return directory
 
     def select_files(self) -> list[Path]:
-        """Asks the user to select one or multiple MP3 files.
+        """Asks the user to select one or multiple files.
 
         Returns:
             list[str]: Paths of the files.
@@ -450,11 +450,11 @@ class WindowMain(QtWidgets.QMainWindow):
             )
             track.signal_lyrics_changed.connect(self.lyrics_changed)
             layout.signal_mouse_event.connect(self.selection_changed)
-            item = CustomListWidgetItem(track.get_title(), self.list_tracks)
-            item.setSizeHint(layout.sizeHint())
-            self.list_tracks.addItem(item)
-            self.list_tracks.setItemWidget(item, layout)
-            self.track_layouts_items[track] = (layout, item)
+            # item = CustomListWidgetItem(track.get_title(), self.list_tracks)
+            # item.setSizeHint(layout.sizeHint())
+            # self.list_tracks.addItem(item)
+            # self.list_tracks.setItemWidget(item, layout)
+            # self.track_layouts_items[track] = (layout, item)
             self.increment_progression_bar()
 
     @QtCore.Slot()
