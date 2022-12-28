@@ -2,6 +2,8 @@
 
 ## v1.2.4
 
+- Tracks display and management:
+  - Added buttons to (de)select the tracks.
 - Settings:
     - The position of the toolbar is now automatically saved in the settings.
 

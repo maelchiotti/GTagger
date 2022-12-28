@@ -92,6 +92,12 @@ class WindowMain(QtWidgets.QMainWindow):
         self.action_save_lyrics.setToolTip("Save the lyrics")
         self.action_save_lyrics.setEnabled(False)
 
+        self.action_select = QtGui.QAction("Select all tracks")
+        self.action_select.setToolTip("Select all tracks")
+
+        self.action_deselect = QtGui.QAction("Deselect all tracks")
+        self.action_deselect.setToolTip("Deselect all tracks")
+
         self.action_cancel_rows = QtGui.QAction("Cancel the modifications")
         self.action_cancel_rows.setToolTip("Cancel the modifications\nof selected rows")
         self.action_cancel_rows.setEnabled(False)
@@ -122,6 +128,8 @@ class WindowMain(QtWidgets.QMainWindow):
         self.toolbar.addAction(self.action_search_lyrics)
         self.toolbar.addAction(self.action_save_lyrics)
         self.toolbar.addSeparator()
+        self.toolbar.addAction(self.action_select)
+        self.toolbar.addAction(self.action_deselect)
         self.toolbar.addAction(self.action_cancel_rows)
         self.toolbar.addAction(self.action_remove_rows)
         self.toolbar.addWidget(spacer)
@@ -246,6 +254,8 @@ class WindowMain(QtWidgets.QMainWindow):
         self.action_search_lyrics.triggered.connect(self.search_lyrics)
         self.action_save_lyrics.triggered.connect(self.save_lyrics)
         self.action_cancel_rows.triggered.connect(self.cancel_rows)
+        self.action_select.triggered.connect(self.select_tracks)
+        self.action_deselect.triggered.connect(self.deselect_tracks)
         self.action_remove_rows.triggered.connect(self.remove_selected_layouts)
         self.action_settings.triggered.connect(self.open_settings)
         self.action_information.triggered.connect(self.open_information)
@@ -280,6 +290,8 @@ class WindowMain(QtWidgets.QMainWindow):
         icon_save_lyrics = get_icon(
             "content-save", color=CustomColors.LIGHT_GREEN.value
         )
+        icon_select = get_icon("selection")
+        icon_deselect = get_icon("selection-off")
         icon_cancel_rows = get_icon("backup-restore", color=CustomColors.ORANGE.value)
         icon_remove_rows = get_icon("minus-circle", color=CustomColors.RED.value)
         icon_settings = get_icon("cog")
@@ -297,6 +309,8 @@ class WindowMain(QtWidgets.QMainWindow):
         self.action_search_lyrics.setIcon(icon_search_lyrics)
         self.action_save_lyrics.setIcon(icon_save_lyrics)
         self.action_cancel_rows.setIcon(icon_cancel_rows)
+        self.action_select.setIcon(icon_select)
+        self.action_deselect.setIcon(icon_deselect)
         self.action_remove_rows.setIcon(icon_remove_rows)
         self.action_settings.setIcon(icon_settings)
         self.action_information.setIcon(icon_information)
@@ -658,6 +672,28 @@ class WindowMain(QtWidgets.QMainWindow):
         """Open the help window."""
         self.window_help.show()
 
+    def select_tracks(self) -> None:
+        """Select all the tracks."""
+        if len(self.track_layouts_items) == 0:
+            return
+
+        for layout_item in self.track_layouts_items.values():
+            track_layout = layout_item[0]
+            track_layout.toggle_selection(force=True)
+        self.action_cancel_rows.setEnabled(True)
+        self.action_remove_rows.setEnabled(True)
+
+    def deselect_tracks(self) -> None:
+        """Deselect all the tracks."""
+        if len(self.track_layouts_items) == 0:
+            return
+
+        for layout_item in self.track_layouts_items.values():
+            track_layout = layout_item[0]
+            track_layout.toggle_selection(force=False)
+        self.action_cancel_rows.setEnabled(False)
+        self.action_remove_rows.setEnabled(False)
+
     def eventFilter(self, watched: QtCore.QObject, event: QtCore.QEvent):
         """Filter the event to intercept the shortcuts.
 
@@ -683,30 +719,16 @@ class WindowMain(QtWidgets.QMainWindow):
         Args:
             event (QtGui.QKeyEvent): Key press event.
         """
-        if len(self.track_layouts_items) == 0:
-            super().keyPressEvent(event)
-            return
-
         if (
             event.modifiers() == QtCore.Qt.ControlModifier
             and event.key() == QtCore.Qt.Key_A
         ):
-            # Selection
-            for layout_item in self.track_layouts_items.values():
-                track_layout = layout_item[0]
-                track_layout.toggle_selection(force=True)
-            self.action_cancel_rows.setEnabled(True)
-            self.action_remove_rows.setEnabled(True)
+            self.select_tracks()
         elif (
             event.modifiers() == QtCore.Qt.ControlModifier
             and event.key() == QtCore.Qt.Key_D
         ):
-            # Deselection
-            for layout_item in self.track_layouts_items.values():
-                track_layout = layout_item[0]
-                track_layout.toggle_selection(force=False)
-            self.action_cancel_rows.setEnabled(False)
-            self.action_remove_rows.setEnabled(False)
+            self.deselect_tracks()
 
         super().keyPressEvent(event)
 
