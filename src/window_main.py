@@ -166,6 +166,14 @@ class WindowMain(QtWidgets.QMainWindow):
             QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum
         )
 
+        # Case filter
+        self.button_filter_case = QtWidgets.QPushButton()
+        self.button_filter_case.setToolTip("Match case")
+        self.button_filter_case.setCheckable(True)
+        self.button_filter_case.setChecked(True)
+        self.button_filter_case.setFixedSize(SIZE_BUTTON, SIZE_BUTTON)
+        self.button_filter_case.setStyleSheet(f"""icon-size: {SIZE_ICON}px""")
+
         # Has lyrics filter
         self.button_filter_lyrics = QtWidgets.QPushButton()
         self.button_filter_lyrics.setToolTip("Show files with lyrics")
@@ -173,14 +181,6 @@ class WindowMain(QtWidgets.QMainWindow):
         self.button_filter_lyrics.setChecked(True)
         self.button_filter_lyrics.setFixedSize(SIZE_BUTTON, SIZE_BUTTON)
         self.button_filter_lyrics.setStyleSheet(f"""icon-size: {SIZE_ICON}px""")
-
-        # Case filter
-        self.button_filter_case = QtWidgets.QPushButton()
-        self.button_filter_case.setToolTip("Match case")
-        self.button_filter_case.setCheckable(True)
-        self.button_filter_case.setChecked(False)
-        self.button_filter_case.setFixedSize(SIZE_BUTTON, SIZE_BUTTON)
-        self.button_filter_case.setStyleSheet(f"""icon-size: {SIZE_ICON}px""")
 
         # Title sort
         self.button_sort_title = QtWidgets.QPushButton()
@@ -211,8 +211,8 @@ class WindowMain(QtWidgets.QMainWindow):
         self.layout_widget_central.addWidget(self.input_token, 0, 0, 1, 3)
         self.layout_widget_central.addWidget(self.button_token, 0, 3, 1, 1)
         self.layout_widget_central.addWidget(self.input_filter_text, 1, 0, 1, 1)
-        self.layout_widget_central.addWidget(self.button_filter_lyrics, 1, 1, 1, 1)
-        self.layout_widget_central.addWidget(self.button_filter_case, 1, 2, 1, 1)
+        self.layout_widget_central.addWidget(self.button_filter_case, 1, 1, 1, 1)
+        self.layout_widget_central.addWidget(self.button_filter_lyrics, 1, 2, 1, 1)
         self.layout_widget_central.addWidget(self.button_sort_title, 1, 3, 1, 1)
         self.layout_widget_central.addWidget(self.scroll_area, 3, 0, 1, 4)
         self.layout_widget_central.setContentsMargins(MARGIN_CENTRAL_WIDGET)
