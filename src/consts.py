@@ -18,6 +18,9 @@ SIZE_BUTTON = 35
 # Size of the icons
 SIZE_ICON = 20
 
+# Size of the icons
+SIZE_ICON_INDICATOR = 25
+
 # Size of the margin between track layouts
 MARGIN_TRACK_LAYOUT = 5
 

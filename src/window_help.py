@@ -5,8 +5,9 @@ Handles the creation of the help window.
 
 from PySide6 import QtCore, QtWidgets
 
+from src.consts import SIZE_ICON_INDICATOR
 from src.enums import State
-from src.track_layout import StateIndicator
+from src.icons import get_icon
 
 
 class WindowHelp(QtWidgets.QDialog):
@@ -52,22 +53,43 @@ class WindowHelp(QtWidgets.QDialog):
         )
         self.frame_usage.setLayout(self.layout_usage)
 
-        # State indicator legend
-        self.indicator_blue = StateIndicator(State.TAGS_READ, x=0, y=0, w=20, h=20)
-        self.indicator_green = StateIndicator(State.LYRICS_FOUND, x=0, y=0, w=20, h=20)
-        self.indicator_orange = StateIndicator(
-            State.LYRICS_NOT_FOUND, x=0, y=0, w=20, h=20
+        # State indicator icons
+        icon_blue = get_icon("play-circle", color=State.TAGS_READ.value.value)
+        icon_green = get_icon("play-circle", color=State.LYRICS_FOUND.value.value)
+        icon_orange = get_icon("play-circle", color=State.LYRICS_NOT_FOUND.value.value)
+        icon_yellow_genius = get_icon(
+            "play-circle", color=State.LYRICS_SAVED.value.value
         )
-        self.indicator_yellow_genius = StateIndicator(
-            State.LYRICS_SAVED, x=0, y=0, w=20, h=20
+        icon_red = get_icon("play-circle", color=State.LYRICS_NOT_SAVED.value.value)
+        self.label_icon_blue = QtWidgets.QLabel()
+        self.label_icon_blue.setPixmap(
+            icon_blue.pixmap(SIZE_ICON_INDICATOR, SIZE_ICON_INDICATOR)
         )
-        self.indicator_red = StateIndicator(
-            State.LYRICS_NOT_SAVED, x=0, y=0, w=20, h=20
+        self.label_icon_blue.setFixedWidth(SIZE_ICON_INDICATOR)
+        self.label_icon_green = QtWidgets.QLabel()
+        self.label_icon_green.setPixmap(
+            icon_green.pixmap(SIZE_ICON_INDICATOR, SIZE_ICON_INDICATOR)
         )
+        self.label_icon_green.setFixedWidth(SIZE_ICON_INDICATOR)
+        self.label_icon_orange = QtWidgets.QLabel()
+        self.label_icon_orange.setPixmap(
+            icon_orange.pixmap(SIZE_ICON_INDICATOR, SIZE_ICON_INDICATOR)
+        )
+        self.label_icon_orange.setFixedWidth(SIZE_ICON_INDICATOR)
+        self.label_icon_yellow_genius = QtWidgets.QLabel()
+        self.label_icon_yellow_genius.setPixmap(
+            icon_yellow_genius.pixmap(SIZE_ICON_INDICATOR, SIZE_ICON_INDICATOR)
+        )
+        self.label_icon_yellow_genius.setFixedWidth(SIZE_ICON_INDICATOR)
+        self.label_icon_red = QtWidgets.QLabel()
+        self.label_icon_red.setPixmap(
+            icon_red.pixmap(SIZE_ICON_INDICATOR, SIZE_ICON_INDICATOR)
+        )
+        self.label_icon_red.setFixedWidth(SIZE_ICON_INDICATOR)
 
         self.label_state_indicator_title = QtWidgets.QLabel(
             """
-            The state indicator indicates the following states:
+            The state indicator, that can be clicked to play the track in the default application, indicates the following states:
             """
         )
         self.label_state_indicator_title.setTextFormat(QtCore.Qt.RichText)
@@ -105,11 +127,11 @@ class WindowHelp(QtWidgets.QDialog):
 
         self.layout_legend = QtWidgets.QGridLayout()
 
-        self.layout_legend.addWidget(self.indicator_blue, 0, 0, 1, 2)
-        self.layout_legend.addWidget(self.indicator_green, 1, 0, 1, 1)
-        self.layout_legend.addWidget(self.indicator_orange, 2, 0, 1, 1)
-        self.layout_legend.addWidget(self.indicator_yellow_genius, 3, 0, 1, 1)
-        self.layout_legend.addWidget(self.indicator_red, 4, 0, 1, 1)
+        self.layout_legend.addWidget(self.label_icon_blue, 0, 0, 1, 2)
+        self.layout_legend.addWidget(self.label_icon_green, 1, 0, 1, 1)
+        self.layout_legend.addWidget(self.label_icon_orange, 2, 0, 1, 1)
+        self.layout_legend.addWidget(self.label_icon_yellow_genius, 3, 0, 1, 1)
+        self.layout_legend.addWidget(self.label_icon_red, 4, 0, 1, 1)
 
         self.layout_legend.addWidget(self.label_state_indicator_read, 0, 1, 1, 1)
         self.layout_legend.addWidget(self.label_state_indicator_found, 1, 1, 1, 1)

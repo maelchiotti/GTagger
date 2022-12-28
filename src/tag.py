@@ -287,12 +287,8 @@ class ThreadSearchLyrics(QtCore.QThread):
                 lyrics = track.get_lyrics(lines=LINES_LYRICS)
                 layout.label_lyrics.setText(lyrics)
                 layout.label_lyrics.setToolTip(track.get_lyrics())
-                layout.state_indicator.set_state(State.LYRICS_FOUND)
-                layout.state_indicator.setToolTip(State.LYRICS_FOUND.value)
-                layout.state = State.LYRICS_FOUND
+                layout.set_state(State.LYRICS_FOUND)
             else:
-                layout.state_indicator.set_state(State.LYRICS_NOT_FOUND)
-                layout.state_indicator.setToolTip(State.LYRICS_NOT_FOUND.value)
-                layout.state = State.LYRICS_NOT_FOUND
+                layout.set_state(State.LYRICS_NOT_FOUND)
             self.signal_lyrics_searched.emit()
         self.button_stop_search.setEnabled(False)

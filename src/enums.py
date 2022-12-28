@@ -34,14 +34,13 @@ class CustomColors(Enum):
 
 
 class State(Enum):
-    """Enumerates the different states of the application."""
+    """Enumerates the different states of the application and their corresponding color."""
 
-    TAGS_READ = "Tags read"
-    TAGS_NOT_READ = "Couldn't read tags"
-    LYRICS_FOUND = "Lyrics found"
-    LYRICS_NOT_FOUND = "Couldn't find lyrics"
-    LYRICS_SAVED = "Lyrics saved"
-    LYRICS_NOT_SAVED = "Couldn't save the lyrics"
+    TAGS_READ = CustomColors.LIGHT_BLUE
+    LYRICS_FOUND = CustomColors.LIGHT_GREEN
+    LYRICS_NOT_FOUND = CustomColors.ORANGE
+    LYRICS_SAVED = CustomColors.YELLOW_GENIUS
+    LYRICS_NOT_SAVED = CustomColors.LIGHT_RED
 
 
 class FileType(Enum):

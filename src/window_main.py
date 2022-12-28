@@ -269,7 +269,6 @@ class WindowMain(QtWidgets.QMainWindow):
         self.button_filter_case.clicked.connect(self.filter_tracks)
         self.button_sort_title.clicked.connect(self.sort_tracks)
         self.button_stop_search.clicked.connect(self.stop_search)
-        self.toolbar.allowedAreasChanged.connect(self.toolbar_area_changed)
 
     def setup_style(self):
         """Set up the custom colors and icons for diverse elements of the application."""
@@ -519,17 +518,13 @@ class WindowMain(QtWidgets.QMainWindow):
             layout = layout_item[0]
             saved = track.save_lyrics()
             if saved:
-                layout.state_indicator.set_state(State.LYRICS_SAVED)
-                layout.state_indicator.setToolTip(State.LYRICS_SAVED.value)
-                layout.state = State.LYRICS_SAVED
+                layout.set_state(State.LYRICS_SAVED)
                 track.read_tags()
                 track.set_lyrics_new("")
                 layout.label_lyrics.setText(track.get_lyrics(lines=LINES_LYRICS))
                 layout.label_lyrics.setToolTip(track.get_lyrics_original())
             else:
-                layout.state_indicator.set_state(State.LYRICS_NOT_SAVED)
-                layout.state_indicator.setToolTip(State.LYRICS_NOT_SAVED.value)
-                layout.state = State.LYRICS_NOT_SAVED
+                layout.set_state(State.LYRICS_NOT_SAVED)
             self.increment_progression_bar()
 
     @QtCore.Slot()
@@ -541,9 +536,7 @@ class WindowMain(QtWidgets.QMainWindow):
                 track.set_lyrics_new("")
                 layout.label_lyrics.setText(track.get_lyrics(lines=LINES_LYRICS))
                 layout.label_lyrics.setToolTip(track.get_lyrics_original())
-                layout.state_indicator.set_state(State.TAGS_READ)
-                layout.state_indicator.setToolTip(State.TAGS_READ.value)
-                layout.state = State.TAGS_READ
+                layout.set_state(State.TAGS_READ)
 
     @QtCore.Slot()
     def remove_selected_layouts(self) -> None:
@@ -649,10 +642,6 @@ class WindowMain(QtWidgets.QMainWindow):
     def lyrics_searched(self) -> None:
         """Lyrics of a track searched."""
         self.increment_progression_bar()
-
-    @QtCore.Slot()
-    def toolbar_area_changed(self, allowedAreas: QtCore.Qt.ToolBarArea) -> None:
-        print(allowedAreas)
 
     @QtCore.Slot()
     def open_token_page(self) -> None:
@@ -765,7 +754,5 @@ class WindowMain(QtWidgets.QMainWindow):
         self.gtagger.settings_manager.set_setting(
             Settings.TOOLBAR_POSITION.value, self.toolBarArea(self.toolbar)
         )
-
-        print(self.gtagger.settings_manager.settings.fileName())
 
         event.accept()

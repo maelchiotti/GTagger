@@ -6,89 +6,18 @@ from typing import TYPE_CHECKING, Optional
 
 from PySide6 import QtCore, QtGui, QtWidgets
 
-from src.consts import SIZE_COVER, LINES_LYRICS, STYLESHEET_QTOOLTIP
+from src.consts import (
+    SIZE_COVER,
+    LINES_LYRICS,
+    STYLESHEET_QTOOLTIP,
+    SIZE_ICON_INDICATOR,
+)
 from src.enums import CustomColors, State
+from src.icons import get_icon
 from src.track import Track
 
 if TYPE_CHECKING:
     from gtagger import GTagger
-
-
-class StateIndicator(QtWidgets.QWidget):
-    """Filled and colored circle indicating the state of a track.
-
-    Attributes:
-        x (int): x coordinate.
-        y (int): y coordinate.
-        w (int): width.
-        h (int): height.
-    """
-
-    def __init__(
-        self, state: State, x: int = 2, y: int = 2, w: int = 15, h: int = 15
-    ) -> None:
-        """Init StateIndicator.
-
-        Args:
-            state (State): State of the track.
-            x (int): x coordinate. Defaults to 2.
-            y (int): y coordinate. Defaults to 2.
-            w (int): width. Defaults to 15.
-            h (int): height. Defaults to 15.
-        """
-        super().__init__()
-
-        self.state: State = state
-        self.x: int = x
-        self.y: int = y
-        self.w: int = w
-        self.h: int = h
-
-        self.setFixedWidth(self.x + self.w + 1)
-        self.setFixedHeight(self.y + self.h + 1)
-
-    def paintEvent(self, event: QtGui.QPaintEvent) -> None:
-        """Intercept the paint event of the `QWidget`.
-
-        Args:
-            event (QtGui.QPaintEvent): Paint event.
-        """
-        if self.state == State.TAGS_READ:
-            color = QtGui.QColor(CustomColors.LIGHT_BLUE.value)
-        elif self.state == State.LYRICS_FOUND:
-            color = QtGui.QColor(CustomColors.LIGHT_GREEN.value)
-        elif self.state == State.LYRICS_NOT_FOUND:
-            color = QtGui.QColor(CustomColors.ORANGE.value)
-        elif self.state == State.LYRICS_SAVED:
-            color = QtGui.QColor(CustomColors.YELLOW_GENIUS.value)
-        elif self.state == State.LYRICS_NOT_SAVED:
-            color = QtGui.QColor(CustomColors.LIGHT_RED.value)
-        else:
-            color = QtGui.QColor(CustomColors.LIGHT_GREY.value)
-
-        brush = QtGui.QBrush()
-        brush.setColor(color)
-        brush.setStyle(QtCore.Qt.SolidPattern)
-
-        pen = QtGui.QPen()
-        pen.setColor(CustomColors.GREY.value)
-        pen.setStyle(QtCore.Qt.SolidLine)
-        pen.setWidth(1)
-
-        painter = QtGui.QPainter(self)
-        painter.setRenderHint(QtGui.QPainter.Antialiasing)
-        painter.setBrush(brush)
-        painter.setPen(pen)
-        painter.drawEllipse(self.x, self.y, self.w, self.h)
-
-    def set_state(self, state: State) -> None:
-        """Set the state of the indicator to `state` and repaints it.
-
-        Args:
-            state (State): New state.
-        """
-        self.state = state
-        self.update()
 
 
 class TrackLayout(QtWidgets.QFrame):
@@ -98,9 +27,9 @@ class TrackLayout(QtWidgets.QFrame):
         signal_mouse_event (QtCore.Signal): Emitted when a mouse event is intercepted.
 
     Attributes:
+        track (Track): Track to display.
         state (State): State of the track.
         selected (bool): `True` if the track is currently selected.
-        cover (QtGui.QPixmap): Cover of the track.
         gtagger (GTagger): GTagger application.
     ```
     """
@@ -117,51 +46,57 @@ class TrackLayout(QtWidgets.QFrame):
         """
         super().__init__()
 
+        self.track = track
         self.state: State = state
         self.selected: bool = False
-        self.cover: QtGui.QPixmap = track.cover
         self.gtagger: GTagger = gtagger
 
-        self.setup_ui(track)
+        self.setup_ui()
 
-    def setup_ui(self, track: Track) -> None:
-        """Set up the UI of the window.
-
-        Args:
-            track (Track): Track to display.
-        """
-        self.state_indicator = StateIndicator(self.state)
-        self.state_indicator.setToolTip(str(self.state.value))
-        self.label_filename = QtWidgets.QLabel(track.filename)
-        self.label_filename.setToolTip(track.get_filepath())
+    def setup_ui(self) -> None:
+        """Set up the UI of the window."""
+        self.label_filename = QtWidgets.QLabel(self.track.filename)
+        self.label_filename.setToolTip(self.track.get_filepath())
+        self.button_play = QtWidgets.QPushButton()
+        self.button_play.setToolTip("Play the track in the default application")
+        icon_color = self.state.value.value
+        self.button_play.setIcon(
+            get_icon("play-circle", color=icon_color, color_active=icon_color)
+        )
+        self.button_play.setStyleSheet(f"""icon-size: {SIZE_ICON_INDICATOR}px""")
+        self.button_play.setFixedSize(SIZE_ICON_INDICATOR, SIZE_ICON_INDICATOR)
+        self.button_play.setFlat(True)
         self.label_cover = QtWidgets.QLabel()
-        self.label_cover.setPixmap(track.cover)
+        self.label_cover.setPixmap(self.track.cover)
         self.label_cover.setFixedWidth(SIZE_COVER)
-        self.label_title = QtWidgets.QLabel(track.get_title())
-        self.label_title.setToolTip(track.get_title())
+        self.label_title = QtWidgets.QLabel(self.track.get_title())
+        self.label_title.setToolTip(self.track.get_title())
         self.label_title.setStyleSheet(
             "QLabel { font-size: 15pt; font-weight: 800; } " + STYLESHEET_QTOOLTIP
         )
-        self.label_artists = QtWidgets.QLabel(track.get_artists())
-        self.label_artists.setToolTip(track.get_artists())
+        self.label_artists = QtWidgets.QLabel(self.track.get_artists())
+        self.label_artists.setToolTip(self.track.get_artists())
         self.label_artists.setStyleSheet(
             "QLabel { font-size: 12pt; font-weight: 600; } " + STYLESHEET_QTOOLTIP
         )
-        self.label_album = QtWidgets.QLabel(track.get_album())
-        self.label_album.setToolTip(track.get_album())
+        self.label_album = QtWidgets.QLabel(self.track.get_album())
+        self.label_album.setToolTip(self.track.get_album())
         self.label_album.setStyleSheet(
             "QLabel { font-size: 11pt; font-weight: 400; } " + STYLESHEET_QTOOLTIP
         )
-        self.label_duration = QtWidgets.QLabel(f"<i>{track.get_duration()}</i>")
+        self.label_duration = QtWidgets.QLabel(f"<i>{self.track.get_duration()}</i>")
         self.label_duration.setTextFormat(QtCore.Qt.RichText)
-        self.label_lyrics = QtWidgets.QLabel(track.get_lyrics(lines=LINES_LYRICS))
+        self.label_lyrics = QtWidgets.QLabel(self.track.get_lyrics(lines=LINES_LYRICS))
         self.label_lyrics.setSizePolicy(
             QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred
         )
-        self.label_lyrics.setToolTip(track.get_lyrics())
-        self.label_lyrics.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignCenter)
+        self.label_lyrics.setToolTip(self.track.get_lyrics())
+        self.label_lyrics.setAlignment(
+            QtCore.Qt.AlignmentFlag.AlignRight | QtCore.Qt.AlignmentFlag.AlignCenter
+        )
+
         self.layout_title = QtWidgets.QHBoxLayout()
-        self.layout_title.addWidget(self.state_indicator)
+        self.layout_title.addWidget(self.button_play)
         self.layout_title.addWidget(self.label_filename)
         self.layout_title.addStretch()
 
@@ -180,8 +115,9 @@ class TrackLayout(QtWidgets.QFrame):
         self.layout_.addWidget(self.label_lyrics, 0, 2, 5, 1)
 
         self.setLayout(self.layout_)
-
         self.setFrameStyle(QtWidgets.QFrame.StyledPanel | QtWidgets.QFrame.Plain)
+
+        self.button_play.clicked.connect(self.play)
         self.mouseReleaseEvent = self.mouseReleaseEvent
 
     def mouseReleaseEvent(self, event: QtGui.QMouseEvent):
@@ -192,8 +128,8 @@ class TrackLayout(QtWidgets.QFrame):
         Args:
             event (QtGui.QMouseEvent): Mouse release event.
         """
-        # Only take into account the left mouse button
         if event.button() != QtCore.Qt.LeftButton:
+            # Only take into account the left mouse button
             return
 
         self.toggle_selection()
@@ -218,3 +154,21 @@ class TrackLayout(QtWidgets.QFrame):
         if force is None:
             # Trigger the signal only on a mouse click event, not on key press events
             self.signal_mouse_event.emit()
+
+    def play(self) -> None:
+        """Play the track in the default application."""
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl.fromLocalFile(self.track.filepath))
+
+    def set_state(self, state: State) -> None:
+        """Set the state of the track.
+
+        Args:
+            state (State): State of the track.
+
+        Change the color of the play button.
+        """
+        self.state = state
+        icon_color = self.state.value.value
+        self.button_play.setIcon(
+            get_icon("play-circle", color=icon_color, color_active=icon_color)
+        )
