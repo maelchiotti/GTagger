@@ -41,7 +41,7 @@ class WindowHelp(QtWidgets.QDialog):
             - Ctrl+D: Deselect all files.
             """
         )
-        self.label_usage.setTextFormat(QtCore.Qt.RichText)
+        self.label_usage.setTextFormat(QtCore.Qt.TextFormat.RichText)
         self.label_usage.setWordWrap(True)
 
         self.layout_usage = QtWidgets.QGridLayout()
@@ -49,7 +49,7 @@ class WindowHelp(QtWidgets.QDialog):
 
         self.frame_usage = QtWidgets.QFrame()
         self.frame_usage.setFrameStyle(
-            QtWidgets.QFrame.StyledPanel | QtWidgets.QFrame.Plain
+            QtWidgets.QFrame.Shape.StyledPanel | QtWidgets.QFrame.Shadow.Plain
         )
         self.frame_usage.setLayout(self.layout_usage)
 
@@ -92,38 +92,42 @@ class WindowHelp(QtWidgets.QDialog):
             The state indicator, that can be clicked to play the track in the default application, indicates the following states:
             """
         )
-        self.label_state_indicator_title.setTextFormat(QtCore.Qt.RichText)
+        self.label_state_indicator_title.setTextFormat(QtCore.Qt.TextFormat.RichText)
         self.label_state_indicator_title.setWordWrap(True)
         self.label_state_indicator_read = QtWidgets.QLabel(
             """
             The tags of the track were read successfully.
             """
         )
-        self.label_state_indicator_read.setTextFormat(QtCore.Qt.RichText)
+        self.label_state_indicator_read.setTextFormat(QtCore.Qt.TextFormat.RichText)
         self.label_state_indicator_found = QtWidgets.QLabel(
             """
             The lyrics of the track were found successfully.
             """
         )
-        self.label_state_indicator_found.setTextFormat(QtCore.Qt.RichText)
+        self.label_state_indicator_found.setTextFormat(QtCore.Qt.TextFormat.RichText)
         self.label_state_indicator_not_found = QtWidgets.QLabel(
             """
             The lyrics of the track were not found.
             """
         )
-        self.label_state_indicator_not_found.setTextFormat(QtCore.Qt.RichText)
+        self.label_state_indicator_not_found.setTextFormat(
+            QtCore.Qt.TextFormat.RichText
+        )
         self.label_state_indicator_saved = QtWidgets.QLabel(
             """
             The lyrics of the track were saved successfully.
             """
         )
-        self.label_state_indicator_saved.setTextFormat(QtCore.Qt.RichText)
+        self.label_state_indicator_saved.setTextFormat(QtCore.Qt.TextFormat.RichText)
         self.label_state_indicator_not_saved = QtWidgets.QLabel(
             """
             The lyrics of the track were not saved.
             """
         )
-        self.label_state_indicator_not_saved.setTextFormat(QtCore.Qt.RichText)
+        self.label_state_indicator_not_saved.setTextFormat(
+            QtCore.Qt.TextFormat.RichText
+        )
 
         self.layout_legend = QtWidgets.QGridLayout()
 
@@ -147,7 +151,7 @@ class WindowHelp(QtWidgets.QDialog):
 
         self.frame_state_indicator = QtWidgets.QFrame()
         self.frame_state_indicator.setFrameStyle(
-            QtWidgets.QFrame.StyledPanel | QtWidgets.QFrame.Plain
+            QtWidgets.QFrame.Shape.StyledPanel | QtWidgets.QFrame.Shadow.Plain
         )
         self.frame_state_indicator.setLayout(self.layout_state_indicator)
 
@@ -157,4 +161,4 @@ class WindowHelp(QtWidgets.QDialog):
 
         self.setLayout(self.layout_)
         self.setWindowTitle("Help")
-        self.setWindowModality(QtCore.Qt.ApplicationModal)
+        self.setWindowModality(QtCore.Qt.WindowModality.ApplicationModal)

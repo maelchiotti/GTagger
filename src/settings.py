@@ -16,7 +16,7 @@ class SettingsManager(QtCore.QObject):
         """Init SettingsManager."""
         super().__init__()
 
-        QtCore.QSettings.setDefaultFormat(QtCore.QSettings.IniFormat)
+        QtCore.QSettings.setDefaultFormat(QtCore.QSettings.Format.IniFormat)
         self.settings = QtCore.QSettings()
 
     def get_setting(

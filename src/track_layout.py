@@ -85,10 +85,11 @@ class TrackLayout(QtWidgets.QFrame):
             "QLabel { font-size: 11pt; font-weight: 400; } " + STYLESHEET_QTOOLTIP
         )
         self.label_duration = QtWidgets.QLabel(f"<i>{self.track.get_duration()}</i>")
-        self.label_duration.setTextFormat(QtCore.Qt.RichText)
+        self.label_duration.setTextFormat(QtCore.Qt.TextFormat.RichText)
         self.label_lyrics = QtWidgets.QLabel(self.track.get_lyrics(lines=LINES_LYRICS))
         self.label_lyrics.setSizePolicy(
-            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred
+            QtWidgets.QSizePolicy.Policy.Expanding,
+            QtWidgets.QSizePolicy.Policy.Preferred,
         )
         self.label_lyrics.setToolTip(self.track.get_lyrics())
         self.label_lyrics.setAlignment(
@@ -115,7 +116,9 @@ class TrackLayout(QtWidgets.QFrame):
         self.layout_.addWidget(self.label_lyrics, 0, 2, 5, 1)
 
         self.setLayout(self.layout_)
-        self.setFrameStyle(QtWidgets.QFrame.StyledPanel | QtWidgets.QFrame.Plain)
+        self.setFrameStyle(
+            QtWidgets.QFrame.Shape.StyledPanel | QtWidgets.QFrame.Shadow.Plain
+        )
 
         self.button_play.clicked.connect(self.play)
         self.mouseReleaseEvent = self.mouseReleaseEvent
@@ -128,7 +131,7 @@ class TrackLayout(QtWidgets.QFrame):
         Args:
             event (QtGui.QMouseEvent): Mouse release event.
         """
-        if event.button() != QtCore.Qt.LeftButton:
+        if event.button() != QtCore.Qt.MouseButton.LeftButton:
             # Only take into account the left mouse button
             return
 

@@ -71,7 +71,7 @@ class WindowSettings(QtWidgets.QDialog):
 
         self.setLayout(self.layout_)
         self.setWindowTitle("Settings")
-        self.setWindowModality(QtCore.Qt.ApplicationModal)
+        self.setWindowModality(QtCore.Qt.WindowModality.ApplicationModal)
 
         self.checkbox_recursive.stateChanged.connect(self.toggle_recursive_search)
         self.checkbox_overwrite.stateChanged.connect(self.toggle_overwrite_lyrics)

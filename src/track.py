@@ -8,12 +8,12 @@ from pathlib import Path
 from typing import Optional, Union
 
 import mutagen
+from PySide6 import QtCore, QtGui
 from mutagen.flac import Picture as FLACPicture
 from mutagen.flac import StreamInfo as FLACInfo
 from mutagen.id3._frames import APIC as MP3Picture
 from mutagen.id3._frames import USLT
 from mutagen.mp3 import MPEGInfo as MP3Info
-from PySide6 import QtCore, QtGui
 
 from src.consts import SIZE_COVER, SPLITTERS
 from src.enums import CustomColors, FileType
@@ -91,7 +91,7 @@ class Track(QtCore.QObject):
             self.cover = cover.scaled(
                 SIZE_COVER,
                 SIZE_COVER,
-                QtCore.Qt.KeepAspectRatio,
+                QtCore.Qt.AspectRatioMode.KeepAspectRatio,
             )
 
             # Artists: all and main
