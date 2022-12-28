@@ -94,9 +94,11 @@ class WindowMain(QtWidgets.QMainWindow):
 
         self.action_select = QtGui.QAction("Select all tracks")
         self.action_select.setToolTip("Select all tracks")
+        self.action_select.setEnabled(False)
 
         self.action_deselect = QtGui.QAction("Deselect all tracks")
         self.action_deselect.setToolTip("Deselect all tracks")
+        self.action_deselect.setEnabled(False)
 
         self.action_cancel_rows = QtGui.QAction("Cancel the modifications")
         self.action_cancel_rows.setToolTip("Cancel the modifications\nof selected rows")
@@ -399,16 +401,6 @@ class WindowMain(QtWidgets.QMainWindow):
             self.progression_bar.setValue(0)
         self.progression_bar.setMaximum(maximum)
 
-    def remove_layout(self, track: Track, item: CustomListWidgetItem) -> None:
-        """Remove a track item.
-
-        Args:
-            track (Track): Track to remove.
-            item (CustomListWidgetItem): Track item to remove.
-        """
-        self.list_tracks.takeItem(self.list_tracks.row(item))
-        self.track_layouts_items.pop(track)
-
     @QtCore.Slot()
     def add_files(self, select_directory: bool) -> None:
         """Add the selected tracks to the scroll area.
@@ -436,10 +428,13 @@ class WindowMain(QtWidgets.QMainWindow):
         self.progression_bar.reset()
         self.set_maximum_progression_bar(files)
 
-        self.thread_read_tracks = ThreadReadTracks(
-            files, self.action_add_files, self.action_add_folder, self.gtagger
-        )
+        self.action_add_files.setEnabled(False)
+        self.action_add_folder.setEnabled(False)
+
+        self.thread_read_tracks = ThreadReadTracks(files, self.gtagger)
         self.thread_read_tracks.add_track.connect(self.add_track)
+        self.thread_read_tracks.started.connect(self.read_tracks_started)
+        self.thread_read_tracks.finished.connect(self.read_tracks_finished)
         self.thread_read_tracks.start()
 
     @QtCore.Slot()
@@ -557,8 +552,14 @@ class WindowMain(QtWidgets.QMainWindow):
             layout = layout_item[0]
             item = layout_item[1]
             if layout.selected:
-                self.remove_layout(track, item)
+                self.list_tracks.takeItem(self.list_tracks.row(item))
+                self.track_layouts_items.pop(track)
+
         self.selection_changed()
+
+        if len(self.track_layouts_items) == 0:
+            self.action_select.setEnabled(False)
+            self.action_deselect.setEnabled(False)
 
     @QtCore.Slot()
     def selection_changed(self) -> None:
@@ -574,6 +575,7 @@ class WindowMain(QtWidgets.QMainWindow):
                 enable_remove = True
                 if track.has_lyrics_new():
                     enable_cancel = True
+
         self.action_cancel_rows.setEnabled(enable_cancel)
         self.action_remove_rows.setEnabled(enable_remove)
 
@@ -672,6 +674,18 @@ class WindowMain(QtWidgets.QMainWindow):
         """Open the help window."""
         self.window_help.show()
 
+    def read_tracks_started(self) -> None:
+        """Thread reading the tracks has started."""
+        self.action_add_files.setEnabled(False)
+        self.action_add_folder.setEnabled(False)
+
+    def read_tracks_finished(self) -> None:
+        """Thread reading the tracks has finished."""
+        self.action_add_files.setEnabled(True)
+        self.action_add_folder.setEnabled(True)
+        self.action_select.setEnabled(True)
+        self.action_deselect.setEnabled(True)
+
     def select_tracks(self) -> None:
         """Select all the tracks."""
         if len(self.track_layouts_items) == 0:
@@ -680,8 +694,8 @@ class WindowMain(QtWidgets.QMainWindow):
         for layout_item in self.track_layouts_items.values():
             track_layout = layout_item[0]
             track_layout.toggle_selection(force=True)
-        self.action_cancel_rows.setEnabled(True)
-        self.action_remove_rows.setEnabled(True)
+
+        self.selection_changed()
 
     def deselect_tracks(self) -> None:
         """Deselect all the tracks."""
@@ -691,8 +705,8 @@ class WindowMain(QtWidgets.QMainWindow):
         for layout_item in self.track_layouts_items.values():
             track_layout = layout_item[0]
             track_layout.toggle_selection(force=False)
-        self.action_cancel_rows.setEnabled(False)
-        self.action_remove_rows.setEnabled(False)
+
+        self.selection_changed()
 
     def eventFilter(self, watched: QtCore.QObject, event: QtCore.QEvent):
         """Filter the event to intercept the shortcuts.
