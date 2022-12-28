@@ -4,6 +4,7 @@
 
 - Tracks display and management:
   - Added buttons to (de)select the tracks.
+  - The state indicator can now be clicked to play the track in the default application.
 - Settings:
     - The position of the toolbar is now automatically saved in the settings.
 
