@@ -37,12 +37,14 @@ class WindowSettings(QtWidgets.QDialog):
 
     def setup_ui(self) -> None:
         """Set up the UI of the window."""
+        # Recursive search
         self.checkbox_recursive = QtWidgets.QCheckBox("Recursively search for files")
         recursive_search = self.gtagger.settings_manager.get_setting(
             Settings.RECURSIVE_SEARCH.value, default=True, type_=bool
         )
         self.checkbox_recursive.setChecked(recursive_search)
 
+        # Overwrite lyrics
         self.checkbox_overwrite = QtWidgets.QCheckBox(
             "Overwrite already existing lyrics"
         )
@@ -51,15 +53,21 @@ class WindowSettings(QtWidgets.QDialog):
         )
         self.checkbox_overwrite.setChecked(overwrite_lyrics)
 
+        # Files category
         self.grid_files = QtWidgets.QGridLayout()
         self.grid_files.addWidget(self.checkbox_recursive, 0, 0, 1, 1)
-        self.grid_files.addWidget(self.checkbox_overwrite, 1, 0, 1, 1)
-
         self.box_files = QtWidgets.QGroupBox("Files")
         self.box_files.setLayout(self.grid_files)
 
+        # Lyrics category
+        self.grid_lyrics = QtWidgets.QGridLayout()
+        self.grid_lyrics.addWidget(self.checkbox_overwrite, 1, 0, 1, 1)
+        self.box_lyrics = QtWidgets.QGroupBox("Lyrics")
+        self.box_lyrics.setLayout(self.grid_lyrics)
+
         self.layout_ = QtWidgets.QGridLayout()
         self.layout_.addWidget(self.box_files, 0, 0, 1, 1)
+        self.layout_.addWidget(self.box_lyrics, 1, 0, 1, 1)
 
         self.setLayout(self.layout_)
         self.setWindowTitle("Settings")
