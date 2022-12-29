@@ -14,12 +14,16 @@ To avoid any issue with your files, please back them up before using GTagger.
 
 Download the latest version of the executable `GTagger.exe` from the [Releases](https://github.com/maelchiotti/GTagger/releases) and execute it.
 
+### On Linux
+
+Download the latest version of the executable `GTagger` from the [Releases](https://github.com/maelchiotti/GTagger/releases) and execute it.
+
 ### From source
 
 - Install the required dependencies:
 
   ```shell
-  pip install -r requirements.txt
+  pip install -r requirements.txt -U
   ```
 
 - Launch GTagger:
