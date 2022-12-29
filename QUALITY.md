@@ -2,16 +2,10 @@
 
 ## Hooks
 
-- This `pre-commit` hook should be used to automatically format files on commit:
+- A pre-commit hook should be installed to automatically format files on commit with the following command:
 
   ```shell
-  #!/bin/sh
-
-  black gtagger.py src
-
-  git add --all
-
-  exit 0
+  pre-commit install
   ```
 
 ## Stubs
