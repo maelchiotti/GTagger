@@ -7,10 +7,10 @@ from typing import TYPE_CHECKING, Optional
 from PySide6 import QtCore, QtGui, QtWidgets
 
 from src.consts import (
-    SIZE_COVER,
     LINES_LYRICS,
-    STYLESHEET_QTOOLTIP,
+    SIZE_COVER,
     SIZE_ICON_INDICATOR,
+    STYLESHEET_QTOOLTIP,
 )
 from src.enums import CustomColors, State
 from src.icons import get_icon

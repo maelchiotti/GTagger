@@ -22,7 +22,7 @@ from src.consts import (
     URL_TOKEN,
     WIDTH_PROGRESS_BAR,
 )
-from src.enums import CustomColors, FileType, Sort, State, Settings
+from src.enums import CustomColors, FileType, Settings, Sort, State
 from src.icons import get_icon
 from src.tag import ThreadReadTracks, ThreadSearchLyrics
 from src.track import Track

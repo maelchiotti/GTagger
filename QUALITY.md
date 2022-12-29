@@ -6,11 +6,11 @@
 
   ```shell
   #!/bin/sh
-  
+
   black gtagger.py src
-  
+
   git add --all
-  
+
   exit 0
   ```
 

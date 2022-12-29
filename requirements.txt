@@ -4,3 +4,4 @@ wrap-genius
 pyqtdarktheme
 qtawesome
 regex
+pre-commit

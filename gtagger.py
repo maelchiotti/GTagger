@@ -40,7 +40,7 @@ class GTagger(QtWidgets.QApplication):
         self.setStyleSheet(
             qdarktheme.load_stylesheet("dark", "rounded")
             + """
-            
+
             QCheckBox:unchecked:hover {
                 border-bottom: 2px solid """
             + CustomColors.YELLOW_GENIUS.value
@@ -51,7 +51,7 @@ class GTagger(QtWidgets.QApplication):
             + CustomColors.YELLOW_GENIUS.value
             + """;
             }
-            
+
             QProgressBar {
                 color: """
             + CustomColors.GREY.value
