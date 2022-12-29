@@ -1,7 +1,7 @@
+pre-commit
 mutagen
 PySide6
 wrap-genius
 pyqtdarktheme
 qtawesome
 regex
-pre-commit
