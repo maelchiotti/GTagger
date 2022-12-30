@@ -9,6 +9,7 @@ from PySide6 import QtCore, QtGui, QtWidgets
 from src.consts import (
     LINES_LYRICS,
     SIZE_COVER,
+    SIZE_ICON,
     SIZE_ICON_INDICATOR,
     STYLESHEET_QTOOLTIP,
 )
@@ -25,6 +26,7 @@ class TrackLayout(QtWidgets.QFrame):
 
     Signals:
         signal_mouse_event (QtCore.Signal): Emitted when a mouse event is intercepted.
+        signal_show_lyrics (QtCore.Signal): Emitted when the user clicks on the button to show the full lyrics.
 
     Attributes:
         track (Track): Track to display.
@@ -35,6 +37,7 @@ class TrackLayout(QtWidgets.QFrame):
     """
 
     signal_mouse_event = QtCore.Signal()
+    signal_show_lyrics = QtCore.Signal(str, str)
 
     def __init__(self, track: Track, state: State, gtagger: GTagger) -> None:
         """Init TrackLayout.
@@ -96,6 +99,15 @@ class TrackLayout(QtWidgets.QFrame):
             QtCore.Qt.AlignmentFlag.AlignRight | QtCore.Qt.AlignmentFlag.AlignCenter
         )
 
+        self.button_lyrics = QtWidgets.QPushButton()
+        self.button_lyrics.setIcon(get_icon("eye-plus"))
+        self.button_lyrics.setFlat(True)
+        self.button_lyrics.setSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Preferred,
+            QtWidgets.QSizePolicy.Policy.Expanding,
+        )
+        self.button_lyrics.setIconSize(QtCore.QSize(SIZE_ICON, SIZE_ICON))
+
         self.layout_title = QtWidgets.QHBoxLayout()
         self.layout_title.addWidget(self.button_play)
         self.layout_title.addWidget(self.label_filename)
@@ -114,6 +126,7 @@ class TrackLayout(QtWidgets.QFrame):
         self.layout_.addWidget(self.label_album, 3, 1, 1, 1)
         self.layout_.addWidget(self.label_duration, 4, 1, 1, 1)
         self.layout_.addWidget(self.label_lyrics, 0, 2, 5, 1)
+        self.layout_.addWidget(self.button_lyrics, 0, 3, 5, 1)
 
         self.setLayout(self.layout_)
         self.setFrameStyle(
@@ -121,6 +134,7 @@ class TrackLayout(QtWidgets.QFrame):
         )
 
         self.button_play.clicked.connect(self.play)
+        self.button_lyrics.clicked.connect(self.open_popup_lyrics)
         self.mouseReleaseEvent = self.mouseReleaseEvent
 
     def mouseReleaseEvent(self, event: QtGui.QMouseEvent):
@@ -131,11 +145,10 @@ class TrackLayout(QtWidgets.QFrame):
         Args:
             event (QtGui.QMouseEvent): Mouse release event.
         """
-        if event.button() != QtCore.Qt.MouseButton.LeftButton:
-            # Only take into account the left mouse button
-            return
+        if event.button() == QtCore.Qt.MouseButton.LeftButton:
+            self.toggle_selection()
 
-        self.toggle_selection()
+        event.accept()
 
     def toggle_selection(self, force: Optional[bool] = None) -> None:
         """Toggle the selection of the track layout.
@@ -161,6 +174,10 @@ class TrackLayout(QtWidgets.QFrame):
     def play(self) -> None:
         """Play the track in the default application."""
         QtGui.QDesktopServices.openUrl(QtCore.QUrl.fromLocalFile(self.track.filepath))
+
+    def open_popup_lyrics(self) -> None:
+        """Emit a signal to show the popup."""
+        self.signal_show_lyrics.emit(self.track.get_lyrics(), self.track.get_title())
 
     def set_state(self, state: State) -> None:
         """Set the state of the track.

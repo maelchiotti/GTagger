@@ -24,6 +24,7 @@ from src.consts import (
 )
 from src.enums import CustomColors, FileType, Settings, Sort, State
 from src.icons import get_icon
+from src.popup_lyrics import PopupLyrics
 from src.tag import ThreadReadTracks, ThreadSearchLyrics
 from src.track import Track
 from src.track_layout import TrackLayout
@@ -45,6 +46,7 @@ class WindowMain(QtWidgets.QMainWindow):
         window_settings (WindowSettings): Settings window.
         window_information (WindowInformation): Information window.
         window_help (WindowHelp) : Help window.
+        self.popup_lyrics (PopupLyrics): Lyrics popup.
         thread_read_tracks (ThreadReadTracks): Thread to read the tracks.
         thread_search_lyrics (ThreadLyricsSearch): Thread to search for the lyrics.
         sort (Sort): Sort mode for the list of tracks.
@@ -69,6 +71,7 @@ class WindowMain(QtWidgets.QMainWindow):
         self.window_settings: WindowSettings = WindowSettings(self, self.gtagger)
         self.window_information: WindowInformation = WindowInformation(self)
         self.window_help: WindowHelp = WindowHelp(self)
+        self.popup_lyrics: PopupLyrics = PopupLyrics(self)
         self.thread_read_tracks: ThreadReadTracks
         self.thread_search_lyrics: ThreadSearchLyrics
         self.sort: Sort = Sort.ASCENDING
@@ -119,7 +122,8 @@ class WindowMain(QtWidgets.QMainWindow):
 
         spacer = QtWidgets.QWidget()
         spacer.setSizePolicy(
-            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding
+            QtWidgets.QSizePolicy.Policy.Expanding,
+            QtWidgets.QSizePolicy.Policy.Expanding,
         )
 
         self.toolbar = QtWidgets.QToolBar()
@@ -191,7 +195,7 @@ class WindowMain(QtWidgets.QMainWindow):
         # List of the tracks
         self.list_tracks = QtWidgets.QListWidget()
         self.list_tracks.setSortingEnabled(True)
-        self.list_tracks.setFrameShape(QtWidgets.QFrame.NoFrame)
+        self.list_tracks.setFrameShape(QtWidgets.QFrame.Shape.NoFrame)
         self.list_tracks.setStyleSheet(
             """QListWidget::item {margin-bottom: """
             + str(MARGIN_TRACK_LAYOUT)
@@ -204,7 +208,7 @@ class WindowMain(QtWidgets.QMainWindow):
         self.scroll_area = QtWidgets.QScrollArea()
         self.scroll_area.setWidget(self.list_tracks)
         self.scroll_area.setWidgetResizable(True)
-        self.scroll_area.setFrameShape(QtWidgets.QFrame.NoFrame)
+        self.scroll_area.setFrameShape(QtWidgets.QFrame.Shape.NoFrame)
 
         # Central widget's layout
         self.layout_widget_central = QtWidgets.QGridLayout()
@@ -458,6 +462,7 @@ class WindowMain(QtWidgets.QMainWindow):
             )
             track.signal_lyrics_changed.connect(self.lyrics_changed)
             layout.signal_mouse_event.connect(self.selection_changed)
+            layout.signal_show_lyrics.connect(self.open_popup_lyrics)
             item = CustomListWidgetItem(track.get_title(), self.list_tracks)
             item.setSizeHint(layout.sizeHint())
             self.list_tracks.addItem(item)
@@ -663,6 +668,17 @@ class WindowMain(QtWidgets.QMainWindow):
         """Open the help window."""
         self.window_help.show()
 
+    @QtCore.Slot()
+    def open_popup_lyrics(self, lyrics: str, title: str) -> None:
+        """Open the popup to the show the full `lyrics` of the track.
+
+        Args:
+            lyrics (str): Lyrics to show.
+            title (str): Title of the track.
+        """
+        self.popup_lyrics.set_lyrics(lyrics, title)
+        self.popup_lyrics.show()
+
     def read_tracks_started(self) -> None:
         """Thread reading the tracks has started."""
         self.action_add_files.setEnabled(False)
@@ -707,7 +723,7 @@ class WindowMain(QtWidgets.QMainWindow):
             watched (QtCore.QObject): Object on which the event occurred.
             event (QtCore.QEvent): Event.
         """
-        if event.type() == QtCore.QEvent.ShortcutOverride:
+        if event.type() == QtCore.QEvent.Type.ShortcutOverride:
             # event can only be a QKeyEvent
             self.keyPressEvent(event)  # type: ignore # k
         return super().eventFilter(watched, event)
@@ -723,13 +739,13 @@ class WindowMain(QtWidgets.QMainWindow):
             event (QtGui.QKeyEvent): Key press event.
         """
         if (
-            event.modifiers() == QtCore.Qt.ControlModifier
-            and event.key() == QtCore.Qt.Key_A
+            event.modifiers() == QtCore.Qt.KeyboardModifier.ControlModifier
+            and event.key() == QtCore.Qt.Key.Key_A
         ):
             self.select_tracks()
         elif (
-            event.modifiers() == QtCore.Qt.ControlModifier
-            and event.key() == QtCore.Qt.Key_D
+            event.modifiers() == QtCore.Qt.KeyboardModifier.ControlModifier
+            and event.key() == QtCore.Qt.Key.Key_D
         ):
             self.deselect_tracks()
 
