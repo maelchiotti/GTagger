@@ -94,7 +94,6 @@ class TrackLayout(QtWidgets.QFrame):
             QtWidgets.QSizePolicy.Policy.Expanding,
             QtWidgets.QSizePolicy.Policy.Preferred,
         )
-        self.label_lyrics.setToolTip(self.track.get_lyrics())
         self.label_lyrics.setAlignment(
             QtCore.Qt.AlignmentFlag.AlignRight | QtCore.Qt.AlignmentFlag.AlignCenter
         )

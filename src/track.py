@@ -293,6 +293,7 @@ class Track(QtCore.QObject):
                 if self.get_file_type() == FileType.FLAC:
                     self.file.tags["lyrics"] = self.lyrics_new
                 else:
+                    self.file.tags.delall("USLT")
                     self.file.tags.add(USLT(text=self.lyrics_new))
                 self.file.save()
             except Exception as exception:
@@ -339,7 +340,5 @@ class Track(QtCore.QObject):
         Returns:
             USLT | None: USLT field of a MP3 file.
         """
-        for name, tag in self.file.tags.items():
-            if "USLT" in name:
-                return tag
-        return None
+        uslts = self.file.tags.getall("USLT")
+        return uslts[0] if len(uslts) > 0 else None

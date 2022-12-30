@@ -527,7 +527,6 @@ class WindowMain(QtWidgets.QMainWindow):
                 track.read_tags()
                 track.set_lyrics_new("")
                 layout.label_lyrics.setText(track.get_lyrics(lines=LINES_LYRICS))
-                layout.label_lyrics.setToolTip(track.get_lyrics_original())
             else:
                 layout.set_state(State.LYRICS_NOT_SAVED)
             self.increment_progression_bar()
@@ -540,7 +539,6 @@ class WindowMain(QtWidgets.QMainWindow):
             if layout.selected:
                 track.set_lyrics_new("")
                 layout.label_lyrics.setText(track.get_lyrics(lines=LINES_LYRICS))
-                layout.label_lyrics.setToolTip(track.get_lyrics_original())
                 layout.set_state(State.TAGS_READ)
 
     @QtCore.Slot()
