@@ -561,19 +561,22 @@ class WindowMain(QtWidgets.QMainWindow):
     def selection_changed(self) -> None:
         """Selection of the tracks changed.
 
-        Toggles the cancel and remove buttons, and changes lyrics color.
+        Toggles the cancel, remove and save buttons.
         """
         enable_cancel = False
         enable_remove = False
+        enable_save = False
         for track, layout_item in self.track_layouts_items.items():
             layout = layout_item[0]
             if layout.selected:
                 enable_remove = True
-                if track.has_lyrics_new():
-                    enable_cancel = True
-
+            if layout.selected and track.has_lyrics_new():
+                enable_cancel = True
+            if track.has_lyrics_new():
+                enable_save = True
         self.action_cancel_rows.setEnabled(enable_cancel)
         self.action_remove_rows.setEnabled(enable_remove)
+        self.action_save_lyrics.setEnabled(enable_save)
 
     @QtCore.Slot()
     def lyrics_changed(self) -> None:
