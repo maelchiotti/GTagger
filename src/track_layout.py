@@ -100,13 +100,24 @@ class TrackLayout(QtWidgets.QFrame):
         )
 
         self.button_lyrics = QtWidgets.QPushButton()
-        self.button_lyrics.setIcon(get_icon("eye-plus"))
+        self.button_lyrics.setIcon(get_icon("eye"))
         self.button_lyrics.setFlat(True)
         self.button_lyrics.setSizePolicy(
             QtWidgets.QSizePolicy.Policy.Preferred,
             QtWidgets.QSizePolicy.Policy.Expanding,
         )
         self.button_lyrics.setIconSize(QtCore.QSize(SIZE_ICON, SIZE_ICON))
+
+        self.button_copy = QtWidgets.QPushButton()
+        self.button_copy.setIcon(
+            get_icon("content-copy", color_active=CustomColors.LIGHT_GREEN.value)
+        )
+        self.button_copy.setFlat(True)
+        self.button_copy.setSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Preferred,
+            QtWidgets.QSizePolicy.Policy.Expanding,
+        )
+        self.button_copy.setIconSize(QtCore.QSize(SIZE_ICON, SIZE_ICON))
 
         self.layout_title = QtWidgets.QHBoxLayout()
         self.layout_title.addWidget(self.button_play)
@@ -126,7 +137,8 @@ class TrackLayout(QtWidgets.QFrame):
         self.layout_.addWidget(self.label_album, 3, 1, 1, 1)
         self.layout_.addWidget(self.label_duration, 4, 1, 1, 1)
         self.layout_.addWidget(self.label_lyrics, 0, 2, 5, 1)
-        self.layout_.addWidget(self.button_lyrics, 0, 3, 5, 1)
+        self.layout_.addWidget(self.button_lyrics, 1, 3, 2, 1)
+        self.layout_.addWidget(self.button_copy, 3, 3, 2, 1)
 
         self.setLayout(self.layout_)
         self.setFrameStyle(
@@ -135,6 +147,7 @@ class TrackLayout(QtWidgets.QFrame):
 
         self.button_play.clicked.connect(self.play)
         self.button_lyrics.clicked.connect(self.open_popup_lyrics)
+        self.button_copy.clicked.connect(self.copy_lyrics)
         self.mouseReleaseEvent = self.mouseReleaseEvent
 
     def mouseReleaseEvent(self, event: QtGui.QMouseEvent):
@@ -171,13 +184,21 @@ class TrackLayout(QtWidgets.QFrame):
             # Trigger the signal only on a mouse click event, not on key press events
             self.signal_mouse_event.emit()
 
+    @QtCore.Slot()
     def play(self) -> None:
         """Play the track in the default application."""
         QtGui.QDesktopServices.openUrl(QtCore.QUrl.fromLocalFile(self.track.filepath))
 
+    @QtCore.Slot()
     def open_popup_lyrics(self) -> None:
         """Emit a signal to show the popup."""
         self.signal_show_lyrics.emit(self.track.get_lyrics(), self.track.get_title())
+
+    @QtCore.Slot()
+    def copy_lyrics(self) -> None:
+        """Copy the lyrics to the clipboard."""
+        clipboard = QtWidgets.QApplication.clipboard()
+        clipboard.setText(self.track.get_lyrics())
 
     def set_state(self, state: State) -> None:
         """Set the state of the track.
