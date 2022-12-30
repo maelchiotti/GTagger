@@ -5,6 +5,8 @@
 - Tracks display and management:
   - Added buttons to (de)select the tracks.
   - The state indicator can now be clicked to play the track in the default application.
+  - Added a button to show the full lyrics of a track in a popup window.
+  - Added a button to copy the lyrics of a track to the clipboard.
 - Settings:
     - The position of the toolbar is now automatically saved in the settings.
 
