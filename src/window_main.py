@@ -447,11 +447,12 @@ class WindowMain(QtWidgets.QMainWindow):
                 files = self.select_directory()
             else:
                 files = self.select_files()
-            if len(files) <= 0:
-                return
         else:
             # Multiple files were dropped
-            files.extend(paths)
+            files.extend(path for path in paths if path.is_file())
+
+        if len(files) <= 0:
+            return
 
         self.read_files(files)
 
