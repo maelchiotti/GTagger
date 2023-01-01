@@ -1,5 +1,7 @@
 """Handles a music track."""
 
+from __future__ import annotations
+
 import logging as log
 import os
 import re
@@ -36,7 +38,7 @@ class Track(QtCore.QObject):
         self.file (mutagen.FileType): File read by `mutagen`, containing tags and metadata.
     """
 
-    signal_lyrics_changed = QtCore.Signal()
+    signal_lyrics_changed = QtCore.Signal(QtCore.QObject)
 
     def __init__(self, filepath: Path) -> None:
         """Init Track.
@@ -280,7 +282,7 @@ class Track(QtCore.QObject):
         """
         lyrics = lyrics.strip("\n")
         self.lyrics_new = lyrics
-        self.signal_lyrics_changed.emit()
+        self.signal_lyrics_changed.emit(self)
 
     def save_lyrics(self) -> bool:
         """Save the lyrics to the file.
@@ -327,6 +329,16 @@ class Track(QtCore.QObject):
             bool: `True` if the track has new lyrics.
         """
         return self.lyrics_new != ""
+
+    def has_lyrics(self) -> bool:
+        """Return `True` if the track has lyrics.
+
+        The track has lyrics if it has either original or new ones.
+
+        Returns:
+            bool: `True` if the track has lyrics.
+        """
+        return self.has_lyrics_original() or self.has_lyrics_new()
 
     def get_uslt(self) -> Union[USLT, None]:
         """Return the USLT field of a MP3 file.

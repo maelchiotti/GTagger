@@ -579,21 +579,20 @@ class WindowMain(QtWidgets.QMainWindow):
         self.action_save_lyrics.setEnabled(enable_save)
 
     @QtCore.Slot()
-    def lyrics_changed(self) -> None:
+    def lyrics_changed(self, track: Track) -> None:
         """Lyrics of a track changed."""
-        enable_save = False
-        for track, layout_item in self.track_layouts_items.items():
-            layout = layout_item[0]
-            if track.has_lyrics_new():
-                # Track has new lyrics
-                enable_save = True
-                layout.label_lyrics.setStyleSheet(
-                    f"color: {CustomColors.LIGHT_GREEN.value}"
-                )
-            else:
-                layout.label_lyrics.setStyleSheet("")
-        self.action_save_lyrics.setEnabled(enable_save)
-        self.selection_changed()  # Update the cancel and remove buttons
+        layout, _ = self.track_layouts_items[track]
+        if track.has_lyrics_new():
+            layout.label_lyrics.setStyleSheet(
+                f"color: {CustomColors.LIGHT_GREEN.value}"
+            )
+        else:
+            layout.label_lyrics.setStyleSheet("")
+
+        layout.button_lyrics.setEnabled(track.has_lyrics())
+        layout.button_copy.setEnabled(track.has_lyrics())
+
+        self.selection_changed()
 
     @QtCore.Slot()
     def filter_tracks(self) -> None:

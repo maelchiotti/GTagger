@@ -106,6 +106,7 @@ class TrackLayout(QtWidgets.QFrame):
             QtWidgets.QSizePolicy.Policy.Expanding,
         )
         self.button_lyrics.setIconSize(QtCore.QSize(SIZE_ICON, SIZE_ICON))
+        self.button_lyrics.setEnabled(self.track.has_lyrics())
 
         self.button_copy = QtWidgets.QPushButton()
         self.button_copy.setIcon(
@@ -117,6 +118,7 @@ class TrackLayout(QtWidgets.QFrame):
             QtWidgets.QSizePolicy.Policy.Expanding,
         )
         self.button_copy.setIconSize(QtCore.QSize(SIZE_ICON, SIZE_ICON))
+        self.button_copy.setEnabled(self.track.has_lyrics())
 
         self.layout_title = QtWidgets.QHBoxLayout()
         self.layout_title.addWidget(self.button_play)
