@@ -2,8 +2,6 @@
 
 ## Next version
 
-Drag and drop files or folders
-
 ## Future
 
 - Implement multiprocessing for searching for the lyrics, reading and saving the files.

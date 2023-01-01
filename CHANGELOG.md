@@ -2,11 +2,13 @@
 
 ## v1.2.4
 
+- Files support:
+    - A file, multiple files or a directory can be dragged and dropped in GTagger.
+    - The state indicator can be clicked to play the track in the default application.
 - Tracks display and management:
-  - Added buttons to (de)select the tracks.
-  - The state indicator can now be clicked to play the track in the default application.
-  - Added a button to show the full lyrics of a track in a popup window.
-  - Added a button to copy the lyrics of a track to the clipboard.
+    - Added buttons to (de)select the tracks.
+    - Added a button to show the full lyrics of a track in a popup window.
+    - Added a button to copy the lyrics of a track to the clipboard.
 - Settings:
     - The position of the toolbar is now automatically saved in the settings.
 
