@@ -2,7 +2,47 @@
 
 from __future__ import annotations
 
-from PySide6 import QtWidgets
+from pathlib import Path
+
+from PySide6 import QtCore, QtWidgets
+
+
+class CustomListWidget(QtWidgets.QListWidget):
+    """Custom implementation of a `QListWidget` accepting files and directories drop events.
+
+    Signals:
+        dropped_elements (list): Elements (files or directories) were dropped.
+    """
+
+    dropped_elements = QtCore.Signal(list)
+
+    def __init__(self):
+        super().__init__()
+
+        self.setAcceptDrops(True)
+
+    def dragEnterEvent(self, event):
+        if event.mimeData().hasUrls:
+            event.accept()
+        else:
+            event.ignore()
+
+    def dragMoveEvent(self, event):
+        if event.mimeData().hasUrls:
+            event.setDropAction(QtCore.Qt.DropAction.CopyAction)
+            event.accept()
+        else:
+            event.ignore()
+
+    def dropEvent(self, event):
+        if event.mimeData().hasUrls:
+            event.setDropAction(QtCore.Qt.DropAction.CopyAction)
+            event.accept()
+            paths = []
+            paths.extend(Path(path.toLocalFile()) for path in event.mimeData().urls())
+            self.dropped_elements.emit(paths)
+        else:
+            event.ignore()
 
 
 class CustomListWidgetItem(QtWidgets.QListWidgetItem):
@@ -20,6 +60,7 @@ class CustomListWidgetItem(QtWidgets.QListWidgetItem):
             listview (QtWidgets.QListWidget | None): `QListWidget` to pass to the parent class.
         """
         super().__init__(listview)
+
         self.title: str = title
 
     def __lt__(self, other: CustomListWidgetItem) -> bool:

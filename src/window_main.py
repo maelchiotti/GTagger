@@ -28,7 +28,7 @@ from src.popup_lyrics import PopupLyrics
 from src.tag import ThreadReadTracks, ThreadSearchLyrics
 from src.track import Track
 from src.track_layout import TrackLayout
-from src.tracks_list import CustomListWidgetItem
+from src.tracks_list import CustomListWidget, CustomListWidgetItem
 from src.window_help import WindowHelp
 from src.window_information import WindowInformation
 from src.window_settings import WindowSettings
@@ -193,7 +193,7 @@ class WindowMain(QtWidgets.QMainWindow):
         self.button_sort_title.setStyleSheet(f"""icon-size: {SIZE_ICON}px""")
 
         # List of the tracks
-        self.list_tracks = QtWidgets.QListWidget()
+        self.list_tracks = CustomListWidget()
         self.list_tracks.setSortingEnabled(True)
         self.list_tracks.setFrameShape(QtWidgets.QFrame.Shape.NoFrame)
         self.list_tracks.setStyleSheet(
@@ -255,8 +255,8 @@ class WindowMain(QtWidgets.QMainWindow):
 
         self.setup_style()
 
-        self.action_add_files.triggered.connect(lambda: self.add_files(False))
-        self.action_add_folder.triggered.connect(lambda: self.add_files(True))
+        self.action_add_files.triggered.connect(lambda: self.add_files([]))
+        self.action_add_folder.triggered.connect(lambda: self.add_files([], True))
         self.action_search_lyrics.triggered.connect(self.search_lyrics)
         self.action_save_lyrics.triggered.connect(self.save_lyrics)
         self.action_cancel_rows.triggered.connect(self.cancel_rows)
@@ -273,6 +273,7 @@ class WindowMain(QtWidgets.QMainWindow):
         self.button_filter_case.clicked.connect(self.filter_tracks)
         self.button_sort_title.clicked.connect(self.sort_tracks)
         self.button_stop_search.clicked.connect(self.stop_search)
+        self.list_tracks.dropped_elements.connect(self.add_files)
 
     def setup_style(self):
         """Set up the custom colors and icons for diverse elements of the application."""
@@ -345,34 +346,50 @@ class WindowMain(QtWidgets.QMainWindow):
         # Change the color of the links
         self.window_information.set_texts(CustomColors.YELLOW_GENIUS)
 
-    @staticmethod
-    def select_directories() -> str | None:
-        """Asks the user to select a directory.
-
-        Returns None if the user cancels.
-
-        Returns:
-            str | None: Path of the directory.
-        """
-        directory_dialog = QtWidgets.QFileDialog()
-        directory = directory_dialog.getExistingDirectory(caption="Select folder")
-        if directory == "":
-            return None
-        return directory
-
     def select_files(self) -> list[Path]:
-        """Asks the user to select one or multiple files.
+        """Ask the user to select files.
 
         Returns:
-            list[str]: Paths of the files.
+            list[Path]: Paths of the files.
         """
         file_dialog = QtWidgets.QFileDialog()
         files = file_dialog.getOpenFileNames(
             self, caption="Select files", filter="Audio files (*.mp3 *.flac)"
         )
+
         if len(files[0]) == 0:
             return []
+
         return [Path(file) for file in files[0]]
+
+    def select_directory(self, directory: str = "") -> list[Path]:
+        """Ask the user to select a directory.
+
+        `directory` should be an empty string if a button was used, or the path to a directory that was dropped.
+
+        Args:
+            directory (str): Path to the directory. Defaults to `""`.
+
+        Returns:
+            list[Path]: Paths of the files in the directory.
+        """
+        if directory == "":
+            # Ask the user to select a directory
+            directory_dialog = QtWidgets.QFileDialog()
+            directory = directory_dialog.getExistingDirectory(
+                caption="Select directory"
+            )
+            if directory == "":
+                return []
+
+        files: list[Path] = []
+        if self.window_settings.checkbox_recursive.isChecked():
+            for file_type in FileType:
+                files.extend(list(Path(directory).rglob("*." + file_type.value)))
+        else:
+            for file_type in FileType:
+                files.extend(list(Path(directory).glob("*." + file_type.value)))
+        return files
 
     def is_token_valid(self) -> bool:
         """Check to see if the token is in a valid format.
@@ -405,29 +422,46 @@ class WindowMain(QtWidgets.QMainWindow):
         self.progression_bar.setMaximum(maximum)
 
     @QtCore.Slot()
-    def add_files(self, select_directory: bool) -> None:
+    def add_files(self, paths: list[Path], select_directory: bool = False) -> None:
         """Add the selected tracks to the scroll area.
 
-        Args:
-            select_directory (bool): `True` if the user selected a directory.
-        """
-        # Construct the list of files
-        files: list[Path] = []
-        if select_directory:
-            directory = self.select_directories()
-            if directory is None:
-                return
-            if self.window_settings.checkbox_recursive.isChecked():
-                for file_type in FileType:
-                    files.extend(list(Path(directory).rglob("*." + file_type.value)))
-            else:
-                for file_type in FileType:
-                    files.extend(list(Path(directory).glob("*." + file_type.value)))
-        else:
-            files = self.select_files()
-        if len(files) <= 0:
-            return
+        `paths` should be an empty list if a button was used, of length equal to 1 if a directory was dropped,
+        and of length equal or superior to 1 if files were dropped.
 
+        Args:
+            paths (list[Path]): Paths of the elements to add.
+            select_directory (bool): `True` if the user adds a directory. Defaults to `False`.
+        """
+        files: list[Path] = []
+        if len(paths) == 1:
+            # On element was dropped
+            if paths[0].is_dir():
+                # A directory was dropped
+                files = self.select_directory(str(paths[0]))
+            else:
+                # A file was dropped
+                files.extend(paths)
+        elif len(paths) == 0:
+            # A button was used
+            if select_directory:
+                files = self.select_directory()
+            else:
+                files = self.select_files()
+            if len(files) <= 0:
+                return
+        else:
+            # Multiple files were dropped
+            files.extend(paths)
+
+        self.read_files(files)
+
+    @QtCore.Slot()
+    def read_files(self, files: list[Path]) -> None:
+        """Read the information of the `files`.
+
+        Args:
+            files (list[Path]): Paths of the files to read.
+        """
         self.progression_bar.reset()
         self.set_maximum_progression_bar(files)
 

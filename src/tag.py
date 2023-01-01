@@ -31,8 +31,7 @@ class ThreadReadTracks(QtCore.QThread):
     """Reads the tags of the files.
 
     Signals:
-        add_track (QtCore.Signal(object)): Emitted when the tags of a file
-        have been read and a track can be added.
+        add_track (object): Emitted when the tags of a file have been read and a track can be added.
 
     Attributes:
         files (list[Path]): List of files to read.
@@ -226,8 +225,7 @@ class ThreadSearchLyrics(QtCore.QThread):
     Uses `SearchLyrics` to search the tracks on Genius and set their lyrics.
 
     Signals:
-        signal_lyrics_searched (QtCore.Signal): Emitted when the lyrics of a track
-        have been searched.
+        signal_lyrics_searched (): Emitted when the lyrics of a track have been searched.
 
     Attributes:
         token (str): Token to search the track on Genius.

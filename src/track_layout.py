@@ -25,8 +25,8 @@ class TrackLayout(QtWidgets.QFrame):
     """Custom implementation of a `QFrame` containing the information of a track.
 
     Signals:
-        signal_mouse_event (QtCore.Signal): Emitted when a mouse event is intercepted.
-        signal_show_lyrics (QtCore.Signal): Emitted when the user clicks on the button to show the full lyrics.
+        signal_mouse_event (): Emitted when a mouse event is intercepted.
+        signal_show_lyrics (str, str): Emitted when the user clicks on the button to show the full lyrics.
 
     Attributes:
         track (Track): Track to display.
