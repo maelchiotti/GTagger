@@ -32,10 +32,10 @@ Stubs should be generated with the following commands:
   black gtagger.py src
   ```
 
-- [Pylint](https://github.com/PyCQA/pylint) should be used to lint the code (some warnings are disabled):
+- [Pylint](https://github.com/PyCQA/pylint) should be used to lint the code (the maximum line length is increased and some warnings are disabled):
 
   ```shell
-  pylint gtagger.py src  --max-line-length=120 --disable R0902 --disable R0903 --disable R0904 --disable R0911 --disable R0913 --disable R0914 --disable R0915 --disable I1101
+  pylint gtagger.py src --max-line-length=120 --disable R0902 --disable R0903 --disable R0904 --disable R0911 --disable R0913 --disable R0914 --disable R0915 --disable I1101
   ```
 
 ## Docstrings
