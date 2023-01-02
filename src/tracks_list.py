@@ -17,29 +17,44 @@ class CustomListWidget(QtWidgets.QListWidget):
     dropped_elements = QtCore.Signal(list)
 
     def __init__(self):
+        """Init CustomListWidget."""
         super().__init__()
 
         self.setAcceptDrops(True)
 
-    def dragEnterEvent(self, event):
+    def dragEnterEvent(self, event: QtCore.QEvent.Type.DragEnter):
+        """Intercept the drag enter event.
+
+        Args:
+            event (QtCore.Qt.QEvent.Type.DragEnter): Drag enter event.
+        """
         if event.mimeData().hasUrls:
             event.accept()
         else:
             event.ignore()
 
-    def dragMoveEvent(self, event):
+    def dragMoveEvent(self, event: QtCore.QEvent.Type.DragMove):
+        """Intercept the drag move event.
+
+        Args:
+            event (QtCore.Qt.QEvent.Type.DragMove): Drag move event.
+        """
         if event.mimeData().hasUrls:
             event.setDropAction(QtCore.Qt.DropAction.CopyAction)
             event.accept()
         else:
             event.ignore()
 
-    def dropEvent(self, event):
+    def dropEvent(self, event: QtCore.QEvent.Type.Drop):
+        """Intercept the drop event.
+
+        Args:
+            event (QtCore.Qt.QEvent.Type.Drop): Drop event.
+        """
         if event.mimeData().hasUrls:
             event.setDropAction(QtCore.Qt.DropAction.CopyAction)
             event.accept()
-            paths = []
-            paths.extend(Path(path.toLocalFile()) for path in event.mimeData().urls())
+            paths = (Path(path.toLocalFile()) for path in event.mimeData().urls())
             self.dropped_elements.emit(paths)
         else:
             event.ignore()

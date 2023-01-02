@@ -89,7 +89,8 @@ class WindowHelp(QtWidgets.QDialog):
 
         self.label_state_indicator_title = QtWidgets.QLabel(
             """
-            The state indicator, that can be clicked to play the track in the default application, indicates the following states:
+            The state indicator, that can be clicked to play the track in the default application,
+            indicates the following states:
             """
         )
         self.label_state_indicator_title.setTextFormat(QtCore.Qt.TextFormat.RichText)

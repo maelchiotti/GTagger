@@ -172,7 +172,8 @@ class TrackLayout(QtWidgets.QFrame):
         """Toggle the selection of the track layout.
 
         Args:
-            force (Optional[bool]): Force the selection or deselection of the tracks. Has no effect if it is not set. Defaults to None.
+            force (Optional[bool]): Force the selection or deselection of the tracks. Has no effect if it is not set.
+                Defaults to None.
         """
         if force is not None:
             self.selected = force

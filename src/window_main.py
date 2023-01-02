@@ -42,7 +42,8 @@ class WindowMain(QtWidgets.QMainWindow):
 
     Attributes:
         gtagger (GTagger): GTagger application.
-        track_layouts_items (dict[Track, tuple[TrackLayout, CustomListWidgetItem]]): Layouts and items containing the information of each track added by the user.
+        track_layouts_items (dict[Track, tuple[TrackLayout, CustomListWidgetItem]]): Layouts and items containing
+            the information of each track added by the user.
         window_settings (WindowSettings): Settings window.
         window_information (WindowInformation): Information window.
         window_help (WindowHelp) : Help window.
@@ -615,7 +616,11 @@ class WindowMain(QtWidgets.QMainWindow):
 
     @QtCore.Slot()
     def lyrics_changed(self, track: Track) -> None:
-        """Lyrics of a track changed."""
+        """Lyrics of a track changed.
+
+        Args:
+            track (Track): Track of which lyrics have changed.
+        """
         layout, _ = self.track_layouts_items[track]
         if track.has_lyrics_new():
             layout.label_lyrics.setStyleSheet(
@@ -748,7 +753,7 @@ class WindowMain(QtWidgets.QMainWindow):
 
         self.selection_changed()
 
-    def eventFilter(self, watched: QtCore.QObject, event: QtCore.QEvent):
+    def eventFilter(self, watched: QtCore.QObject, event: QtCore.QEvent) -> bool:
         """Filter the event to intercept the shortcuts.
 
         `Ctrl+A` is not triggered as a `keyPressEvent`, it is considered to be a `ShortcutOverride`.
@@ -757,10 +762,13 @@ class WindowMain(QtWidgets.QMainWindow):
         Args:
             watched (QtCore.QObject): Object on which the event occurred.
             event (QtCore.QEvent): Event.
+
+        Returns:
+            bool: Result of the `event`.
         """
         if event.type() == QtCore.QEvent.Type.ShortcutOverride:
             # event can only be a QKeyEvent
-            self.keyPressEvent(event)  # type: ignore # k
+            self.keyPressEvent(event)  # type: ignore
         return super().eventFilter(watched, event)
 
     def keyPressEvent(self, event: QtGui.QKeyEvent):
