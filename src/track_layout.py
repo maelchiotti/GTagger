@@ -60,6 +60,7 @@ class TrackLayout(QtWidgets.QFrame):
         """Set up the UI of the window."""
         self.label_filename = QtWidgets.QLabel(self.track.filename)
         self.label_filename.setToolTip(self.track.get_filepath())
+
         self.button_play = QtWidgets.QPushButton()
         self.button_play.setToolTip("Play the track in the default application")
         icon_color = self.state.value.value
@@ -69,6 +70,7 @@ class TrackLayout(QtWidgets.QFrame):
         self.button_play.setStyleSheet(f"""icon-size: {SIZE_ICON_INDICATOR}px""")
         self.button_play.setFixedSize(SIZE_ICON_INDICATOR, SIZE_ICON_INDICATOR)
         self.button_play.setFlat(True)
+
         self.label_cover = QtWidgets.QLabel()
         self.label_cover.setPixmap(self.track.cover)
         self.label_cover.setFixedWidth(SIZE_COVER)
@@ -99,6 +101,7 @@ class TrackLayout(QtWidgets.QFrame):
         )
 
         self.button_lyrics = QtWidgets.QPushButton()
+        self.button_lyrics.setToolTip("Show the full lyrics")
         self.button_lyrics.setIcon(get_icon("eye"))
         self.button_lyrics.setFlat(True)
         self.button_lyrics.setSizePolicy(
@@ -109,6 +112,7 @@ class TrackLayout(QtWidgets.QFrame):
         self.button_lyrics.setEnabled(self.track.has_lyrics())
 
         self.button_copy = QtWidgets.QPushButton()
+        self.button_copy.setToolTip("Copy the lyrics to the clipboard")
         self.button_copy.setIcon(
             get_icon("content-copy", color_active=CustomColors.LIGHT_GREEN.value)
         )
