@@ -54,7 +54,8 @@ class CustomListWidget(QtWidgets.QListWidget):
         if event.mimeData().hasUrls:
             event.setDropAction(QtCore.Qt.DropAction.CopyAction)
             event.accept()
-            paths = (Path(path.toLocalFile()) for path in event.mimeData().urls())
+            paths = []
+            paths.extend(Path(path.toLocalFile()) for path in event.mimeData().urls())
             self.dropped_elements.emit(paths)
         else:
             event.ignore()
