@@ -5,7 +5,6 @@ Handles the creation of the main window and the interactions with the user.
 
 from __future__ import annotations
 
-import threading
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -52,8 +51,6 @@ class WindowMain(QtWidgets.QMainWindow):
         thread_search_lyrics (ThreadLyricsSearch): Thread to search for the lyrics.
         sort (Sort): Sort mode for the list of tracks.
     """
-
-    lock = threading.Lock()
 
     def __init__(self, gtagger: GTagger) -> None:
         """Init WindowMain.
@@ -483,28 +480,26 @@ class WindowMain(QtWidgets.QMainWindow):
         Args:
             track (Track): Track to add.
         """
-        # Handle only one track at a time
-        with WindowMain.lock:
-            # Skip the file if the tags could not be read
-            if track is None:
-                self.increment_progression_bar()
-                return
-
-            # Create the track layout and add it
-            layout = TrackLayout(
-                track,
-                State.TAGS_READ,
-                self.gtagger,
-            )
-            track.signal_lyrics_changed.connect(self.lyrics_changed)
-            layout.signal_mouse_event.connect(self.selection_changed)
-            layout.signal_show_lyrics.connect(self.open_popup_lyrics)
-            item = CustomListWidgetItem(track.get_title(), self.list_tracks)
-            item.setSizeHint(layout.sizeHint())
-            self.list_tracks.addItem(item)
-            self.list_tracks.setItemWidget(item, layout)
-            self.track_layouts_items[track] = (layout, item)
+        # Skip the file if the tags could not be read
+        if track is None:
             self.increment_progression_bar()
+            return
+
+        # Create the track layout and add it
+        layout = TrackLayout(
+            track,
+            State.TAGS_READ,
+            self.gtagger,
+        )
+        track.signal_lyrics_changed.connect(self.lyrics_changed)
+        layout.signal_mouse_event.connect(self.selection_changed)
+        layout.signal_show_lyrics.connect(self.open_popup_lyrics)
+        item = CustomListWidgetItem(track.get_title(), self.list_tracks)
+        item.setSizeHint(layout.sizeHint())
+        self.list_tracks.addItem(item)
+        self.list_tracks.setItemWidget(item, layout)
+        self.track_layouts_items[track] = (layout, item)
+        self.increment_progression_bar()
 
     @QtCore.Slot()
     def search_lyrics(self) -> None:
