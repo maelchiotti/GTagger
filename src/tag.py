@@ -72,6 +72,10 @@ class ThreadReadTracks(QtCore.QThread):
             self.add_track.emit(track)
 
 
+class WorkerSearchLyricsSignals(QtCore.QObject):
+    signal_lyrics_searched = QtCore.Signal(object)
+
+
 class WorkerSearchLyrics(QtCore.QRunnable):
     """Runs the worker for `main_window.search_lyrics()`.
 
@@ -86,8 +90,6 @@ class WorkerSearchLyrics(QtCore.QRunnable):
         overwrite_lyrics (bool): `True` if the lyrics should be overwritten.
         gtagger (GTagger): GTagger application.
     """
-
-    signal_lyrics_searched = QtCore.Signal()
 
     def __init__(
         self,
@@ -112,6 +114,7 @@ class WorkerSearchLyrics(QtCore.QRunnable):
         self.layout: TrackLayout = layout
         self.overwrite_lyrics: bool = overwrite_lyrics
         self.gtagger: GTagger = gtagger
+        self.signals = WorkerSearchLyricsSignals()
 
     def run(self):
         """Run ThreadSearchLyrics."""
@@ -121,7 +124,7 @@ class WorkerSearchLyrics(QtCore.QRunnable):
             or self.track.has_lyrics_new()
             or self.stop_search
         ):
-            # self.signal_lyrics_searched.emit()
+            self.signals.signal_lyrics_searched.emit(self)
             return
 
         found_lyrics = self.search_lyrics()
@@ -131,7 +134,8 @@ class WorkerSearchLyrics(QtCore.QRunnable):
             self.layout.set_state(State.LYRICS_FOUND)
         else:
             self.layout.set_state(State.LYRICS_NOT_FOUND)
-        # self.signal_lyrics_searched.emit()
+
+        self.signals.signal_lyrics_searched.emit(self)
 
     def search_lyrics(self) -> bool:
         """Search the lyrics of the track.
