@@ -508,10 +508,11 @@ class WindowMain(QtWidgets.QMainWindow):
             self.input_token.text(),
             self.track_layouts_items,
             self.window_settings.checkbox_overwrite.isChecked(),
-            self.button_stop_search,
             self.gtagger,
         )
         self.thread_search_lyrics.signal_lyrics_searched.connect(self.lyrics_searched)
+        self.thread_search_lyrics.started.connect(self.search_lyrics_started)
+        self.thread_search_lyrics.finished.connect(self.search_lyrics_finished)
         self.progression_bar.reset()
         self.set_maximum_progression_bar(self.track_layouts_items)
         self.thread_search_lyrics.start()
@@ -725,6 +726,14 @@ class WindowMain(QtWidgets.QMainWindow):
         self.action_add_folder.setEnabled(True)
         self.action_select.setEnabled(True)
         self.action_deselect.setEnabled(True)
+
+    def search_lyrics_started(self) -> None:
+        """Thread searching for the lyrics has started."""
+        self.button_stop_search.setEnabled(True)
+
+    def search_lyrics_finished(self) -> None:
+        """Thread searching for the lyrics has finished."""
+        self.button_stop_search.setEnabled(False)
 
     def select_tracks(self) -> None:
         """Select all the tracks."""

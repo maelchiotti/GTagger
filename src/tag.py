@@ -231,7 +231,6 @@ class ThreadSearchLyrics(QtCore.QThread):
         token (str): Token to search the track on Genius.
         track_layouts_items (dict[Track, tuple[TrackLayout, CustomListWidgetItem]]): Layouts and items of the tracks.
         overwrite_lyrics (bool): `True` if the lyrics should be overwritten.
-        button_stop_search (QtWidgets.QPushButton): Button to stop the search.
         gtagger (GTagger): GTagger application.
     """
 
@@ -242,7 +241,6 @@ class ThreadSearchLyrics(QtCore.QThread):
         token: str,
         track_layouts_items: dict[Track, tuple[TrackLayout, CustomListWidgetItem]],
         overwrite_lyrics: bool,
-        button_stop_search: QtWidgets.QPushButton,
         gtagger: GTagger,
     ) -> None:
         """Init ThreadSearchLyrics.
@@ -252,7 +250,6 @@ class ThreadSearchLyrics(QtCore.QThread):
             track_layouts_items (dict[Track, tuple[TrackLayout, CustomListWidgetItem]]): Layouts and items
                 of the tracks.
             overwrite_lyrics (bool): `True` if the lyrics should be overwritten.
-            button_stop_search (QtWidgets.QPushButton): Button to stop the search.
             gtagger (GTagger): GTagger application.
         """
         super().__init__()
@@ -264,12 +261,10 @@ class ThreadSearchLyrics(QtCore.QThread):
             Track, tuple[TrackLayout, CustomListWidgetItem]
         ] = track_layouts_items
         self.overwrite_lyrics: bool = overwrite_lyrics
-        self.button_stop_search: QtWidgets.QPushButton = button_stop_search
         self.gtagger: GTagger = gtagger
 
     def run(self):
         """Run ThreadSearchLyrics."""
-        self.button_stop_search.setEnabled(True)
         lyrics_search = LyricsSearch(self.token)
         for track, layout_item in self.track_layouts_items.copy().items():
             layout = layout_item[0]
@@ -289,4 +284,3 @@ class ThreadSearchLyrics(QtCore.QThread):
             else:
                 layout.set_state(State.LYRICS_NOT_FOUND)
             self.signal_lyrics_searched.emit()
-        self.button_stop_search.setEnabled(False)
