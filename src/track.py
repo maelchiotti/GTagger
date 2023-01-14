@@ -60,7 +60,7 @@ class Track(QtCore.QObject):
         """Use mutagen to read the tags from the file and sets them.
 
         Returns:
-            bool: `True` if the tags were successfully read.
+            bool: If the tags were successfully read.
         """
         # File: tags and infos
         try:
@@ -202,10 +202,10 @@ class Track(QtCore.QObject):
             return self.file.tags["APIC:"]
 
     def has_pictures(self) -> bool:
-        """Return `True` if the track has pictures.
+        """Return If the track has pictures.
 
         Returns:
-            bool: `True` if the track has pictures.
+            bool: If the track has pictures.
         """
         if self.get_file_type() == FileType.FLAC:
             return len(self.file.pictures) > 0
@@ -288,7 +288,7 @@ class Track(QtCore.QObject):
         """Save the lyrics to the file.
 
         Returns:
-            bool: `True` if the lyrics were successfully saved.
+            bool: If the lyrics were successfully saved.
         """
         if self.has_lyrics_new():
             try:
@@ -308,10 +308,10 @@ class Track(QtCore.QObject):
         return True
 
     def has_lyrics_original(self) -> bool:
-        """Return `True` if the track has original lyrics read by `mutagen`.
+        """Return If the track has original lyrics read by `mutagen`.
 
         Returns:
-            bool: `True` if the track has original lyrics.
+            bool: If the track has original lyrics.
         """
         if self.get_file_type() == FileType.FLAC:
             return "lyrics" in self.file.tags and len(self.file.tags["lyrics"]) > 0
@@ -323,20 +323,20 @@ class Track(QtCore.QObject):
             )
 
     def has_lyrics_new(self) -> bool:
-        """Return `True` if the track has new lyrics.
+        """Return If the track has new lyrics.
 
         Returns:
-            bool: `True` if the track has new lyrics.
+            bool: If the track has new lyrics.
         """
         return self.lyrics_new != ""
 
     def has_lyrics(self) -> bool:
-        """Return `True` if the track has lyrics.
+        """Return If the track has lyrics.
 
         The track has lyrics if it has either original or new ones.
 
         Returns:
-            bool: `True` if the track has lyrics.
+            bool: If the track has lyrics.
         """
         return self.has_lyrics_original() or self.has_lyrics_new()
 

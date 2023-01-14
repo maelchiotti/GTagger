@@ -46,9 +46,10 @@ class WindowMain(QtWidgets.QMainWindow):
         window_settings (WindowSettings): Settings window.
         window_information (WindowInformation): Information window.
         window_help (WindowHelp) : Help window.
-        self.popup_lyrics (PopupLyrics): Lyrics popup.
+        popup_lyrics (PopupLyrics): Lyrics popup.
         thread_read_tracks (ThreadReadTracks): Thread to read the tracks.
-        pool_search_lyrics (ThreadLyricsSearch): Thread to search for the lyrics.
+        pool_search_lyrics (QtCore.QThreadPool): Pool to search for the lyrics.
+        workers_search_lyrics (list[WorkerSearchLyrics]): Workers to search for the lyrics.
         sort (Sort): Sort mode for the list of tracks.
     """
 
@@ -397,7 +398,7 @@ class WindowMain(QtWidgets.QMainWindow):
         and may include letters, digits, '_' and '-'.
 
         Returns:
-            bool: `True` if the token is valid.
+            bool: If the token is valid.
         """
         validate = self.validator.validate(self.input_token.text(), 0)
         # validate() returns an untyped object
@@ -421,6 +422,11 @@ class WindowMain(QtWidgets.QMainWindow):
         self.progress_bar.setMaximum(maximum)
 
     def is_searching_lyrics(self) -> bool:
+        """Checks if GTagger is searching for lyrics.
+
+        Returns:
+            bool: If GTagger is searching for lyrics.
+        """
         return len(self.workers_search_lyrics) > 0
 
     @QtCore.Slot()
@@ -432,7 +438,7 @@ class WindowMain(QtWidgets.QMainWindow):
 
         Args:
             paths (list[Path]): Paths of the elements to add.
-            select_directory (bool): `True` if the user adds a directory. Defaults to `False`.
+            select_directory (bool): If the user adds a directory. Defaults to `False`.
         """
         files: list[Path] = []
         if len(paths) == 1:
@@ -512,12 +518,10 @@ class WindowMain(QtWidgets.QMainWindow):
         self.set_maximum_progress_bar(self.track_layouts_items)
         self.search_lyrics_started()
 
-        for track, layout_item in self.track_layouts_items.items():
-            layout = layout_item[0]
+        for track in self.track_layouts_items.keys():
             worker = WorkerSearchLyrics(
                 self.input_token.text(),
                 track,
-                layout,
                 self.window_settings.checkbox_overwrite.isChecked(),
                 self.gtagger,
             )
@@ -625,7 +629,7 @@ class WindowMain(QtWidgets.QMainWindow):
         Args:
             track (Track): Track of which lyrics have changed.
         """
-        layout, _ = self.track_layouts_items[track]
+        layout = self.track_layouts_items[track][0]
         if track.has_lyrics_new():
             layout.label_lyrics.setStyleSheet(
                 f"color: {CustomColors.LIGHT_GREEN.value}"
@@ -689,8 +693,20 @@ class WindowMain(QtWidgets.QMainWindow):
                 worker.stop_search = True
 
     @QtCore.Slot()
-    def lyrics_searched(self, worker: WorkerSearchLyrics) -> None:
-        """Lyrics of a track searched."""
+    def lyrics_searched(self, worker: WorkerSearchLyrics, state: State) -> None:
+        """Lyrics of a track searched.
+
+        `state` will be `None` if the lyrics were not searched.
+
+        Args:
+            worker (WorkerSearchLyrics): Worker that searched the lyrics of the track.
+            state (State): New state of the track.
+        """
+        track = worker.track
+        layout = self.track_layouts_items[worker.track][0]
+        layout.label_lyrics.setText(track.get_lyrics(lines=LINES_LYRICS))
+        if state is not None:
+            layout.set_state(state)
         self.workers_search_lyrics.remove(worker)
         self.increment_progress_bar()
         if not self.is_searching_lyrics():
@@ -813,11 +829,10 @@ class WindowMain(QtWidgets.QMainWindow):
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
         """Intercept the close event of the main window.
 
-        If it is running, waits for `ThreadLyricsSearch` to quit before exiting the application.
-
         Args:
             event (QtGui.QCloseEvent): Close event.
         """
+        # If the lyrics search is running, stop all workers
         if self.is_searching_lyrics():
             self.stop_search()
             self.pool_search_lyrics.waitForDone()

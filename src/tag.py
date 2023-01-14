@@ -73,37 +73,40 @@ class ThreadReadTracks(QtCore.QThread):
 
 
 class WorkerSearchLyricsSignals(QtCore.QObject):
-    signal_lyrics_searched = QtCore.Signal(object)
+    """Signals for `WorkerSearchLyrics`.
+
+    Signals:
+        signal_lyrics_searched: Emitted when the lyrics of a track have been searched.
+    """
+
+    signal_lyrics_searched = QtCore.Signal(object, object)
 
 
 class WorkerSearchLyrics(QtCore.QRunnable):
-    """Runs the worker for `main_window.search_lyrics()`.
-
-    Uses `SearchLyrics` to search the tracks on Genius and set their lyrics.
-
-    Signals:
-        signal_lyrics_searched (): Emitted when the lyrics of a track have been searched.
+    """Worker to search for the lyrics of a track.
 
     Attributes:
-        stop_search
+        stop_search (bool): If the search should be stopped.
         genius (genius.Genius): `wrap-genius` instance.
-        overwrite_lyrics (bool): `True` if the lyrics should be overwritten.
+        track (Track): Track to search the lyrics for.
+        overwrite_lyrics (bool): If the lyrics should be overwritten.
         gtagger (GTagger): GTagger application.
+        signals (WorkerSearchLyricsSignals): Signals of the worker.
     """
 
     def __init__(
         self,
         token: str,
         track: Track,
-        layout: TrackLayout,
         overwrite_lyrics: bool,
         gtagger: GTagger,
     ) -> None:
-        """Init ThreadSearchLyrics.
+        """Init WorkerSearchLyrics.
 
         Args:
-            token (str): Token to search the track on Genius.
-            overwrite_lyrics (bool): `True` if the lyrics should be overwritten.
+            token (str): Genius client access token.
+            track (Track): Track to search the lyrics for.
+            overwrite_lyrics (bool): If the lyrics should be overwritten.
             gtagger (GTagger): GTagger application.
         """
         super().__init__()
@@ -111,31 +114,25 @@ class WorkerSearchLyrics(QtCore.QRunnable):
         self.stop_search = False
         self.genius: genius.Genius = genius.Genius(token)
         self.track: Track = track
-        self.layout: TrackLayout = layout
         self.overwrite_lyrics: bool = overwrite_lyrics
         self.gtagger: GTagger = gtagger
         self.signals = WorkerSearchLyricsSignals()
 
     def run(self):
-        """Run ThreadSearchLyrics."""
+        """Run WorkerSearchLyrics."""
 
         if (
             (not self.overwrite_lyrics and self.track.has_lyrics_original())
             or self.track.has_lyrics_new()
             or self.stop_search
         ):
-            self.signals.signal_lyrics_searched.emit(self)
+            self.signals.signal_lyrics_searched.emit(self, None)
             return
 
-        found_lyrics = self.search_lyrics()
-        if found_lyrics:
-            lyrics = self.track.get_lyrics(lines=LINES_LYRICS)
-            self.layout.label_lyrics.setText(lyrics)
-            self.layout.set_state(State.LYRICS_FOUND)
-        else:
-            self.layout.set_state(State.LYRICS_NOT_FOUND)
-
-        self.signals.signal_lyrics_searched.emit(self)
+        new_state = (
+            State.LYRICS_FOUND if self.search_lyrics() else State.LYRICS_NOT_FOUND
+        )
+        self.signals.signal_lyrics_searched.emit(self, new_state)
 
     def search_lyrics(self) -> bool:
         """Search the lyrics of the track.
@@ -143,7 +140,7 @@ class WorkerSearchLyrics(QtCore.QRunnable):
         Use `wrap-genius` to search for a track on Genius based on its title and artist, and fetch its lyrics.
 
         Returns:
-            bool: `True` if the lyrics of the track were found.
+            bool: If the lyrics of the track were found.
         """
         if self.track.get_title() == "" or self.track.get_main_artist() == "":
             return False
@@ -203,7 +200,7 @@ class WorkerSearchLyrics(QtCore.QRunnable):
             searched_lyrics (list[str]): Lyrics of the track that was searched.
 
         Returns:
-            bool: `True` if the lyrics seem correct.
+            bool: If the lyrics seem correct.
         """
         # The track's artist indicates it should be discarded
         if searched_track.artist.name in DISCARD_ARTISTS:

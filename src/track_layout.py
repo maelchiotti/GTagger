@@ -31,7 +31,7 @@ class TrackLayout(QtWidgets.QFrame):
     Attributes:
         track (Track): Track to display.
         state (State): State of the track.
-        selected (bool): `True` if the track is currently selected.
+        selected (bool): If the track is currently selected.
         gtagger (GTagger): GTagger application.
     ```
     """
