@@ -24,7 +24,7 @@ from src.consts import (
 from src.enums import CustomColors, FileType, Settings, Sort, State
 from src.icons import get_icon
 from src.popup_lyrics import PopupLyrics
-from src.tag import ThreadReadTracks, ThreadSearchLyrics
+from src.tag import ThreadReadTracks, WorkerSearchLyrics
 from src.track import Track
 from src.track_layout import TrackLayout
 from src.tracks_list import CustomListWidget, CustomListWidgetItem
@@ -48,7 +48,7 @@ class WindowMain(QtWidgets.QMainWindow):
         window_help (WindowHelp) : Help window.
         self.popup_lyrics (PopupLyrics): Lyrics popup.
         thread_read_tracks (ThreadReadTracks): Thread to read the tracks.
-        thread_search_lyrics (ThreadLyricsSearch): Thread to search for the lyrics.
+        pool_search_lyrics (ThreadLyricsSearch): Thread to search for the lyrics.
         sort (Sort): Sort mode for the list of tracks.
     """
 
@@ -71,7 +71,7 @@ class WindowMain(QtWidgets.QMainWindow):
         self.window_help: WindowHelp = WindowHelp(self)
         self.popup_lyrics: PopupLyrics = PopupLyrics(self)
         self.thread_read_tracks: ThreadReadTracks
-        self.thread_search_lyrics: ThreadSearchLyrics
+        self.pool_search_lyrics: WorkerSearchLyrics
         self.sort: Sort = Sort.ASCENDING
 
         self.setup_ui()
@@ -504,18 +504,20 @@ class WindowMain(QtWidgets.QMainWindow):
     @QtCore.Slot()
     def search_lyrics(self) -> None:
         """Search for the lyrics of the files."""
-        self.thread_search_lyrics = ThreadSearchLyrics(
-            self.input_token.text(),
-            self.track_layouts_items,
-            self.window_settings.checkbox_overwrite.isChecked(),
-            self.gtagger,
-        )
-        self.thread_search_lyrics.signal_lyrics_searched.connect(self.lyrics_searched)
-        self.thread_search_lyrics.started.connect(self.search_lyrics_started)
-        self.thread_search_lyrics.finished.connect(self.search_lyrics_finished)
+        self.pool_search_lyrics = QtCore.QThreadPool()
         self.progression_bar.reset()
         self.set_maximum_progression_bar(self.track_layouts_items)
-        self.thread_search_lyrics.start()
+
+        for track, layout_item in self.track_layouts_items.items():
+            layout = layout_item[0]
+            worker = WorkerSearchLyrics(
+                self.input_token.text(),
+                track,
+                layout,
+                self.window_settings.checkbox_overwrite.isChecked(),
+                self.gtagger,
+            )
+            self.pool_search_lyrics.start(worker)
 
     @QtCore.Slot()
     def token_changed(self) -> None:
@@ -675,8 +677,8 @@ class WindowMain(QtWidgets.QMainWindow):
     @QtCore.Slot()
     def stop_search(self) -> None:
         """Stop searching for the lyrics."""
-        if self.thread_search_lyrics.isRunning():
-            self.thread_search_lyrics.stop_search = True
+        if self.pool_search_lyrics.isRunning():
+            self.pool_search_lyrics.stop_search = True
             self.button_stop_search.setEnabled(False)
 
     @QtCore.Slot()
@@ -808,10 +810,10 @@ class WindowMain(QtWidgets.QMainWindow):
         """
         if (
             hasattr(self, "thread_search_lyrics")
-            and self.thread_search_lyrics.isRunning()
+            and self.pool_search_lyrics.isRunning()
         ):
-            self.thread_search_lyrics.stop_search = True
-            self.thread_search_lyrics.wait()
+            self.pool_search_lyrics.stop_search = True
+            self.pool_search_lyrics.wait()
 
         # Save the toolbar position into the settings
         self.gtagger.settings_manager.set_setting(
