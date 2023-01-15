@@ -79,7 +79,7 @@ class WorkerSearchLyricsSignals(QtCore.QObject):
         signal_lyrics_searched: Emitted when the lyrics of a track have been searched.
     """
 
-    signal_lyrics_searched = QtCore.Signal(object, object)
+    signal_lyrics_searched = QtCore.Signal(object)
 
 
 class WorkerSearchLyrics(QtCore.QRunnable):
@@ -98,6 +98,7 @@ class WorkerSearchLyrics(QtCore.QRunnable):
         self,
         token: str,
         track: Track,
+        layout: TrackLayout,
         overwrite_lyrics: bool,
         gtagger: GTagger,
     ) -> None:
@@ -106,6 +107,7 @@ class WorkerSearchLyrics(QtCore.QRunnable):
         Args:
             token (str): Genius client access token.
             track (Track): Track to search the lyrics for.
+            layout (TrackLayout): Layout of the track.
             overwrite_lyrics (bool): If the lyrics should be overwritten.
             gtagger (GTagger): GTagger application.
         """
@@ -114,6 +116,7 @@ class WorkerSearchLyrics(QtCore.QRunnable):
         self.stop_search = False
         self.genius: genius.Genius = genius.Genius(token)
         self.track: Track = track
+        self.layout: TrackLayout = layout
         self.overwrite_lyrics: bool = overwrite_lyrics
         self.gtagger: GTagger = gtagger
         self.signals = WorkerSearchLyricsSignals()
@@ -126,13 +129,15 @@ class WorkerSearchLyrics(QtCore.QRunnable):
             or self.track.has_lyrics_new()
             or self.stop_search
         ):
-            self.signals.signal_lyrics_searched.emit(self, None)
+            self.signals.signal_lyrics_searched.emit(self)
             return
 
         new_state = (
             State.LYRICS_FOUND if self.search_lyrics() else State.LYRICS_NOT_FOUND
         )
-        self.signals.signal_lyrics_searched.emit(self, new_state)
+        self.layout.label_lyrics.setText(self.track.get_lyrics(lines=LINES_LYRICS))
+        self.layout.set_state(new_state)
+        self.signals.signal_lyrics_searched.emit(self)
 
     def search_lyrics(self) -> bool:
         """Search the lyrics of the track.

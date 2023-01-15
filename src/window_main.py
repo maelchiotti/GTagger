@@ -518,10 +518,12 @@ class WindowMain(QtWidgets.QMainWindow):
         self.set_maximum_progress_bar(self.track_layouts_items)
         self.search_lyrics_started()
 
-        for track in self.track_layouts_items.keys():
+        for track, layout_item in self.track_layouts_items.items():
+            layout = layout_item[0]
             worker = WorkerSearchLyrics(
                 self.input_token.text(),
                 track,
+                layout,
                 self.window_settings.checkbox_overwrite.isChecked(),
                 self.gtagger,
             )
@@ -693,20 +695,12 @@ class WindowMain(QtWidgets.QMainWindow):
                 worker.stop_search = True
 
     @QtCore.Slot()
-    def lyrics_searched(self, worker: WorkerSearchLyrics, state: State) -> None:
+    def lyrics_searched(self, worker: WorkerSearchLyrics) -> None:
         """Lyrics of a track searched.
-
-        `state` will be `None` if the lyrics were not searched.
 
         Args:
             worker (WorkerSearchLyrics): Worker that searched the lyrics of the track.
-            state (State): New state of the track.
         """
-        track = worker.track
-        layout = self.track_layouts_items[worker.track][0]
-        layout.label_lyrics.setText(track.get_lyrics(lines=LINES_LYRICS))
-        if state is not None:
-            layout.set_state(state)
         self.workers_search_lyrics.remove(worker)
         self.increment_progress_bar()
         if not self.is_searching_lyrics():
