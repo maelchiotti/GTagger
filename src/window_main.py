@@ -24,7 +24,7 @@ from src.consts import (
 from src.enums import CustomColors, FileType, Settings, Sort, State
 from src.icons import get_icon
 from src.popup_lyrics import PopupLyrics
-from src.tag import WorkerReadTrack, WorkerSearchLyrics
+from src.tag import ThreadReadTracks, WorkerSearchLyrics
 from src.track import Track
 from src.track_layout import TrackLayout
 from src.tracks_list import CustomListWidget, CustomListWidgetItem
@@ -71,8 +71,7 @@ class WindowMain(QtWidgets.QMainWindow):
         self.window_information: WindowInformation = WindowInformation(self)
         self.window_help: WindowHelp = WindowHelp(self)
         self.popup_lyrics: PopupLyrics = PopupLyrics(self)
-        self.pool_read_tracks: QtCore.QThreadPool = QtCore.QThreadPool()
-        self.workers_read_tracks: list[WorkerReadTrack] = []
+        self.thread_read_tracks: ThreadReadTracks
         self.pool_search_lyrics: QtCore.QThreadPool = QtCore.QThreadPool()
         self.workers_search_lyrics: list[WorkerSearchLyrics] = []
         self.sort: Sort = Sort.ASCENDING
@@ -430,14 +429,6 @@ class WindowMain(QtWidgets.QMainWindow):
         """
         return len(self.workers_search_lyrics) > 0
 
-    def is_reading_tracks(self) -> bool:
-        """Checks if GTagger is reading the tags of tracks.
-
-        Returns:
-            bool: If GTagger is reading the tags of tracks.
-        """
-        return len(self.workers_read_tracks) > 0
-
     @QtCore.Slot()
     def add_files(self, paths: list[Path], select_directory: bool = False) -> None:
         """Add the selected tracks to the scroll area.
@@ -482,23 +473,21 @@ class WindowMain(QtWidgets.QMainWindow):
         """
         self.progress_bar.reset()
         self.set_maximum_progress_bar(files)
-        self.read_tracks_started()
 
-        for file in files:
-            worker = WorkerReadTrack(
-                file,
-                self.gtagger,
-            )
-            worker.signals.signal_add_track.connect(self.add_track)
-            self.workers_read_tracks.append(worker)
-            self.pool_read_tracks.start(worker)
+        self.action_add_files.setEnabled(False)
+        self.action_add_folder.setEnabled(False)
+
+        self.thread_read_tracks = ThreadReadTracks(files, self.gtagger)
+        self.thread_read_tracks.add_track.connect(self.add_track)
+        self.thread_read_tracks.started.connect(self.read_tracks_started)
+        self.thread_read_tracks.finished.connect(self.read_tracks_finished)
+        self.thread_read_tracks.start()
 
     @QtCore.Slot()
-    def add_track(self, worker: WorkerReadTrack, track: Track):
-        """Add the track to the scroll area.
+    def add_track(self, track: Track):
+        """Add the track `track` to the scroll area.
 
         Args:
-            worker (WorkerReadTrack): Worker that read the tags of the track.
             track (Track): Track to add.
         """
         # Skip the file if the tags could not be read
@@ -520,10 +509,7 @@ class WindowMain(QtWidgets.QMainWindow):
         self.list_tracks.addItem(item)
         self.list_tracks.setItemWidget(item, layout)
         self.track_layouts_items[track] = (layout, item)
-        self.workers_read_tracks.remove(worker)
         self.increment_progress_bar()
-        if not self.is_reading_tracks():
-            self.read_tracks_finished()
 
     @QtCore.Slot()
     def search_lyrics(self) -> None:

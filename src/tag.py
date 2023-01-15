@@ -28,59 +28,55 @@ if TYPE_CHECKING:
     from gtagger import GTagger
 
 
-class WorkerReadTrackSignals(QtCore.QObject):
-    """Signals for `WorkerReadTrack`.
+class ThreadReadTracks(QtCore.QThread):
+    """Reads the tags of the files.
 
     Signals:
-        signal_add_track (object): Emitted when the tags of the track have been read.
-    """
-
-    signal_add_track = QtCore.Signal(object, object)
-
-
-class WorkerReadTrack(QtCore.QRunnable):
-    """Reads the tags of a track.
-
-    Signals:
-        add_track (object): Emitted when the tags of the track have been read.
+        add_track (object): Emitted when the tags of a file have been read and a track can be added.
 
     Attributes:
-        file (Path): File to read.
+        files (list[Path]): List of files to read.
         gtagger (GTagger): GTagger application.
-        signals (WorkerReadTrackSignals): Signals of the worker.
     """
+
+    add_track = QtCore.Signal(object)
 
     def __init__(
         self,
-        file: Path,
+        files: list[Path],
         gtagger: GTagger,
     ) -> None:
         """Init ThreadReadTracks.
 
         Args:
-            file (Path): File to read.
+            files (list[Path]): List of files to read.
             gtagger (GTagger): GTagger application.
         """
         super().__init__()
-
-        self.file: Path = file
+        self.files: list[Path] = files
         self.gtagger: GTagger = gtagger
-        self.signals = WorkerReadTrackSignals()
 
     def run(self):
         """Run ThreadReadTracks."""
-        track = Track(self.file)
-        if not track.read_tags():
-            self.signals.signal_add_track.emit(self, None)
-            return
-        self.signals.signal_add_track.emit(self, track)
+        for file in self.files:
+            # Create the track and read its tags
+            track = Track(file)
+            tags_read = track.read_tags()
+
+            # Signal to WindowMain to skip the track
+            if not tags_read:
+                self.add_track.emit(None)
+                continue
+
+            # Signal to WindowMain to add the track
+            self.add_track.emit(track)
 
 
 class WorkerSearchLyricsSignals(QtCore.QObject):
     """Signals for `WorkerSearchLyrics`.
 
     Signals:
-        signal_lyrics_searched (object, object): Emitted when the lyrics of a track have been searched.
+        signal_lyrics_searched: Emitted when the lyrics of a track have been searched.
     """
 
     signal_lyrics_searched = QtCore.Signal(object, object)
@@ -102,7 +98,6 @@ class WorkerSearchLyrics(QtCore.QRunnable):
         self,
         token: str,
         track: Track,
-        layout: TrackLayout,
         overwrite_lyrics: bool,
         gtagger: GTagger,
     ) -> None:
@@ -111,7 +106,6 @@ class WorkerSearchLyrics(QtCore.QRunnable):
         Args:
             token (str): Genius client access token.
             track (Track): Track to search the lyrics for.
-            layout (TrackLayout): Layout of the track.
             overwrite_lyrics (bool): If the lyrics should be overwritten.
             gtagger (GTagger): GTagger application.
         """
@@ -120,7 +114,6 @@ class WorkerSearchLyrics(QtCore.QRunnable):
         self.stop_search = False
         self.genius: genius.Genius = genius.Genius(token)
         self.track: Track = track
-        self.layout: TrackLayout = layout
         self.overwrite_lyrics: bool = overwrite_lyrics
         self.gtagger: GTagger = gtagger
         self.signals = WorkerSearchLyricsSignals()
@@ -133,15 +126,13 @@ class WorkerSearchLyrics(QtCore.QRunnable):
             or self.track.has_lyrics_new()
             or self.stop_search
         ):
-            self.signals.signal_lyrics_searched.emit(self)
+            self.signals.signal_lyrics_searched.emit(self, None)
             return
 
         new_state = (
             State.LYRICS_FOUND if self.search_lyrics() else State.LYRICS_NOT_FOUND
         )
-        self.layout.label_lyrics.setText(self.track.get_lyrics(lines=LINES_LYRICS))
-        self.layout.set_state(new_state)
-        self.signals.signal_lyrics_searched.emit(self)
+        self.signals.signal_lyrics_searched.emit(self, new_state)
 
     def search_lyrics(self) -> bool:
         """Search the lyrics of the track.
