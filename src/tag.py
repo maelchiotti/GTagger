@@ -76,7 +76,7 @@ class WorkerSearchLyricsSignals(QtCore.QObject):
     """Signals for `WorkerSearchLyrics`.
 
     Signals:
-        signal_lyrics_searched: Emitted when the lyrics of a track have been searched.
+        signal_lyrics_searched (object): Emitted when the lyrics of a track have been searched.
     """
 
     signal_lyrics_searched = QtCore.Signal(object)
