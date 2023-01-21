@@ -3,12 +3,11 @@
 from __future__ import annotations
 
 import logging as log
-import multiprocessing
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 import genius
-from PySide6 import QtCore, QtWidgets
+from PySide6 import QtCore
 
 from src.consts import (
     DISCARD_ARTISTS,
@@ -22,7 +21,6 @@ from src.enums import State
 from src.exceptions import DiscardLyrics
 from src.track import Track
 from src.track_layout import TrackLayout
-from src.tracks_list import CustomListWidgetItem
 
 if TYPE_CHECKING:
     from gtagger import GTagger
@@ -123,7 +121,6 @@ class WorkerSearchLyrics(QtCore.QRunnable):
 
     def run(self):
         """Run WorkerSearchLyrics."""
-
         if (
             (not self.overwrite_lyrics and self.track.has_lyrics_original())
             or self.track.has_lyrics_new()

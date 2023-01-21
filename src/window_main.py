@@ -422,7 +422,7 @@ class WindowMain(QtWidgets.QMainWindow):
         self.progress_bar.setMaximum(maximum)
 
     def is_searching_lyrics(self) -> bool:
-        """Checks if GTagger is searching for lyrics.
+        """Check if GTagger is searching for lyrics.
 
         Returns:
             bool: If GTagger is searching for lyrics.
@@ -605,9 +605,9 @@ class WindowMain(QtWidgets.QMainWindow):
 
     @QtCore.Slot()
     def selection_changed(self) -> None:
-        """Selection of the tracks changed.
+        """Tracks' selection changed.
 
-        Toggles the cancel, remove and save buttons.
+        Toggle the cancel, remove and save buttons.
         """
         enable_cancel = False
         enable_remove = False
