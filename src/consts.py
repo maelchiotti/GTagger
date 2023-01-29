@@ -4,7 +4,7 @@ import re
 
 from PySide6 import QtCore
 
-VERSION = "v1.2.4"
+VERSION = "v1.2.5"
 
 # Size of the main window
 SIZE_MAIN_WINDOW = QtCore.QSize(1200, 800)
