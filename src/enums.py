@@ -61,6 +61,6 @@ class Sort(Enum):
 class Logo(Enum):
     """Enumerates the different logos."""
 
-    SMALL = "logo_small.png"
-    LARGE_BLACK = "logo_large_black.png"
-    LARGE_WHITE = "logo_large_white.png"
+    SMALL = "src/img/logo_small.png"
+    LARGE_BLACK = "src/img/logo_large_black.png"
+    LARGE_WHITE = "src/img/logo_large_white.png"

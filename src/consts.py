@@ -21,6 +21,9 @@ SIZE_ICON = 20
 # Size of the icons
 SIZE_ICON_INDICATOR = 25
 
+# Size of the logo
+SIZE_LOGO = QtCore.QSize(250, 250)
+
 # Size of the margin between track layouts
 MARGIN_TRACK_LAYOUT = 5
 

@@ -6,7 +6,11 @@ a = Analysis(
     ["gtagger.py"],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[
+        ('src/img/logo_small.png', './src/img'),
+        ('src/img/logo_large_black.png', './src/img'),
+        ('src/img/logo_large_white.png', './src/img')
+    ],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},

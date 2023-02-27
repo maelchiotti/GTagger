@@ -21,8 +21,8 @@ from src.consts import (
     URL_TOKEN,
     WIDTH_PROGRESS_BAR,
 )
-from src.enums import CustomColors, FileType, Settings, Sort, State
-from src.icons import get_icon
+from src.enums import CustomColors, FileType, Logo, Settings, Sort, State
+from src.icons import get_icon, get_resource_path
 from src.popup_lyrics import PopupLyrics
 from src.tag import ThreadReadTracks, WorkerSearchLyrics
 from src.track import Track
@@ -278,9 +278,7 @@ class WindowMain(QtWidgets.QMainWindow):
     def setup_style(self):
         """Set up the custom colors and icons for diverse elements of the application."""
         # Set up the windows icons
-        icon_window_main = get_icon(
-            "tag-multiple", color=CustomColors.YELLOW_GENIUS.value
-        )
+        icon_window_main = QtGui.QIcon(get_resource_path(Logo.SMALL.value))
         icon_window_settings = get_icon("cog", color="black")
         icon_window_information = get_icon("information", color="black")
         icon_window_help = get_icon("help-circle", color="black")

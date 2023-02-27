@@ -1,5 +1,6 @@
 """Icons."""
-
+import os
+import sys
 from typing import Optional
 
 from PySide6 import QtGui
@@ -27,3 +28,21 @@ def get_icon(
     if active is None:
         active = name
     return qtawesome_icon(name, active=active, color=color, color_active=color_active)
+
+
+def get_resource_path(relative_path: str):
+    """Return the absolute path to the resource.
+
+    Args:
+        relative_path (str): Relative path to the resource.
+
+    Returns:
+        str: Absolute path to the resource.
+    """
+
+    if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
+        base_path = sys._MEIPASS
+    else:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
