@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import genius
-from PySide6 import QtCore, QtWidgets
+from PySide6 import QtCore
 
 from src.consts import (
     DISCARD_ARTISTS,
@@ -21,7 +21,6 @@ from src.enums import State
 from src.exceptions import DiscardLyrics
 from src.track import Track
 from src.track_layout import TrackLayout
-from src.tracks_list import CustomListWidgetItem
 
 if TYPE_CHECKING:
     from gtagger import GTagger
@@ -71,53 +70,97 @@ class ThreadReadTracks(QtCore.QThread):
             self.add_track.emit(track)
 
 
-class LyricsSearch(QtCore.QObject):
-    """Searches for the lyrics of a track.
+class WorkerSearchLyricsSignals(QtCore.QObject):
+    """Signals for `WorkerSearchLyrics`.
 
-    Attributes:
-        token (str): Genius client access token.
-        genius (genius.Genius): `wrap-genius` instance.
+    Signals:
+        signal_lyrics_searched (object): Emitted when the lyrics of a track have been searched.
     """
 
-    def __init__(self, token: str) -> None:
-        """Init LyricsSearch.
+    signal_lyrics_searched = QtCore.Signal(object)
+
+
+class WorkerSearchLyrics(QtCore.QRunnable):
+    """Worker to search for the lyrics of a track.
+
+    Attributes:
+        stop_search (bool): If the search should be stopped.
+        genius (genius.Genius): `wrap-genius` instance.
+        track (Track): Track to search the lyrics for.
+        overwrite_lyrics (bool): If the lyrics should be overwritten.
+        gtagger (GTagger): GTagger application.
+        signals (WorkerSearchLyricsSignals): Signals of the worker.
+    """
+
+    def __init__(
+        self,
+        token: str,
+        track: Track,
+        layout: TrackLayout,
+        overwrite_lyrics: bool,
+        gtagger: GTagger,
+    ) -> None:
+        """Init WorkerSearchLyrics.
 
         Args:
             token (str): Genius client access token.
+            track (Track): Track to search the lyrics for.
+            layout (TrackLayout): Layout of the track.
+            overwrite_lyrics (bool): If the lyrics should be overwritten.
+            gtagger (GTagger): GTagger application.
         """
         super().__init__()
-        self.token: str = token
-        self.genius: genius.Genius = genius.Genius(self.token)
 
-    def search_lyrics(self, track: Track) -> bool:
+        self.stop_search = False
+        self.genius: genius.Genius = genius.Genius(token)
+        self.track: Track = track
+        self.layout: TrackLayout = layout
+        self.overwrite_lyrics: bool = overwrite_lyrics
+        self.gtagger: GTagger = gtagger
+        self.signals = WorkerSearchLyricsSignals()
+
+    def run(self):
+        """Run WorkerSearchLyrics."""
+        if (
+            (not self.overwrite_lyrics and self.track.has_lyrics_original())
+            or self.track.has_lyrics_new()
+            or self.stop_search
+        ):
+            self.signals.signal_lyrics_searched.emit(self)
+            return
+
+        new_state = (
+            State.LYRICS_FOUND if self.search_lyrics() else State.LYRICS_NOT_FOUND
+        )
+        self.layout.label_lyrics.setText(self.track.get_lyrics(lines=LINES_LYRICS))
+        self.layout.set_state(new_state)
+        self.signals.signal_lyrics_searched.emit(self)
+
+    def search_lyrics(self) -> bool:
         """Search the lyrics of the track.
 
-        Use `wrap-genius` to search for a track on Genius
-        based on its title and artist, and fetch its lyrics.
-
-        Args:
-            track (Track): Track for which to search the lyrics.
+        Use `wrap-genius` to search for a track on Genius based on its title and artist, and fetch its lyrics.
 
         Returns:
-            bool: `True` if the lyrics of the track were found.
+            bool: If the lyrics of the track were found.
         """
-        if track.get_title() == "" or track.get_main_artist() == "":
+        if self.track.get_title() == "" or self.track.get_main_artist() == "":
             return False
 
         # Remove unwanted text from the title that would probably make the search fail
-        search_title = track.get_title()
+        search_title = self.track.get_title()
         for re_unwanted_text in UNWANTED_TITLE_TEXT:
             search_title = re_unwanted_text.sub("", search_title)
         search_title = search_title.strip()
 
         # Search for the track
-        search = f"{search_title} {track.get_main_artist()}"
+        search = f"{search_title} {self.track.get_main_artist()}"
         try:
             searched_tracks = self.genius.search(search)
         except Exception as exception:
             log.error(
                 "Unexpected exception while searching for the track '%s': %s",
-                track.get_title(),
+                self.track.get_title(),
                 exception,
             )
             return False
@@ -129,18 +172,18 @@ class LyricsSearch(QtCore.QObject):
             except StopIteration:
                 log.warning(
                     "Track '%s' by %s not found on Genius",
-                    track.get_title(),
-                    track.get_main_artist(),
+                    self.track.get_title(),
+                    self.track.get_main_artist(),
                 )
                 return False
 
             searched_lyrics = searched_track.lyrics
-            if not self.check_lyrics(searched_track, searched_lyrics, track):
+            if not self.check_lyrics(searched_track, searched_lyrics):
                 continue
 
             try:
-                track.set_lyrics_new(
-                    self.format_lyrics(track.get_title(), searched_lyrics)
+                self.track.set_lyrics_new(
+                    self.format_lyrics(self.track.get_title(), searched_lyrics)
                 )
                 break
             except DiscardLyrics as exception:
@@ -149,26 +192,24 @@ class LyricsSearch(QtCore.QObject):
 
         return True
 
-    @staticmethod
     def check_lyrics(
-        searched_track: genius.api.Song, searched_lyrics: list[str], track: Track
+        self, searched_track: genius.api.Song, searched_lyrics: list[str]
     ) -> bool:
         """Check for issues in the lyrics of the track.
 
         Args:
             searched_track (genius.api.Song): Track that was searched.
             searched_lyrics (list[str]): Lyrics of the track that was searched.
-            track (Track): Current track that is being processed.
 
         Returns:
-            bool: `True` if the lyrics seem correct.
+            bool: If the lyrics seem correct.
         """
         # The track's artist indicates it should be discarded
         if searched_track.artist.name in DISCARD_ARTISTS:
             log.error(
                 "Discarded the lyrics because the artist was '%s' for the track '%s'",
                 searched_track.artist.name,
-                track.get_title(),
+                self.track.get_title(),
             )
             return False
 
@@ -176,7 +217,7 @@ class LyricsSearch(QtCore.QObject):
         if len("\n".join(searched_lyrics)) > 15000:
             log.error(
                 "Discarded the lyrics because they were too long for the track '%s'",
-                track.get_title(),
+                self.track.get_title(),
             )
             return False
 
@@ -184,7 +225,7 @@ class LyricsSearch(QtCore.QObject):
         if searched_lyrics[0].startswith(MISSING_LYRICS):
             log.error(
                 "Discarded the lyrics because they were missing for the track '%s'",
-                track.get_title(),
+                self.track.get_title(),
             )
             return False
 
@@ -217,76 +258,3 @@ class LyricsSearch(QtCore.QObject):
         lyrics = RE_REMOVE_LINES.sub("\n\n", lyrics)
         lyrics = lyrics.strip()
         return lyrics
-
-
-class ThreadSearchLyrics(QtCore.QThread):
-    """Runs the thread for `main_window.search_lyrics()`.
-
-    Uses `SearchLyrics` to search the tracks on Genius and set their lyrics.
-
-    Signals:
-        signal_lyrics_searched (): Emitted when the lyrics of a track have been searched.
-
-    Attributes:
-        token (str): Token to search the track on Genius.
-        track_layouts_items (dict[Track, tuple[TrackLayout, CustomListWidgetItem]]): Layouts and items of the tracks.
-        overwrite_lyrics (bool): `True` if the lyrics should be overwritten.
-        button_stop_search (QtWidgets.QPushButton): Button to stop the search.
-        gtagger (GTagger): GTagger application.
-    """
-
-    signal_lyrics_searched = QtCore.Signal()
-
-    def __init__(
-        self,
-        token: str,
-        track_layouts_items: dict[Track, tuple[TrackLayout, CustomListWidgetItem]],
-        overwrite_lyrics: bool,
-        button_stop_search: QtWidgets.QPushButton,
-        gtagger: GTagger,
-    ) -> None:
-        """Init ThreadSearchLyrics.
-
-        Args:
-            token (str): Token to search the track on Genius.
-            track_layouts_items (dict[Track, tuple[TrackLayout, CustomListWidgetItem]]): Layouts and items
-                of the tracks.
-            overwrite_lyrics (bool): `True` if the lyrics should be overwritten.
-            button_stop_search (QtWidgets.QPushButton): Button to stop the search.
-            gtagger (GTagger): GTagger application.
-        """
-        super().__init__()
-
-        self.stop_search = False
-
-        self.token: str = token
-        self.track_layouts_items: dict[
-            Track, tuple[TrackLayout, CustomListWidgetItem]
-        ] = track_layouts_items
-        self.overwrite_lyrics: bool = overwrite_lyrics
-        self.button_stop_search: QtWidgets.QPushButton = button_stop_search
-        self.gtagger: GTagger = gtagger
-
-    def run(self):
-        """Run ThreadSearchLyrics."""
-        self.button_stop_search.setEnabled(True)
-        lyrics_search = LyricsSearch(self.token)
-        for track, layout_item in self.track_layouts_items.copy().items():
-            layout = layout_item[0]
-            if (
-                (not self.overwrite_lyrics and track.has_lyrics_original())
-                or track.has_lyrics_new()
-                or self.stop_search
-            ):
-                self.signal_lyrics_searched.emit()
-                continue
-
-            found_lyrics = lyrics_search.search_lyrics(track)
-            if found_lyrics:
-                lyrics = track.get_lyrics(lines=LINES_LYRICS)
-                layout.label_lyrics.setText(lyrics)
-                layout.set_state(State.LYRICS_FOUND)
-            else:
-                layout.set_state(State.LYRICS_NOT_FOUND)
-            self.signal_lyrics_searched.emit()
-        self.button_stop_search.setEnabled(False)

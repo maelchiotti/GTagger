@@ -56,3 +56,11 @@ class Sort(Enum):
 
     DESCENDING = "descending"
     ASCENDING = "ascending"
+
+
+class Logo(Enum):
+    """Enumerates the different logos."""
+
+    SMALL = "src/img/logo_small.png"
+    LARGE_BLACK = "src/img/logo_large_black.png"
+    LARGE_WHITE = "src/img/logo_large_white.png"

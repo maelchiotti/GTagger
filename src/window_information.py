@@ -2,11 +2,11 @@
 
 Handles the creation of the information window.
 """
+from PySide6 import QtCore, QtGui, QtWidgets
 
-from PySide6 import QtCore, QtWidgets
-
-from src.consts import VERSION
-from src.enums import CustomColors
+from src.consts import SIZE_LOGO, VERSION
+from src.enums import CustomColors, Logo
+from src.icons import get_resource_path
 
 
 class WindowInformation(QtWidgets.QDialog):
@@ -24,9 +24,13 @@ class WindowInformation(QtWidgets.QDialog):
 
     def setup_ui(self) -> None:
         """Set up the UI of the window."""
-        self.label_gtagger = QtWidgets.QLabel(QtCore.QCoreApplication.applicationName())
-        self.label_gtagger.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.label_gtagger.setStyleSheet("font-size: 20pt; font-weight:800")
+        logo = QtGui.QPixmap(get_resource_path(Logo.LARGE_WHITE.value)).scaled(
+            SIZE_LOGO,
+            QtCore.Qt.AspectRatioMode.KeepAspectRatio,
+            QtCore.Qt.TransformationMode.SmoothTransformation,
+        )
+        self.label_logo = QtWidgets.QLabel()
+        self.label_logo.setPixmap(logo)
 
         self.label_developer = QtWidgets.QLabel()
         self.label_developer.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
@@ -63,7 +67,7 @@ class WindowInformation(QtWidgets.QDialog):
 
         self.layout_ = QtWidgets.QGridLayout()
         self.layout_.addWidget(
-            self.label_gtagger, 0, 0, 1, 1, QtCore.Qt.AlignmentFlag.AlignCenter
+            self.label_logo, 0, 0, 1, 1, QtCore.Qt.AlignmentFlag.AlignCenter
         )
         self.layout_.addWidget(
             self.label_developer, 1, 0, 1, 1, QtCore.Qt.AlignmentFlag.AlignCenter

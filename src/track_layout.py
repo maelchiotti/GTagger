@@ -31,7 +31,7 @@ class TrackLayout(QtWidgets.QFrame):
     Attributes:
         track (Track): Track to display.
         state (State): State of the track.
-        selected (bool): `True` if the track is currently selected.
+        selected (bool): If the track is currently selected.
         gtagger (GTagger): GTagger application.
     ```
     """
@@ -153,7 +153,6 @@ class TrackLayout(QtWidgets.QFrame):
         self.button_play.clicked.connect(self.play)
         self.button_lyrics.clicked.connect(self.open_popup_lyrics)
         self.button_copy.clicked.connect(self.copy_lyrics)
-        self.mouseReleaseEvent = self.mouseReleaseEvent
 
     def mouseReleaseEvent(self, event: QtGui.QMouseEvent):
         """Intercept the mouse release event on the `QFrame`.

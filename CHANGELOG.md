@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.2.6
+
+- Miscellaneous:
+  - Added custom logos
+
+## v1.2.5
+
+- Tags management:
+  - Greatly improved the speed of the lyrics search by using multithreading
+
 ## v1.2.4
 
 - Files support:

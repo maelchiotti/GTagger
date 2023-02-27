@@ -4,7 +4,7 @@ import re
 
 from PySide6 import QtCore
 
-VERSION = "v1.2.4"
+VERSION = "v1.2.6"
 
 # Size of the main window
 SIZE_MAIN_WINDOW = QtCore.QSize(1200, 800)
@@ -20,6 +20,9 @@ SIZE_ICON = 20
 
 # Size of the icons
 SIZE_ICON_INDICATOR = 25
+
+# Size of the logo
+SIZE_LOGO = QtCore.QSize(250, 250)
 
 # Size of the margin between track layouts
 MARGIN_TRACK_LAYOUT = 5

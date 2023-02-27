@@ -6,7 +6,11 @@ a = Analysis(
     ["gtagger.py"],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[
+        ('src/img/logo_small.png', './src/img'),
+        ('src/img/logo_large_black.png', './src/img'),
+        ('src/img/logo_large_white.png', './src/img')
+    ],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -27,7 +31,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name="GTagger",
+    name="GTagger (portable)",
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -40,4 +44,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon='src/img/icon.ico',
 )

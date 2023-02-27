@@ -5,7 +5,6 @@ Handles the creation of the main window and the interactions with the user.
 
 from __future__ import annotations
 
-import threading
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -22,10 +21,10 @@ from src.consts import (
     URL_TOKEN,
     WIDTH_PROGRESS_BAR,
 )
-from src.enums import CustomColors, FileType, Settings, Sort, State
-from src.icons import get_icon
+from src.enums import CustomColors, FileType, Logo, Settings, Sort, State
+from src.icons import get_icon, get_resource_path
 from src.popup_lyrics import PopupLyrics
-from src.tag import ThreadReadTracks, ThreadSearchLyrics
+from src.tag import ThreadReadTracks, WorkerSearchLyrics
 from src.track import Track
 from src.track_layout import TrackLayout
 from src.tracks_list import CustomListWidget, CustomListWidgetItem
@@ -47,13 +46,12 @@ class WindowMain(QtWidgets.QMainWindow):
         window_settings (WindowSettings): Settings window.
         window_information (WindowInformation): Information window.
         window_help (WindowHelp) : Help window.
-        self.popup_lyrics (PopupLyrics): Lyrics popup.
+        popup_lyrics (PopupLyrics): Lyrics popup.
         thread_read_tracks (ThreadReadTracks): Thread to read the tracks.
-        thread_search_lyrics (ThreadLyricsSearch): Thread to search for the lyrics.
+        pool_search_lyrics (QtCore.QThreadPool): Pool to search for the lyrics.
+        workers_search_lyrics (list[WorkerSearchLyrics]): Workers to search for the lyrics.
         sort (Sort): Sort mode for the list of tracks.
     """
-
-    lock = threading.Lock()
 
     def __init__(self, gtagger: GTagger) -> None:
         """Init WindowMain.
@@ -74,7 +72,8 @@ class WindowMain(QtWidgets.QMainWindow):
         self.window_help: WindowHelp = WindowHelp(self)
         self.popup_lyrics: PopupLyrics = PopupLyrics(self)
         self.thread_read_tracks: ThreadReadTracks
-        self.thread_search_lyrics: ThreadSearchLyrics
+        self.pool_search_lyrics: QtCore.QThreadPool = QtCore.QThreadPool()
+        self.workers_search_lyrics: list[WorkerSearchLyrics] = []
         self.sort: Sort = Sort.ASCENDING
 
         self.setup_ui()
@@ -226,10 +225,10 @@ class WindowMain(QtWidgets.QMainWindow):
         self.widget_central = QtWidgets.QWidget()
         self.widget_central.setLayout(self.layout_widget_central)
 
-        # Progression bar
-        self.progression_bar = QtWidgets.QProgressBar()
-        self.progression_bar.setMaximumWidth(WIDTH_PROGRESS_BAR)
-        self.progression_bar.setFixedHeight(HEIGHT_PROGRESS_BAR)
+        # Progress bar
+        self.progress_bar = QtWidgets.QProgressBar()
+        self.progress_bar.setMaximumWidth(WIDTH_PROGRESS_BAR)
+        self.progress_bar.setFixedHeight(HEIGHT_PROGRESS_BAR)
 
         # Button stop search
         self.button_stop_search = QtWidgets.QPushButton()
@@ -239,7 +238,7 @@ class WindowMain(QtWidgets.QMainWindow):
 
         # Status bar
         self.status_bar = QtWidgets.QStatusBar()
-        self.status_bar.addPermanentWidget(self.progression_bar)
+        self.status_bar.addPermanentWidget(self.progress_bar)
         self.status_bar.addPermanentWidget(self.button_stop_search)
 
         # Main window
@@ -279,9 +278,7 @@ class WindowMain(QtWidgets.QMainWindow):
     def setup_style(self):
         """Set up the custom colors and icons for diverse elements of the application."""
         # Set up the windows icons
-        icon_window_main = get_icon(
-            "tag-multiple", color=CustomColors.YELLOW_GENIUS.value
-        )
+        icon_window_main = QtGui.QIcon(get_resource_path(Logo.SMALL.value))
         icon_window_settings = get_icon("cog", color="black")
         icon_window_information = get_icon("information", color="black")
         icon_window_help = get_icon("help-circle", color="black")
@@ -399,18 +396,18 @@ class WindowMain(QtWidgets.QMainWindow):
         and may include letters, digits, '_' and '-'.
 
         Returns:
-            bool: `True` if the token is valid.
+            bool: If the token is valid.
         """
         validate = self.validator.validate(self.input_token.text(), 0)
         # validate() returns an untyped object
         return validate[0] == QtGui.QValidator.State.Acceptable  # type: ignore
 
-    def increment_progression_bar(self) -> None:
-        """Increments the progression bar by 1."""
-        self.progression_bar.setValue(self.progression_bar.value() + 1)
+    def increment_progress_bar(self) -> None:
+        """Increments the progress bar by 1."""
+        self.progress_bar.setValue(self.progress_bar.value() + 1)
 
-    def set_maximum_progression_bar(self, list_: list | dict) -> None:
-        """Set the maximum of the progression bar.
+    def set_maximum_progress_bar(self, list_: list | dict) -> None:
+        """Set the maximum of the progress bar.
 
         Args:
             list_ (list | dict): List of elements.
@@ -419,8 +416,16 @@ class WindowMain(QtWidgets.QMainWindow):
         # The maximum must be at least 1 (occurs when the list has only one element)
         if maximum == 0:
             maximum = 1
-            self.progression_bar.setValue(0)
-        self.progression_bar.setMaximum(maximum)
+            self.progress_bar.setValue(0)
+        self.progress_bar.setMaximum(maximum)
+
+    def is_searching_lyrics(self) -> bool:
+        """Check if GTagger is searching for lyrics.
+
+        Returns:
+            bool: If GTagger is searching for lyrics.
+        """
+        return len(self.workers_search_lyrics) > 0
 
     @QtCore.Slot()
     def add_files(self, paths: list[Path], select_directory: bool = False) -> None:
@@ -431,7 +436,7 @@ class WindowMain(QtWidgets.QMainWindow):
 
         Args:
             paths (list[Path]): Paths of the elements to add.
-            select_directory (bool): `True` if the user adds a directory. Defaults to `False`.
+            select_directory (bool): If the user adds a directory. Defaults to `False`.
         """
         files: list[Path] = []
         if len(paths) == 1:
@@ -464,8 +469,8 @@ class WindowMain(QtWidgets.QMainWindow):
         Args:
             files (list[Path]): Paths of the files to read.
         """
-        self.progression_bar.reset()
-        self.set_maximum_progression_bar(files)
+        self.progress_bar.reset()
+        self.set_maximum_progress_bar(files)
 
         self.action_add_files.setEnabled(False)
         self.action_add_folder.setEnabled(False)
@@ -483,43 +488,46 @@ class WindowMain(QtWidgets.QMainWindow):
         Args:
             track (Track): Track to add.
         """
-        # Handle only one track at a time
-        with WindowMain.lock:
-            # Skip the file if the tags could not be read
-            if track is None:
-                self.increment_progression_bar()
-                return
+        # Skip the file if the tags could not be read
+        if track is None:
+            self.increment_progress_bar()
+            return
 
-            # Create the track layout and add it
-            layout = TrackLayout(
-                track,
-                State.TAGS_READ,
-                self.gtagger,
-            )
-            track.signal_lyrics_changed.connect(self.lyrics_changed)
-            layout.signal_mouse_event.connect(self.selection_changed)
-            layout.signal_show_lyrics.connect(self.open_popup_lyrics)
-            item = CustomListWidgetItem(track.get_title(), self.list_tracks)
-            item.setSizeHint(layout.sizeHint())
-            self.list_tracks.addItem(item)
-            self.list_tracks.setItemWidget(item, layout)
-            self.track_layouts_items[track] = (layout, item)
-            self.increment_progression_bar()
+        # Create the track layout and add it
+        layout = TrackLayout(
+            track,
+            State.TAGS_READ,
+            self.gtagger,
+        )
+        track.signal_lyrics_changed.connect(self.lyrics_changed)
+        layout.signal_mouse_event.connect(self.selection_changed)
+        layout.signal_show_lyrics.connect(self.open_popup_lyrics)
+        item = CustomListWidgetItem(track.get_title(), self.list_tracks)
+        item.setSizeHint(layout.sizeHint())
+        self.list_tracks.addItem(item)
+        self.list_tracks.setItemWidget(item, layout)
+        self.track_layouts_items[track] = (layout, item)
+        self.increment_progress_bar()
 
     @QtCore.Slot()
     def search_lyrics(self) -> None:
         """Search for the lyrics of the files."""
-        self.thread_search_lyrics = ThreadSearchLyrics(
-            self.input_token.text(),
-            self.track_layouts_items,
-            self.window_settings.checkbox_overwrite.isChecked(),
-            self.button_stop_search,
-            self.gtagger,
-        )
-        self.thread_search_lyrics.signal_lyrics_searched.connect(self.lyrics_searched)
-        self.progression_bar.reset()
-        self.set_maximum_progression_bar(self.track_layouts_items)
-        self.thread_search_lyrics.start()
+        self.progress_bar.reset()
+        self.set_maximum_progress_bar(self.track_layouts_items)
+        self.search_lyrics_started()
+
+        for track, layout_item in self.track_layouts_items.items():
+            layout = layout_item[0]
+            worker = WorkerSearchLyrics(
+                self.input_token.text(),
+                track,
+                layout,
+                self.window_settings.checkbox_overwrite.isChecked(),
+                self.gtagger,
+            )
+            worker.signals.signal_lyrics_searched.connect(self.lyrics_searched)
+            self.workers_search_lyrics.append(worker)
+            self.pool_search_lyrics.start(worker)
 
     @QtCore.Slot()
     def token_changed(self) -> None:
@@ -553,8 +561,8 @@ class WindowMain(QtWidgets.QMainWindow):
     @QtCore.Slot()
     def save_lyrics(self) -> None:
         """Save the lyrics to the files."""
-        self.progression_bar.reset()
-        self.set_maximum_progression_bar(self.track_layouts_items)
+        self.progress_bar.reset()
+        self.set_maximum_progress_bar(self.track_layouts_items)
         for track, layout_item in self.track_layouts_items.items():
             layout = layout_item[0]
             saved = track.save_lyrics()
@@ -565,7 +573,7 @@ class WindowMain(QtWidgets.QMainWindow):
                 layout.label_lyrics.setText(track.get_lyrics(lines=LINES_LYRICS))
             else:
                 layout.set_state(State.LYRICS_NOT_SAVED)
-            self.increment_progression_bar()
+            self.increment_progress_bar()
 
     @QtCore.Slot()
     def cancel_rows(self) -> None:
@@ -595,9 +603,9 @@ class WindowMain(QtWidgets.QMainWindow):
 
     @QtCore.Slot()
     def selection_changed(self) -> None:
-        """Selection of the tracks changed.
+        """Tracks' selection changed.
 
-        Toggles the cancel, remove and save buttons.
+        Toggle the cancel, remove and save buttons.
         """
         enable_cancel = False
         enable_remove = False
@@ -621,7 +629,7 @@ class WindowMain(QtWidgets.QMainWindow):
         Args:
             track (Track): Track of which lyrics have changed.
         """
-        layout, _ = self.track_layouts_items[track]
+        layout = self.track_layouts_items[track][0]
         if track.has_lyrics_new():
             layout.label_lyrics.setStyleSheet(
                 f"color: {CustomColors.LIGHT_GREEN.value}"
@@ -679,14 +687,22 @@ class WindowMain(QtWidgets.QMainWindow):
     @QtCore.Slot()
     def stop_search(self) -> None:
         """Stop searching for the lyrics."""
-        if self.thread_search_lyrics.isRunning():
-            self.thread_search_lyrics.stop_search = True
+        if self.is_searching_lyrics():
             self.button_stop_search.setEnabled(False)
+            for worker in self.workers_search_lyrics:
+                worker.stop_search = True
 
     @QtCore.Slot()
-    def lyrics_searched(self) -> None:
-        """Lyrics of a track searched."""
-        self.increment_progression_bar()
+    def lyrics_searched(self, worker: WorkerSearchLyrics) -> None:
+        """Lyrics of a track searched.
+
+        Args:
+            worker (WorkerSearchLyrics): Worker that searched the lyrics of the track.
+        """
+        self.workers_search_lyrics.remove(worker)
+        self.increment_progress_bar()
+        if not self.is_searching_lyrics():
+            self.search_lyrics_finished()
 
     @QtCore.Slot()
     def open_token_page(self) -> None:
@@ -730,6 +746,14 @@ class WindowMain(QtWidgets.QMainWindow):
         self.action_add_folder.setEnabled(True)
         self.action_select.setEnabled(True)
         self.action_deselect.setEnabled(True)
+
+    def search_lyrics_started(self) -> None:
+        """Thread searching for the lyrics has started."""
+        self.button_stop_search.setEnabled(True)
+
+    def search_lyrics_finished(self) -> None:
+        """Thread searching for the lyrics has finished."""
+        self.button_stop_search.setEnabled(False)
 
     def select_tracks(self) -> None:
         """Select all the tracks."""
@@ -797,17 +821,13 @@ class WindowMain(QtWidgets.QMainWindow):
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
         """Intercept the close event of the main window.
 
-        If it is running, waits for `ThreadLyricsSearch` to quit before exiting the application.
-
         Args:
             event (QtGui.QCloseEvent): Close event.
         """
-        if (
-            hasattr(self, "thread_search_lyrics")
-            and self.thread_search_lyrics.isRunning()
-        ):
-            self.thread_search_lyrics.stop_search = True
-            self.thread_search_lyrics.wait()
+        # If the lyrics search is running, stop all workers
+        if self.is_searching_lyrics():
+            self.stop_search()
+            self.pool_search_lyrics.waitForDone()
 
         # Save the toolbar position into the settings
         self.gtagger.settings_manager.set_setting(

@@ -80,13 +80,13 @@ class CustomListWidgetItem(QtWidgets.QListWidgetItem):
         self.title: str = title
 
     def __lt__(self, other: CustomListWidgetItem) -> bool:
-        """Return `True` if the title of this item is lower than the `other`'s one.
+        """Return If the title of this item is lower than the `other`'s one.
 
         Args:
             other (CustomListWidgetItem): Other item on which to perform the comparison.
 
         Returns:
-            bool: `True` if the title of this item is lower than the `other`'s one.
+            bool: If the title of this item is lower than the `other`'s one.
         """
         try:
             return self.title < other.title
