@@ -34,4 +34,4 @@ Download the latest version of the executable `GTagger` from the [Releases](http
 
 ### Contribute
 
-Pull requests are welcome. A list of planned improvements is available in [TODO.md](TODO.md). Please make sure you follow the guidelines in [QUALITY.md](QUALITY.md).
+Pull requests are welcome. Please make sure you follow the guidelines in [QUALITY.md](QUALITY.md).
