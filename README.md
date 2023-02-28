@@ -17,12 +17,12 @@ All downloads are available in the [Releases](https://github.com/maelchiotti/GTa
 
 ### On Windows
 
-- Portable : download and run `GTagger (portable).exe`.
-- Install : download and run `GTagger (setup).exe`.
+- Portable : download and run `GTagger.portable.exe`.
+- Install : download and run `GTagger.setup.exe`.
 
 ### On Linux
 
-- Portable : download and run `GTagger (portable)`.
+- Portable : download and run `GTagger.portable`.
 - Install : not yet available.
 
 ### From source
