@@ -39,6 +39,6 @@ All downloads are available in the [Releases](https://github.com/maelchiotti/GTa
   python gtagger.py
   ```
 
-### Contribute
+### State
 
-Pull requests are welcome. Please make sure you follow the guidelines from [QUALITY.md](QUALITY.md).
+This project is no longer being worked on.
